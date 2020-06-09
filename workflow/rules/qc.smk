@@ -25,7 +25,7 @@ rule run_multiqc:
     output:
         "run_data/run_multiqc_report.html"
     log:
-        "run_multiqc.log"
+        "logs/run_multiqc.log"
     threads:
        1
     params:
@@ -44,7 +44,7 @@ rule sample_pycoqc:
     output:
         html = "Sample_{sample}/{sample}.pycoQC.html",
         json = "Sample_{sample}/{sample}.pycoQC.json",
-        qc_update = touch("qc_data/updated_pycoqc_{sample}")
+        qc_update = touch("qc/updates/pycoqc_{sample}")
     conda:
         "../env/pycoqc.yml"
     threads:
@@ -73,5 +73,6 @@ rule multiqc:
         {params.multiqc} \
             --force \
             --config config/multiqc.yaml \
+            --outdir qc\
             --ignore-symlinks Sample_*
         """
