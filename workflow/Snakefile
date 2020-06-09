@@ -44,5 +44,5 @@ include: "rules/qc.smk"
 rule all:
     input:
         expand("Sample_{sample}/{sample}.fastq.gz", sample = ID_samples),
-        "run_data/run_multiqc_report.html",
-        "multiqc_report.html"
+        "qc/per_run/run_multiqc_report.html",
+        "qc/multiqc_report.html"

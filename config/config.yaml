@@ -9,5 +9,8 @@ prom:
   ssh_profile: "microbio"
   data_folder: "/mnt/promdata"
 
+use_failed_reads: false
+transfer_fast5: true
+
 apps:
     multiqc: "/mnt/users/ahgrosc1/tools/MultiQC/venv/bin/multiqc"

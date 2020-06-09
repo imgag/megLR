@@ -4,8 +4,8 @@ rule run_pycoqc:
     input:
         "run_data/{run}/copy_finished"
     output:
-        html = "run_data/{run}.pycoQC.html",
-        json = "run_data/{run}.pycoQC.json"
+        html = "qc/per_run/{run}.pycoQC.html",
+        json = "qc/per_run/{run}.pycoQC.json"
     conda:
         "../env/pycoqc.yml"
     threads:
@@ -21,9 +21,9 @@ rule run_pycoqc:
 
 rule run_multiqc:
     input:
-        expand("run_data/{run}.pycoQC.html", run = ID_runs)
+        expand("qc/per_run/{run}.pycoQC.html", run = ID_runs)
     output:
-        "run_data/run_multiqc_report.html"
+        "qc/per_run/run_multiqc_report.html"
     log:
         "logs/run_multiqc.log"
     threads:
@@ -32,7 +32,12 @@ rule run_multiqc:
         multiqc = config['apps']['multiqc']
     shell:
         """
-        {params.multiqc} run_data -n {output} -z > {log} 2>> {log}
+        {params.multiqc} \
+            --force \
+            --config config/multiqc.yaml \
+            --outdir qc/per_run \
+            --fileame run_multiqc_report \
+            > {log} 2>> {log}
         """
 
 #_____ SAMPLE READ QC  _________________________________________________________#
