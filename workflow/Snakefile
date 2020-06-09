@@ -10,7 +10,7 @@ import pathlib
 from collections import defaultdict
 from glob import glob
 
-configfile: "../config/config.yaml"
+configfile: "config/config.yaml"
 include: "rules/helper_scripts.smk"
 
 #_____ PARSE SAMPLE FILE _______________________________________________________#
