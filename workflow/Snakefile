@@ -1,0 +1,48 @@
+#=============================================================================#
+#               O N T     A N A L Y S I S     T O O L S                       #
+#=============================================================================#
+
+#_____ CONFIGURATION __________________________________________________________#
+
+import csv
+import os
+import pathlib
+from collections import defaultdict
+from glob import glob
+
+configfile: "../config/config.yaml"
+include: "rules/helper_scripts.smk"
+
+#_____ PARSE SAMPLE FILE _______________________________________________________#
+
+ID_runs = set()
+ID_samples = set()
+map_samples_run = defaultdict(list)
+
+# Parse sample and run id connection table
+with open(config['sample_file']) as f:
+    reader=csv.reader(f, delimiter="\t")
+    for row in reader:
+        ID_runs.add(row[0])
+        ID_samples.add(row[1])
+        map_samples_run[row[1]].append(row[0])
+
+        try:
+            os.makedirs('run_data/'+row[0], exist_ok=True)
+            os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
+            os.symlink('../../run_data/'+row[0],
+                'Sample_'+row[1]+'/runs/'+row[0])
+        except Exception as e:
+           pass
+
+#_____ INCLUDE MODULES ________________________________________________________#
+
+include: "rules/fetch_reads.smk"
+include: "rules/qc.smk"
+
+#_____ ALL RULE OUTPUT ________________________________________________________#
+rule all:
+    input:
+        expand("Sample_{sample}/{sample}.fastq.gz", sample = ID_samples),
+        "run_data/run_multiqc_report.html",
+        "multiqc_report.html"

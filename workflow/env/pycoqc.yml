@@ -1,0 +1,8 @@
+name: pycoqc
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - pycoqc=2.5.0.21
+  - pysam=0.15.3

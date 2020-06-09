@@ -1,0 +1,14 @@
+name: sqanti
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+name: sqantie
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - cdna_cupcake=12.1.0
+  - r-ggplot2
+  - r-

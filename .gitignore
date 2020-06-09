@@ -1,0 +1,4 @@
+.snakemake
+resources/*
+!resources/README.md
+test

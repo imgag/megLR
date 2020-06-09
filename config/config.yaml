@@ -1,0 +1,13 @@
+ref:
+  genome: "/mnt/share/data/genomes/GRCh38.fa"
+  transcript_annotation: "resources/Homo_sapiens.GRCh38.85.gtf"
+  transcript_cDNA: "resources/Homo_sapiens.GRCh38.cdna.all.fa"
+
+sample_file: "sample_run_table.tsv"
+
+prom:
+  ssh_profile: "microbio"
+  data_folder: "/mnt/promdata"
+
+apps:
+    multiqc: "/mnt/users/ahgrosc1/tools/MultiQC/venv/bin/multiqc"
