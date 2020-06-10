@@ -8,7 +8,7 @@ rule splice_mapping:
     log:
         "logs/{sample}_minimap2_splice.log"
     conda:
-        "env/minimap2.yaml"
+        "../env/minimap2.yaml"
     threads:
         config['sys']['max_threads']
     params:
@@ -25,7 +25,7 @@ rule splice_mapping:
 
 #_____ FEATURE COUNT ANALYSIS _________________________________________________#
 
-#rule feature_counts:
+
 
 #_____ GUIDED TRANSCRIPT ASSEMBLY  ____________________________________________#
 
@@ -41,9 +41,16 @@ rule stringtie:
     params:
         annot = "Homo_sapiens.GRCh38.85.gtf"
     conda:
-        "env/stringtie.yml"
+        "../env/stringtie.yml"
     shell:
         """
         stringtie -L -G -A -B {params.annot} -o {output} {input} >{log} 2>&1
         """
 
+#____ NOVEL ISOFORM ANNOTATION _______________________________________________#
+
+rule sqanti:
+    input:
+        "Sample_{sample}/{sample}.stringtie.gtf"
+    output:
+        "Sample_{sample}/{sample}"

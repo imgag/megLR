@@ -7,11 +7,11 @@ rule ref_alignment:
         bam = "Sample_{sample}/{sample}.bam",
         bai= "Sample_{sample}/{sample}.bam.bai"
     conda:
-        "env/minimap2.yaml"
+        "../env/minimap2.yml"
     log:
         "logs/{sample}_minimap2.log"
     threads:
-        config['sys']['max_threads']
+        20
     params:
         sample = "{sample}",
         ref = config['ref']['genome']
@@ -20,8 +20,8 @@ rule ref_alignment:
         minimap2 --MD -ax map-ont -t {threads} \
             -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
             {params.ref} {input} 2> {log} \
-            | samtools sort -m 4G -@ 4 -o {output} - >{log} 2>&1
-        samtools index {output}
+            | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
+        samtools index {output.bam}
         """
 
 #____ MAPPING QC _____________________________________________________________#

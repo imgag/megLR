@@ -6,7 +6,7 @@ rule wtdbg2:
     output:
         "Sample_{sample}/{sample}.asm.wtdbg.fasta"
     conda:
-        "env/wtdbg2.yml"
+        "../env/wtdbg2.yml"
     log:
         "logs/{sample}_wtdbg.log"
     params:
@@ -17,7 +17,7 @@ rule wtdbg2:
         """
         outf=assembly/{wildcards.sample}_wtdbg
         mkdir -p $outf
-        wtdbg \
+        wtdbg2 \
             -x nanopore     \
             -g {params.g}   \
             -t {threads}    \
@@ -33,7 +33,7 @@ rule flye:
     output:
         "Sample_{sample}/{sample}.asm.flye.fasta"
     conda:
-        "env/flye.yml"
+        "../env/flye.yml"
     log:
         "logs/{sample}_flye.log"
     params:
@@ -57,14 +57,11 @@ rule quast:
     input:
         files = expand("Sample_{s}/{s}.asm.{asm}.fasta",
             s=ID_samples,
-            asm=config['assembly']['methods']) ,
-        labels = expand("{s}_{asm}",
-            s=ID_samples,
             asm=config['assembly']['methods'])
     output:
         "qc/quast_results/report.tsv"
     conda:
-        "env/quast.yml"
+        "../env/quast.yml"
     log:
         "logs/quast.log"
     params:
@@ -77,7 +74,7 @@ rule quast:
             --threads {threads} \
             --no-sv             \
             --reference {params.ref} \
-            --output-dir qc/quast_results \
-            --labels {input.labels}
+            --output-dir qc/quast_results 
             {input}
         """
+        

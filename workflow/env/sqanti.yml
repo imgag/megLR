@@ -3,12 +3,32 @@ channels:
   - bioconda
   - conda-forge
   - defaults
-name: sqantie
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
 dependencies:
-  - cdna_cupcake=12.1.0
+  - python=2.7
+  - psutil
+  - perl
+  - pysam
+  - gmap
+  - r-base=3.4
   - r-ggplot2
-  - r-
+  - r-scales
+  - r-reshape
+  - r-gridExtra
+  - r-grid
+  - r-rpart
+  - r-rocr
+  - r-caret
+  - r-optparse
+  - r-lattice
+  - r-foreach
+  - r-randomforest
+  - r-partykit
+  - r-ipread
+  - r-rpart.plot
+  - r-domc
+  - r-nnet
+  - r-rose
+  - r-proc
+  - r-mlmetrics
+  - r-e1071
+  

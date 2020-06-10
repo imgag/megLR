@@ -13,3 +13,17 @@ def get_summary_files(wc):
     g = "Sample_" + wc.sample + '/**/sequencing_summary*'
     files = [str(f) for f in glob(g, recursive=True)]
     return{'summary_files': files}
+
+def print_message():
+    print('')
+    print('  ██████╗ ███╗   ██╗████████╗  ████████╗ ██████╗  ██████╗ ██╗     ███████╗')
+    print(' ██╔═══██╗████╗  ██║╚══██╔══╝  ╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝')
+    print(' ██║   ██║██╔██╗ ██║   ██║        ██║   ██║   ██║██║   ██║██║     ███████╗')
+    print(' ██║   ██║██║╚██╗██║   ██║        ██║   ██║   ██║██║   ██║██║     ╚════██║')
+    print(' ╚██████╔╝██║ ╚████║   ██║███████╗██║   ╚██████╔╝╚██████╔╝███████╗███████║')
+    print('  ╚═════╝ ╚═╝  ╚═══╝   ╚═╝╚══════╝╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝') 
+    print()
+    print('Pipeline runs these steps:')
+    print(*config['steps'], sep=" | ")
+    pass
+    

@@ -45,3 +45,4 @@ rule join_fastq:
         find {input.folders} -name '*.fastq' -exec cat {{}} + \
             | pigz -p {threads} -c > {output}
         """
+        
