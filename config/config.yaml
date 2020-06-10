@@ -1,7 +1,5 @@
 ref:
   genome: "/mnt/share/data/genomes/GRCh38.fa"
-  transcript_annotation: "resources/Homo_sapiens.GRCh38.85.gtf"
-  transcript_cDNA: "resources/Homo_sapiens.GRCh38.cdna.all.fa"
 
 sample_file: "sample_run_table.tsv"
 
@@ -12,5 +10,28 @@ prom:
 use_failed_reads: false
 transfer_fast5: true
 
+# Remove unwanted analysis steps
+steps:
+  - mapping
+  - assembly
+  - cDNA
+  - qc
+
+assembly:
+  methods: 
+    - "wtdbg"
+#   - "flye"
+  genome_size: "3G"
+  quast_conf:
+    eukaryote: true 
+
+
+transcript:
+  transcript_annotation: "resources/Homo_sapiens.GRCh38.85.gtf"
+  transcript_cDNA: "resources/Homo_sapiens.GRCh38.cdna.all.fa"
+
+sys:
+  max_threads: 12
+
 apps:
-    multiqc: "/mnt/users/ahgrosc1/tools/MultiQC/venv/bin/multiqc"
+  multiqc: "/mnt/users/ahgrosc1/tools/MultiQC/venv/bin/multiqc"

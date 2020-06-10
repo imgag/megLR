@@ -1,9 +1,4 @@
-#=============================================================================#
-#                    R E A D    P R E P A R A T I O N                         #
-#=============================================================================#
-
-
-#_____ READ COPY FROM PROMETHION _____________________________________________#
+#_____ COPY READS FROM FROM PROMETHION _______________________________________#
 
 rule copy_prom:
     input:
@@ -17,7 +12,9 @@ rule copy_prom:
         exclude = "" if config['transfer_fast5'] else "*.fast5"
     shell:
         """
-        folders=$(ssh microbio "find /mnt/promdata -type d -name \\*{wildcards.run}\\* 2> /dev/null; return 0;") > {log} 2>> {log}
+        folders=$(ssh microbio \
+            "find /mnt/promdata -type d -name \\*{wildcards.run}\\* 2> /dev/null; return 0;" \
+            ) > {log} 2>> {log}
         echo "Found the following folders: " >> {log} 2>> {log}
         echo "$folders" >> {log} 2>> {log}
 
@@ -45,5 +42,6 @@ rule join_fastq:
         8
     shell:
         """
-        find {input.folders} -name '*.fastq' -exec cat {{}} + | pigz -p {threads} -c > {output}
+        find {input.folders} -name '*.fastq' -exec cat {{}} + \
+            | pigz -p {threads} -c > {output}
         """

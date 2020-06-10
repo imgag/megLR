@@ -23,7 +23,7 @@ rule run_multiqc:
     input:
         expand("qc/per_run/{run}.pycoQC.html", run = ID_runs)
     output:
-        "qc/per_run/run_multiqc_report.html"
+        "qc/per_run/multiqc_report.html"
     log:
         "logs/run_multiqc.log"
     threads:
@@ -36,7 +36,7 @@ rule run_multiqc:
             --force \
             --config config/multiqc.yaml \
             --outdir qc/per_run \
-            --fileame run_multiqc_report \
+            qc/per_run/ \
             > {log} 2>> {log}
         """
 
@@ -48,8 +48,7 @@ rule sample_pycoqc:
         check_copy_finished
     output:
         html = "Sample_{sample}/{sample}.pycoQC.html",
-        json = "Sample_{sample}/{sample}.pycoQC.json",
-        qc_update = touch("qc/updates/pycoqc_{sample}")
+        json = "Sample_{sample}/{sample}.pycoQC.json"
     conda:
         "../env/pycoqc.yml"
     threads:
@@ -64,9 +63,19 @@ rule sample_pycoqc:
 
 #_____ MULTI QC  _____________________________________________________________#
 
+qc_out = {
+    'mapping' : expand("Sample_{s}/{s}.bam.stats", s = ID_samples),
+    'assembly' : "qc/quast_results/report.tsv",
+    'cDNA' : "",
+    'qc' : ["qc/per_run/multiqc_report.html"],
+}
+
+qc_out_selected = [qc_out[step] for step in config['steps']]
+
 rule multiqc:
     input:
-        expand("Sample_{sample}/{sample}.pycoQC.json", sample = ID_samples)
+        expand("Sample_{sample}/{sample}.pycoQC.json", sample = ID_samples),
+        [y for x in qc_out_selected for y in x]
     output:
         "multiqc_report.html"
     threads:
@@ -79,5 +88,6 @@ rule multiqc:
             --force \
             --config config/multiqc.yaml \
             --outdir qc\
-            --ignore-symlinks Sample_*
+            --ignore-symlinks \
+            Sample_*
         """

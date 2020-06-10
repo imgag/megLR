@@ -13,6 +13,9 @@ from glob import glob
 configfile: "config/config.yaml"
 include: "rules/helper_scripts.smk"
 
+print(config['assembly']['methods'])
+print(config['steps'])
+
 #_____ PARSE SAMPLE FILE _______________________________________________________#
 
 ID_runs = set()
@@ -38,11 +41,24 @@ with open(config['sample_file']) as f:
 #_____ INCLUDE MODULES ________________________________________________________#
 
 include: "rules/fetch_reads.smk"
+include: "rules/mapping.smk"
+include: "rules/assembly.smk"
+include: "rules/cdna_analysis.smk"
 include: "rules/qc.smk"
 
-#_____ ALL RULE OUTPUT ________________________________________________________#
+#_____ REQUIRED OUTPUT FILES _________________________________________________#
+
+out = {
+    'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
+    'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
+         s=ID_samples, asm=config['assembly']['methods']),
+    'cDNA' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples),
+    'qc' : ['qc/multiqc_report.html']
+}
+
+out_selected = [out[step] for step in config['steps']]
+print(out_selected)
+
 rule all:
     input:
-        expand("Sample_{sample}/{sample}.fastq.gz", sample = ID_samples),
-        "qc/per_run/run_multiqc_report.html",
-        "qc/multiqc_report.html"
+        [y for x in out_selected for y in x]
