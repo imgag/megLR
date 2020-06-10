@@ -60,4 +60,3 @@ out_selected = [out[step] for step in config['steps']]
 rule all:
     input:
         [y for x in out_selected for y in x]
-        

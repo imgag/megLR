@@ -47,7 +47,7 @@ rule stringtie:
         stringtie -L -G -A -B {params.annot} -o {output} {input} >{log} 2>&1
         """
 
-#____ NOVEL ISOFORM ANNOTATION _______________________________________________#
+#____ ISOFORM ANNOTATION ____________________________________________________#
 
 rule sqanti:
     input:

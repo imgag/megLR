@@ -25,7 +25,7 @@ rule ref_alignment:
         """
 
 #____ MAPPING QC _____________________________________________________________#
-
+# REPLACE WITH QUALIMAP (ALSO SUPPORTED BY MULTIQC)
 rule samtools_stats:
     input:
         "Sample_{sample}/{sample}.bam"

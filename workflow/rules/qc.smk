@@ -16,7 +16,8 @@ rule run_pycoqc:
         pycoQC \
             --summary_file $file\
             --html_outfile {output.html} \
-            --json_outfile {output.json}
+            --json_outfile {output.json} \
+            > {log} 2>&1
         """
 
 rule run_multiqc:
@@ -36,6 +37,7 @@ rule run_multiqc:
             --force \
             --config config/multiqc.yml \
             --outdir qc/per_run \
+            --filename run_multiqc_report \
             qc/per_run/ \
             > {log} 2>> {log}
         """
@@ -51,6 +53,8 @@ rule sample_pycoqc:
         json = "Sample_{sample}/{sample}.pycoQC.json"
     conda:
         "../env/pycoqc.yml"
+    log:
+        "logs/{sample}_pycoqc.log"
     threads:
         1
     shell:
@@ -58,7 +62,8 @@ rule sample_pycoqc:
         pycoQC \
             --summary_file {input.summary_files} \
             --html_outfile {output.html} \
-            --json_outfile {output.json}
+            --json_outfile {output.json} \
+            > {log} 2>&1
         """
 
 #_____ MULTI QC  _____________________________________________________________#
@@ -91,4 +96,3 @@ rule multiqc:
             --ignore-symlinks \
             Sample_*
         """
-        
