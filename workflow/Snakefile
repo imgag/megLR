@@ -25,17 +25,21 @@ map_samples_run = defaultdict(list)
 with open(config['sample_file']) as f:
     reader=csv.reader(f, delimiter="\t")
     for row in reader:
-        ID_runs.add(row[0])
-        ID_samples.add(row[1])
-        map_samples_run[row[1]].append(row[0])
+        if len(row) == 2:
+            #print(row)
+            ID_runs.add(row[0])
+            ID_samples.add(row[1])
+            map_samples_run[row[1]].append(row[0])
 
-        try:
-            os.makedirs('run_data/'+row[0], exist_ok=True)
-            os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
-            os.symlink('../../run_data/'+row[0],
-                'Sample_'+row[1]+'/runs/'+row[0])
-        except Exception as e:
-           pass
+            try:
+                os.makedirs('run_data/'+row[0], exist_ok=True)
+                os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
+                os.symlink('../../run_data/'+row[0],
+                    'Sample_'+row[1]+'/runs/'+row[0])
+            except Exception as e:
+                pass
+        else :
+            print("Wrong number of columns in row: ", row)
 
 #_____ INCLUDE MODULES ________________________________________________________#
 
@@ -43,6 +47,7 @@ include: "rules/fetch_reads.smk"
 include: "rules/mapping.smk"
 include: "rules/assembly.smk"
 include: "rules/cdna_analysis.smk"
+include: "rules/de_analysis.smk"
 include: "rules/qc.smk"
 
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
@@ -52,6 +57,7 @@ out = {
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
     'cDNA' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples),
+    'de_analysis' : expand("Sample_{s}/{s}.transcripts.bam", s=ID_samples),
     'qc' : ['qc/multiqc_report.html']
 }
 

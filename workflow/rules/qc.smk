@@ -6,6 +6,8 @@ rule run_pycoqc:
     output:
         html = "qc/per_run/{run}.pycoQC.html",
         json = "qc/per_run/{run}.pycoQC.json"
+    log:
+        "logs/{run}_pycoqc.log"
     conda:
         "../env/pycoqc.yml"
     threads:
@@ -69,9 +71,10 @@ rule sample_pycoqc:
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
-    'mapping' : expand("Sample_{s}/{s}.bam.stats", s = ID_samples),
+    'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
-    'cDNA' : [],
+    'cDNA' : expand("qc/qualimap/{s}_rna/rna_results.txt", s = ID_samples),
+    'de_analysis' : [],
     'qc' : ["qc/per_run/run_multiqc_report.html"],
 }
 
@@ -94,5 +97,5 @@ rule multiqc:
             --config config/multiqc.yml \
             --outdir qc\
             --ignore-symlinks \
-            Sample_*
+            {input}
         """

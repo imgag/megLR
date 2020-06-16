@@ -1,0 +1,43 @@
+ref:
+  genome: "/mnt/share/data/genomes/GRCh38.fa"
+  annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.gtf"
+  cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
+
+sample_file: "sample_run_table.tsv"
+
+prom:
+  ssh_profile: "microbio"
+  data_folder: "/mnt/promdata"
+
+use_failed_reads: false
+transfer_fast5: true
+
+# Remove unwanted analysis steps
+steps:
+  - mapping
+  #- assembly
+  #- cDNA
+  - qc
+
+assembly:
+  methods: 
+    - "wtdbg"
+    - "flye"
+  genome_size: "3G"
+
+transcript:
+  # Minimap2 mapping options
+  minimap2_opts: ""
+
+  # Maximum secondary alignments
+  maximum_secondary: 100
+
+  # Secondary score ratio (-p for minimap2)
+  secondary_score_ratio: 1.0
+  
+sys:
+  max_threads: 12
+
+apps:
+  multiqc: "/mnt/SRV018/users/ahgrosc1/tools/MultiQC/venv/bin/multiqc"
+  qualimap: "unset DISPLAY; /mnt/SRV018/users/ahgrosc1/tools/qualimap/qualimap"

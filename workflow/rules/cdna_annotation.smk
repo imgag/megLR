@@ -23,29 +23,6 @@ rule splice_mapping:
         samtools index {output}
         """
 
-#_____ FEATURE COUNT ANALYSIS _________________________________________________#
-
-rule rna_qualimap:
-    input:
-        "Sample_{sample}/{sample}.spliced.bam"
-    output:
-        report = "qc/qualimap/{sample}_rna/qualimap_report.pdf",
-        stats = "qc/qualimap/{sample}_rna/rna_results.txt"
-    log:
-        "logs/{sample}_qualimap_rna.log"
-    threads:
-        2
-    params:
-        gtf = config['ref']['annotation']
-    shell:
-        """
-        qualimap rnaseq \
-            -bam {input} \
-            -gtf {params.gtf} \
-            -outdir qc/qualimap/{wildcards.sample}_rna/ \
-            -outformat PDF:HTML \
-            --java-mem-size=12G
-        """
 
 #_____ GUIDED TRANSCRIPT ASSEMBLY  ____________________________________________#
 

@@ -25,21 +25,26 @@ rule ref_alignment:
         """
 
 #____ MAPPING QC _____________________________________________________________#
-# REPLACE WITH QUALIMAP (ALSO SUPPORTED BY MULTIQC)
-rule samtools_stats:
+
+rule qualimap:
     input:
         "Sample_{sample}/{sample}.bam"
     output:
-        stats = "Sample_{sample}/{sample}.bam.stats",
-        flagstats = "Sample_{sample}/{sample}.bam.flagstats",
+        report = "qc/qualimap/{sample}_genome/qualimap_report.pdf",
+        stats = "qc/qualimap/{sample}_genome/genome_results.txt"
     log:
-        "logs/{sample}_samtools_stats.log"
+        "logs/{sample}_qualimap.log"
     threads:
-        4
+        8
+    params:
+        qualimap = config['apps']['qualimap']
     shell:
         """
-        samtools stats -@{threads} > {output.stats}
-        samtoools flagstat -@{threads} > {output.flagstats}
-        """ 
-
-#____ COVERAGE DEPTH ANALYSIS ________________________________________________#
+        {params.qualimap} bamqc \
+            -bam {input} \
+            --paint-chromosome-limits \
+            -nt {threads} \
+            -outdir qc/qualimap/{wildcards.sample}_genome \
+            -outfile qualimap_report \
+            > {log} 2>&1
+        """
