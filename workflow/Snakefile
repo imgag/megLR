@@ -47,7 +47,7 @@ include: "rules/fetch_reads.smk"
 include: "rules/mapping.smk"
 include: "rules/assembly.smk"
 include: "rules/cdna_analysis.smk"
-include: "rules/de_analysis.smk"
+include: "rules/pinfish_annotation.smk"
 include: "rules/qc.smk"
 
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
@@ -57,7 +57,7 @@ out = {
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
     'cDNA' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples),
-    'de_analysis' : expand("Sample_{s}/{s}.transcripts.bam", s=ID_samples),
+    'pinfish_annotation' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
     'qc' : ['qc/multiqc_report.html']
 }
 

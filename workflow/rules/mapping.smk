@@ -1,8 +1,9 @@
 #_____ MAPPING TO REFERENCE GENOME ___________________________________________#
 
-rule ref_alignment:
+rule map_genome_full:
     input: 
-        "Sample_{sample}/{sample}.fastq.gz"
+        genome = config['ref']['genome'],
+        fq = "Sample_{sample}/{sample}.fastq.gz"
     output: 
         bam = "Sample_{sample}/{sample}.bam",
         bai= "Sample_{sample}/{sample}.bam.bai"
@@ -19,7 +20,61 @@ rule ref_alignment:
         """
         minimap2 --MD -ax map-ont -t {threads} \
             -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
-            {params.ref} {input} 2> {log} \
+            {input.genome} {input.ref} 2> {log} \
+            | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
+        samtools index {output.bam}
+        """
+
+#_____ SPLICE AWARE MAPPING WITH MINIMAP2  ___________________________________#
+
+rule map_genome_splice:
+    input:
+        genome = config['ref']['genome'],
+        fq = "Sample_{sample}/{sample}.fastq.gz"
+        #TODO Better to use full length transcripts only?
+    output:
+        bam = "Sample_{sample}/{sample}.spliced.bam",
+        bai= "Sample_{sample}/{sample}.bam.bai"
+    log:
+        "logs/{sample}_minimap2_splice.log"
+    conda:
+        "../env/minimap2.yml"
+    threads:
+        config['sys']['max_threads']
+    shell:
+        """
+        minimap2 -ax splice -t {threads} \
+            -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}" \
+            {input.genome} {input.fq} 2> {log} \
+            | samtools sort -m 4G -@ 4 -o {output} - >{log} 2>&1
+        samtools index {output}
+        """
+
+#_____ MAPPING TO TRANSCRIPTOME __________________________________________#
+
+rule map_to_transcriptome:
+    input:
+        trs = config['ref']['cDNA'],
+        fq = "Sample_{sample}/{sample}.fastq.gz"
+        #rules.pychopper.output.fq TODO use pychopped output (or both?)
+    output:
+        bam = "Sample_{sample}/{sample}.transcripts.bam"
+    log:
+        "logs/{sample}_minimap_transcripts.log"
+    conda:
+        "../env/minimap2.yml"
+    threads:
+        16
+    params:
+        opts = config['transcript']["minimap2_opts"],
+        msec = config['transcript']["maximum_secondary"],
+        psec = config['transcript']["secondary_score_ratio"]
+    shell:
+        """
+        minimap2 --MD -ax map-ont -t {threads} \
+            -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}" \
+            -p {params.psec} -N {params.msec} {params.opts} \
+            {input.trs} {input.fq} 2> {log} \
             | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
         samtools index {output.bam}
         """

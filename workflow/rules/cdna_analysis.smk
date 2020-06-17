@@ -25,29 +25,13 @@ rule splice_mapping:
 
 #_____ FEATURE COUNT ANALYSIS _________________________________________________#
 
-rule rna_qualimap:
+rule featureCount:
     input:
         "Sample_{sample}/{sample}.spliced.bam"
     output:
-        report = "qc/qualimap/{sample}_rna/qualimap_report.pdf",
-        stats = "qc/qualimap/{sample}_rna/rna_results.txt"
-    log:
-        "logs/{sample}_qualimap_rna.log"
-    threads:
-        2
-    params:
-        gtf = config['ref']['annotation']
-    shell:
-        """
-        qualimap rnaseq \
-            -bam {input} \
-            -gtf {params.gtf} \
-            -outdir qc/qualimap/{wildcards.sample}_rna/ \
-            -outformat PDF:HTML \
-            --java-mem-size=12G
-        """
+        "Sample_{sample}/{sample}"
 
-#_____ GUIDED TRANSCRIPT ASSEMBLY  ____________________________________________#
+#_____ TRANSCRIPT RECONSTRUCTION ______________________________________________#
 
 rule stringtie:
     input:
@@ -59,12 +43,12 @@ rule stringtie:
     threads:
         2
     params:
-        annot = "Homo_sapiens.GRCh38.85.gtf"
+        annot = config['ref']['annotation']
     conda:
         "../env/stringtie.yml"
     shell:
         """
-        stringtie -L -G -A -B {params.annot} -o {output} {input} >{log} 2>&1
+        stringtie -L -G {params.annot} -A -B -o {output} {input} >{log} 2>&1
         """
 
 #____ ISOFORM ANNOTATION ____________________________________________________#

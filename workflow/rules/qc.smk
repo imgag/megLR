@@ -68,13 +68,38 @@ rule sample_pycoqc:
             > {log} 2>&1
         """
 
+#_____ cDNA ALIGNMENT QC _______________________________________________________#
+
+rule rna_qualimap:
+    input:
+        "Sample_{sample}/{sample}.spliced.bam"
+    output:
+        report = "qc/qualimap/{sample}_rna/qualimap_report.pdf",
+        stats = "qc/qualimap/{sample}_rna/rna_results.txt"
+    log:
+        "logs/{sample}_qualimap_rna.log"
+    threads:
+        2
+    params:
+        gtf = config['ref']['annotation'],
+        qualimap = config['apps']['qualimap']
+    shell:
+        """
+        {params.qualimap} rnaseq \
+            -bam {input} \
+            -gtf {params.gtf} \
+            -outdir qc/qualimap/{wildcards.sample}_rna/ \
+            -outformat PDF:HTML \
+            --java-mem-size=12G
+        """
+
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
     'cDNA' : expand("qc/qualimap/{s}_rna/rna_results.txt", s = ID_samples),
-    'de_analysis' : [],
+    'pinfish_annotation' : [],
     'qc' : ["qc/per_run/run_multiqc_report.html"],
 }
 
