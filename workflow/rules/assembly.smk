@@ -1,4 +1,4 @@
-#____ ASSEMBLY _______________________________________________________________#
+#____ ASSEMBLY USING WTDBG2 ________________________________________________________#
 
 rule wtdbg2:
     input:
@@ -70,6 +70,8 @@ rule wtdbg2_polishing:
         rm $outf/wtdbg.polishing.bam
         """
 
+#____ ASSEMBLY USING FLYE ________________________________________________________#
+
 rule flye:
     input:
         "Sample_{sample}/{sample}.fastq.gz"
@@ -92,32 +94,5 @@ rule flye:
             --out-dir       assembly/{wildcards.sample}_flye/ \
             > {log} 2>&1
         cp assembly/{wildcards.sample}_flye/assembly.fasta {output}
-        """
-
-#____ ASSEMBLY QC _____________________________________________________________#
-
-rule quast:
-    input:
-        files = expand("Sample_{s}/{s}.asm.{asm}.fasta",
-            s=ID_samples,
-            asm=config['assembly']['methods'])
-    output:
-        "qc/quast_results/report.tsv"
-    conda:
-        "../env/quast.yml"
-    log:
-        "logs/quast.log"
-    params:
-        ref=config['ref']['genome']
-    threads:
-        8
-    shell:
-        """
-        quast \
-            --threads {threads} \
-            --no-sv             \
-            --reference {params.ref} \
-            --output-dir qc/quast_results 
-            {input}
         """
         

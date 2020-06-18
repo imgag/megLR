@@ -2,7 +2,7 @@
 
 rule convert_bam: ## convert BAM to GFF
     input:
-        bam = rules.map_to_transcriptome.output.bam
+        bam = rules.map_genome_full_length.output.bam
     output:
         raw_gff = "Sample_{sample}/pinfish/raw_transcripts.gff"
     conda: 

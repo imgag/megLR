@@ -68,14 +68,37 @@ rule sample_pycoqc:
             > {log} 2>&1
         """
 
-#_____ cDNA ALIGNMENT QC _______________________________________________________#
+#____ GENOME MAPPING QC __________________________________________________________#
+
+rule qualimap:
+    input:
+        "Sample_{sample}/{sample}.bam"
+    output:
+        directory('qc/qualimap/{sample}_genome')
+    log:
+        "logs/{sample}_qualimap.log"
+    threads:
+        8
+    params:
+        qualimap = config['apps']['qualimap']
+    shell:
+        """
+        {params.qualimap} bamqc \
+            -bam {input} \
+            --paint-chromosome-limits \
+            -nt {threads} \
+            -outdir {output} \
+            --java-mem-size=12G \
+            > {log} 2>&1
+        """
+
+#_____ cDNA SPLICED MAPPING QC _________________________________________________#
 
 rule rna_qualimap:
     input:
         "Sample_{sample}/{sample}.spliced.bam"
     output:
-        report = "qc/qualimap/{sample}_rna/qualimap_report.pdf",
-        stats = "qc/qualimap/{sample}_rna/rna_results.txt"
+        directory('qc/qualimap/{sample}_rna')
     log:
         "logs/{sample}_qualimap_rna.log"
     threads:
@@ -88,17 +111,46 @@ rule rna_qualimap:
         {params.qualimap} rnaseq \
             -bam {input} \
             -gtf {params.gtf} \
-            -outdir qc/qualimap/{wildcards.sample}_rna/ \
-            -outformat PDF:HTML \
-            --java-mem-size=12G
+            -outdir {output}\
+            --java-mem-size=12G \
+            > {log} 2>&1
+        """
+
+#____ ASSEMBLY QC _____________________________________________________________#
+
+rule quast:
+    input:
+        files = expand("Sample_{s}/{s}.asm.{asm}.fasta",
+            s=ID_samples,
+            asm=config['assembly']['methods'])
+    output:
+        "qc/quast_results/report.tsv"
+    conda:
+        "../env/quast.yml"
+    log:
+        "logs/quast.log"
+    params:
+        ref=config['ref']['genome']
+    threads:
+        8
+    shell:
+        """
+        quast \
+            --threads {threads} \
+            --no-sv             \
+            --reference {params.ref} \
+            --output-dir qc/quast_results 
+            {input}
         """
 
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
-    'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
+    'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
-    'cDNA' : expand("qc/qualimap/{s}_rna/rna_results.txt", s = ID_samples),
+    'cDNA' : 
+        expand("qc/qualimap/{s}_rna", s = ID_samples) + 
+        expand("Sample_{s}/{s}.summary.tsv", s = ID_samples),
     'pinfish_annotation' : [],
     'qc' : ["qc/per_run/run_multiqc_report.html"],
 }

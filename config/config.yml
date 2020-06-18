@@ -5,8 +5,8 @@ steps:
 # - assembly
 # - structural_variant_calling (TODO)
 # - variant_calling (TODO)
-# - cDNA
-# - de_analysis
+  - cDNA
+  - pinfish_annotation
   - qc
 
 #_______ REFERENCE FILES _________________________________________________________#

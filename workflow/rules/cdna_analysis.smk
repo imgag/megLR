@@ -1,35 +1,53 @@
-#_____ SPLICE AWARE MAPPING WITH MINIMAP2  ___________________________________#
+#_____ FEATURE COUNT (TRANSCRIPT LEVEL) ____________________________________________#
 
-rule splice_mapping:
+rule quant_salmon:
     input:
-        "Sample_{sample}/{sample}.fastq.gz"
+        bam = rules.map_to_transcriptome.output.bam,
+        trs = config['ref']['cDNA']
     output:
-        "Sample_{sample}/{sample}.spliced.bam"
-    log:
-        "logs/{sample}_minimap2_splice.log"
+        counts = "counts/{sample}/quant.sf",
+        stats = "counts/{sample}/aux_info/meta_info.json"
     conda:
-        "../env/minimap2.yml"
+        "../env/salmon.yml"
+    log: 
+        "logs/{sample}_salmon.log"
     threads:
-        config['sys']['max_threads']
+        10
     params:
-        sample = "{sample}",
-        ref = config['ref']['genome']
+        library = "U", # U = unspecific, S = strand-specific
+        args = "--noErrorModel" #Ignore indels/mismatches in aln (because ONT)
     shell:
         """
-        minimap2 -ax splice -t {threads} \
-            -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
-            {params.ref} {input} 2> {log} \
-            | samtools sort -m 4G -@ 4 -o {output} - >{log} 2>&1
-        samtools index {output}
+        salmon quant {params.args} \
+            --threads {threads} \
+            --libType {params.library} \
+            --targets {input.trs} \
+            --alignments {input.bam} \
+            --output counts/{wildcards.sample}/ 
         """
 
-#_____ FEATURE COUNT ANALYSIS _________________________________________________#
+#_____ FEATURE COUNT (GENE LEVEL) _____________________________________________#
 
-rule featureCount:
+rule quant_genes:
     input:
-        "Sample_{sample}/{sample}.spliced.bam"
+        bam = "Sample_{sample}/{sample}.spliced.bam",
+        ann = config['ref']['annotation']
     output:
-        "Sample_{sample}/{sample}"
+        counts = "Sample_{sample}/{sample}.tsv",
+        stats = "Sample_{sample}/{sample}.summary.tsv"
+    conda:
+        "../env/subread.yml"
+    log:
+        "logs/{sample}_featureCounts.log"
+    threads:
+        1
+    shell:
+        """
+        featureCounts \
+            -a {input.ann}  \
+            -o Sample_{wildcards.sample}/{wildcards.sample} \ 
+            -L > {log} 2>&1
+        """
 
 #_____ TRANSCRIPT RECONSTRUCTION ______________________________________________#
 
@@ -43,12 +61,13 @@ rule stringtie:
     threads:
         2
     params:
-        annot = config['ref']['annotation']
+        annot = config['ref']['annotation'],
+        stringtie = config['apps']['stringtie']
     conda:
         "../env/stringtie.yml"
     shell:
         """
-        stringtie -L -G {params.annot} -A -B -o {output} {input} >{log} 2>&1
+        {params.stringtie} -L -G {params.annot} -A -B -o {output} {input} >{log} 2>&1
         """
 
 #____ ISOFORM ANNOTATION ____________________________________________________#
