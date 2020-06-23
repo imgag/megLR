@@ -143,17 +143,26 @@ rule quast:
             {input}
         """
 
+#____ VARIANT QC _____________________________________________________________#
+# TODO
+
+
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
+    'variant_calling':[],
     'cDNA' : 
         expand("qc/qualimap/{s}_rna", s = ID_samples) + 
         expand("Sample_{s}/{s}.summary.tsv", s = ID_samples),
     'pinfish_annotation' : [],
     'qc' : ["qc/per_run/run_multiqc_report.html"],
 }
+
+# Additional output options
+if config['vc']['create_benchmark']:
+    qc_out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
 
 qc_out_selected = [qc_out[step] for step in config['steps']]
 

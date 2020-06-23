@@ -4,4 +4,10 @@ custom_logo_title: 'NCCT Tübingen'
 
 extra_fn_clean_exts:
     - '.pycoQC.json'
-    
+
+extra_fn_clean_trim:
+    - '_stats'      # Pychopper output
+    - '_genome'     # QualiMap BAMQC folder
+    - '.spliced'    # featureCounts
+
+

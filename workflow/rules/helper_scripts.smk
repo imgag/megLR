@@ -26,4 +26,9 @@ def print_message():
     print('Pipeline runs these steps:')
     print(*config['steps'], sep=" | ")
     pass
-    
+
+# Extract chromosome names from target region bed file
+def get_chromosomes():
+    with open(config['ref']['target_region']) as f:
+        chrs = [row.split()[0] for row in f]
+        return(chrs)

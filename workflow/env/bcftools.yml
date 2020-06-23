@@ -1,0 +1,8 @@
+name: bcftools
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bcftools=1.10.2
+  - tabix=0.2.6

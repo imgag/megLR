@@ -28,7 +28,8 @@ rule cluster_gff: ## cluster transcripts in GFF
         min_iso_frac = config['pinfish']["minimum_isoform_percent"],
     conda: 
         "../env/pinfish.yml"
-    threads: 12
+    # This step does not seem to benefit from multithreading --> very slow
+    threads: 3
     shell:
         """
         cluster_gff \
@@ -65,7 +66,7 @@ rule polish_clusters: ## polish read clusters
     input:
         cls_gff = rules.cluster_gff.output.cls_gff,
         cls_tab = rules.cluster_gff.output.cls_tab,
-        bam = "Sample_{sample}/{sample}.fastq.gz" #TODO CHANGE THIS TO PYCHOPPED
+        bam = rules.map_genome_splice.output.bam
     output:
         pol_trs = "Sample_{sample}/pinfish/polished_transcripts.fas",
     params:

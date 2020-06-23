@@ -1,10 +1,10 @@
 #_______ ANALYSIS STEPS _________________________________________________________#
 
 steps:
-  - mapping
+# - mapping
 # - assembly
 # - structural_variant_calling (TODO)
-# - variant_calling (TODO)
+# - variant_calling
 # - cDNA
   - pinfish_annotation
   - qc
@@ -15,6 +15,9 @@ ref:
   genome: "/mnt/share/data/genomes/GRCh38.fa"
   annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.chr.gtf"
   cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
+  target_region: "/mnt/SRV018/users/ahgrosc1/data/WGS_grch38.bed",
+  vc_benchmark: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
+  vc_confidence_region: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
@@ -31,7 +34,7 @@ sys:
   max_threads: 12
 
 apps:
-  multiqc: "/mnt/SRV018/users/ahgrosc1/tools/MultiQC/venv/bin/multiqc"
+  multiqc: "/mnt/SRV018/users/ahgrosc1/dev/MultiQC/venv/bin/multiqc"
   qualimap: "unset DISPLAY; /mnt/SRV018/users/ahgrosc1/tools/qualimap/qualimap" 
   stringtie: "/mnnt/SRV018/users/ahgrosc1/tools/stringtie/stringtie"
 
@@ -46,20 +49,22 @@ assembly:
 transcript:
   # Minimap2 mapping options
   minimap2_opts: ""
-
   # Maximum secondary alignments
   maximum_secondary: 100
-
   # Secondary score ratio (-p for minimap2)
   secondary_score_ratio: 1.0
-
 
 mapping:
   #Min mapping quality filter (Full_length splice)
   min_qual: 20
 
+vc:
+  model_initial: "r941_prom_snp_g303" #Depends on flowcell and guppy version
+  model_final: "r941_prom_high_g303" #Depends on flowcell and guppy version
+  create_benchmark: false
 
-#### PINFISH 
+#______ PINFISH PARAMETERS _______________________________________________________#
+
 pinfish:
   minimap2_opts: "-uf" # Find canonical splicing sites on f: transcript strand
   minimum_mapping_quality: 10

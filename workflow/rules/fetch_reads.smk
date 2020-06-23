@@ -64,8 +64,8 @@ rule pychopper:
         fq = "Sample_{sample}/{sample}.full_length.fastq",
         unclass = "Sample_{sample}/{sample}.unclassified.fastq",
         rescued = "Sample_{sample}/{sample}.rescued.fastq",
-        report = "qc/porechopper/{sample}_report.pdf",
-        stats = "qc/porechopper/{sample}_stats.txt"
+        report = "qc/pychopper/{sample}_report.pdf",
+        stats = "qc/pychopper/{sample}_stats.txt"
     log:
         "logs/{sample}_pychopper.log"
     conda:
