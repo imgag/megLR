@@ -5,7 +5,7 @@ steps:
 # - assembly
 # - structural_variant_calling (TODO)
 # - variant_calling (TODO)
-  - cDNA
+# - cDNA
   - pinfish_annotation
   - qc
 
@@ -52,6 +52,12 @@ transcript:
 
   # Secondary score ratio (-p for minimap2)
   secondary_score_ratio: 1.0
+
+
+mapping:
+  #Min mapping quality filter (Full_length splice)
+  min_qual: 20
+
 
 #### PINFISH 
 pinfish:

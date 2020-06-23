@@ -15,18 +15,17 @@ rule map_genome_all:
         20
     params:
         sample = "{sample}",
-        ref = config['ref']['genome']
     shell:
         """
         minimap2 --MD -ax map-ont -t {threads} \
             -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
-            {input.genome} {input.ref} 2> {log} \
+            {input.genome} {input.fq} 2> {log} \
             | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
         samtools index {output.bam}
         """
 
 rule map_genome_full_length:
-    input: 
+    input:
         genome = config['ref']['genome'],
         fq = rules.pychopper.output.fq
     output: 
@@ -45,7 +44,7 @@ rule map_genome_full_length:
         """
         minimap2 --MD -ax map-ont -t {threads} \
             -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
-            {input.genome} {input.ref} 2> {log} \
+            {input.genome} {input.fq} 2> {log} \
             | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
         samtools index {output.bam}
         """
@@ -55,23 +54,25 @@ rule map_genome_full_length:
 rule map_genome_splice:
     input:
         genome = config['ref']['genome'],
-        fq = "Sample_{sample}/{sample}.fastq.gz"
-        #TODO Better to use full length transcripts only?
+        fq = rules.pychopper.output.fq
     output:
         bam = "Sample_{sample}/{sample}.spliced.bam",
-        bai= "Sample_{sample}/{sample}.bam.bai"
+        bai= "Sample_{sample}/{sample}.spliced.bam.bai"
     log:
         "logs/{sample}_minimap2_splice.log"
     conda:
         "../env/minimap2.yml"
     threads:
         config['sys']['max_threads']
+    params:    
+        min_mq = config['mapping']['min_qual']
     shell:
         """
         minimap2 -ax splice -t {threads} \
             -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}" \
             {input.genome} {input.fq} 2> {log} \
-            | samtools sort -m 4G -@ 4 -o {output} - >{log} 2>&1
+             | samtools view -q {params.min_mq} -F 2304 -Sb \
+             | samtools sort -@ 4 -m 4G  - -o {output.bam} >{log} 2>&1
         samtools index {output}
         """
 
@@ -80,8 +81,7 @@ rule map_genome_splice:
 rule map_to_transcriptome:
     input:
         trs = config['ref']['cDNA'],
-        fq = "Sample_{sample}/{sample}.fastq.gz"
-        #rules.pychopper.output.fq TODO use pychopped output (or both?)
+        fq = rules.pychopper.output.fq
     output:
         bam = "Sample_{sample}/{sample}.transcripts.bam"
     log:

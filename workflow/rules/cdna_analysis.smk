@@ -72,8 +72,8 @@ rule stringtie:
 
 #____ ISOFORM ANNOTATION ____________________________________________________#
 
-rule sqanti:
-    input:
-        "Sample_{sample}/{sample}.stringtie.gtf"
-    output:
-        "Sample_{sample}/{sample}"
+#rule sqanti:
+#    input:
+#        "Sample_{sample}/{sample}.stringtie.gtf"
+#    output:
+#        "Sample_{sample}/{sample}"

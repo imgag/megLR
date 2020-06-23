@@ -24,7 +24,6 @@ rule wtdbg2:
             -i {input}      \
             -fo $outf/wtdbg \
             > {log} 2>&1
-        cp $outf/wtdbg.ctg.lay.gz {output}
         """
 
 rule wtdbg2_consensus:
@@ -37,14 +36,15 @@ rule wtdbg2_consensus:
     log:
         "logs/{sample}_wtdbg_consensus.log"
     threads:
-        12
+        config['sys']['max_threads']
     shell:
         """
         outf=assembly/{wildcards.sample}_wtdbg
         wtpoa-cns \
             -t 16 \
             -i {input} \
-            -fo {output}
+            -fo {output} \
+            > {log} 2>&1
         """
 
 rule wtdbg2_polishing:
@@ -58,14 +58,15 @@ rule wtdbg2_polishing:
     log:
         "logs/{sample}_wtdbg_consensus.log"
     threads:
-        16
+        config['sys']['max_threads']
     shell:
         """
         outf=assembly/{wildcards.sample}_wtdbg
         minimap2 -t{threads} -ax map-ont -r2k {input.asm} {input.reads} \
             | samtools sort -@4 > $outf/wtdbg.polishing.bam
         samtools view -F0x900 $outf/wtdbg.polishing.bam \
-            | wtpoa-cns -t {threads} -d {input.asm} -i - -fo $outf/wtdbg.pol.fa
+            | wtpoa-cns -t {threads} -d {input.asm} -i - -fo $outf/wtdbg.pol.fa \
+            > {log} 2>&1
         cp $outf/wtdbg.pol.fa {output}
         rm $outf/wtdbg.polishing.bam
         """

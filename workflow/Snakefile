@@ -56,7 +56,7 @@ out = {
     'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
-    'cDNA' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples),
+    'cDNA' : expand("Sample_{s}/{s}.summary.tsv", s=ID_samples),
     'pinfish_annotation' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
     'qc' : ['qc/multiqc_report.html']
 }
