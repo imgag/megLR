@@ -32,3 +32,11 @@ def get_chromosomes():
     with open(config['ref']['target_region']) as f:
         chrs = [row.split()[0] for row in f]
         return(chrs)
+
+# Load additional project config files and overwrite default config
+def load_project_config(f):
+    if os.path.isfile(f):
+        configfile: f
+    else:
+        print("Project config not available")
+        pass

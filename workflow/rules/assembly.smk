@@ -41,9 +41,9 @@ rule wtdbg2_consensus:
         """
         outf=assembly/{wildcards.sample}_wtdbg
         wtpoa-cns \
-            -t 16 \
-            -i {input} \
-            -fo {output} \
+            -t {threads}\
+            -i {input}  \
+            -fo {output}\
             > {log} 2>&1
         """
 

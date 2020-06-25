@@ -15,13 +15,14 @@ ref:
   genome: "/mnt/share/data/genomes/GRCh38.fa"
   annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.chr.gtf"
   cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
-  target_region: "/mnt/SRV018/users/ahgrosc1/data/WGS_grch38.bed",
+  target_region: "/mnt/SRV018/users/ahgrosc1/data/WGS_grch38.bed"
   vc_benchmark: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
   vc_confidence_region: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
 sample_file: "sample_run_table.tsv"
+project_config: "config.yml"
 
 prom:
   ssh_profile: "microbio"

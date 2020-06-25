@@ -10,9 +10,10 @@ import pathlib
 from collections import defaultdict
 from glob import glob
 
-configfile: "config/config.yml"
 include: "rules/helper_scripts.smk"
 
+configfile: "config/config_defaults.yml"
+load_project_config(config['project_config'])
 print_message()
 
 #_____ PARSE SAMPLE FILE _______________________________________________________#
@@ -68,7 +69,7 @@ if config['vc']['create_benchmark']:
     out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
 
 out_selected = [out[step] for step in config['steps']]
-
+#print(out_selected)
 rule all:
     input:
         [y for x in out_selected for y in x]

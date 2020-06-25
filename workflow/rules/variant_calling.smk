@@ -7,7 +7,7 @@ rule medaka_variants:
     output:
         vcf = "variant_calling/{sample}/{chr}/round_1.vcf"
     conda:
-        "env/medaka.yml"
+        "../env/medaka.yml"
     threads:
         2
     log:
@@ -36,7 +36,7 @@ rule combine_vcf:
     output:
         "Sample_{sample}/{sample}_var.vcf"
     conda:
-        "env/bcftools.yml"
+        "../env/bcftools.yml"
     threads:
         1
     log:
@@ -54,7 +54,7 @@ rule process_vcf:
     output:
         "Sample_{sample}/{sample}_var.vcf.gz"
     conda:
-        "env/bcftools.yml"
+        "../env/bcftools.yml"
     log:
         "logs/{sample}_processvcf.log"
     shell:
@@ -77,7 +77,7 @@ rule benchmark_happy:
     log:
         "logs/{sample}_happy.log"
     conda:
-        "env/happy.yml"
+        "../env/happy.yml"
     threads:
         8
     shell:
