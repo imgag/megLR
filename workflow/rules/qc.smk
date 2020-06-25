@@ -98,7 +98,7 @@ rule rna_qualimap:
     input:
         "Sample_{sample}/{sample}.spliced.bam"
     output:
-        directory('qc/qualimap/{sample}_rna')
+        "qc/qualimap/{sample}_rna/rnaseq_qc_results.txt"
     log:
         "logs/{sample}_qualimap_rna.log"
     threads:
@@ -111,7 +111,7 @@ rule rna_qualimap:
         {params.qualimap} rnaseq \
             -bam {input} \
             -gtf {params.gtf} \
-            -outdir {output}\
+            -outdir qc/qualimap/{wildcards.sample}_rna \
             --java-mem-size=12G \
             > {log} 2>&1
         """
@@ -153,10 +153,12 @@ qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
     'variant_calling':[],
-    'cDNA' : 
-        expand("qc/qualimap/{s}_rna", s = ID_samples) + 
+    'cDNA_transcriptome_assembly' : [],
+    'cDNA_expression' : 
+        expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
+        expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
         expand("Sample_{s}/{s}.summary.tsv", s = ID_samples),
-    'pinfish_annotation' : [],
+    'cDNA_pinfish_annotation' : [],
     'qc' : ["qc/per_run/run_multiqc_report.html"],
 }
 

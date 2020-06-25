@@ -69,6 +69,8 @@ rule polish_clusters: ## polish read clusters
         bam = rules.map_genome_splice.output.bam
     output:
         pol_trs = "Sample_{sample}/pinfish/polished_transcripts.fas",
+    log:
+        "logs/{sample}_pinfish_polish_clusters.log"
     params:
         c = config['pinfish']["minimum_cluster_size"],
     conda: 
@@ -82,7 +84,9 @@ rule polish_clusters: ## polish read clusters
             -a {input.cls_tab} \
             -c {params.c} \
             -o {output.pol_trs} \
-            {input.bam}
+            {input.bam} \
+            > {log} 2>&1
+
         """
 
 rule map_polished: ## map polished transcripts to genome

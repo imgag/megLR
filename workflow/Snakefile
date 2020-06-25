@@ -48,8 +48,9 @@ include: "rules/fetch_reads.smk"
 include: "rules/mapping.smk"
 include: "rules/assembly.smk"
 include: "rules/variant_calling.smk"
-include: "rules/cdna_analysis.smk"
-include: "rules/pinfish_annotation.smk"
+include: "rules/cdna_expression.smk"
+include: "rules/cdna_transcriptome_assembly.smk"
+include: "rules/cdna_pinfish_annotation.smk"
 include: "rules/qc.smk"
 
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
@@ -59,8 +60,9 @@ out = {
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
     'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
-    'cDNA' : expand("Sample_{s}/{s}.summary.tsv", s=ID_samples),
-    'pinfish_annotation' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
+    'cDNA_gene_expression' : expand("Sample_{s}/{s}.summary.tsv", s=ID_samples),
+    'cDNA_transcriptome_assembly' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples),
+    'cDNA_pinfish_annotation' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
     'qc' : ['qc/multiqc_report.html']
 }
 
