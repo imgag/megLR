@@ -5,15 +5,18 @@ steps:
 # - assembly
 # - structural_variant_calling (TODO)
 # - variant_calling
-# - cDNA
-  - pinfish_annotation
+# - cDNA_pinfish_annotation
+# - cDNA_expression (TODO)
+# - cDNA_transcriptome_assembly
+# - repeat_expansion (TODO)
   - qc
 
 #_______ REFERENCE FILES _________________________________________________________#
 
 ref:
   genome: "/mnt/share/data/genomes/GRCh38.fa"
-  annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.chr.gtf"
+  #annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.chr.gtf"
+  annotation: "/mnt/SRV018/users/ahgrosc1/data/gencode.v34.annotation.gtf"
   cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
   target_region: "/mnt/SRV018/users/ahgrosc1/data/WGS_grch38.bed"
   vc_benchmark: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
@@ -35,9 +38,11 @@ sys:
   max_threads: 12
 
 apps:
-  multiqc: "/mnt/SRV018/users/ahgrosc1/dev/MultiQC/venv/bin/multiqc"
+  multiqc: "/mnt/SRV018/users/ahgrosc1/dev/multiqc/venv/bin/multiqc"
   qualimap: "unset DISPLAY; /mnt/SRV018/users/ahgrosc1/tools/qualimap/qualimap" 
-  stringtie: "/mnnt/SRV018/users/ahgrosc1/tools/stringtie/stringtie"
+  stringtie: "/mnt/SRV018/users/ahgrosc1/tools/stringtie/stringtie"
+  sqanti: "python /mnt/SRV018/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
+  cdna_cupcake: "/mnt/SRV018/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
 
 #______ ANALYSIS PARAMETERS _______________________________________________________#
 
@@ -82,3 +87,7 @@ pinfish:
   collapse_five_tol: 5000   # Five prime boundary tolerance for collapsing
   collapse_three_tol: 30 # Three prime boundary tolerance for collapsing
 
+flair:
+  manifest: "reads_manifest.tsv"
+  trust_ends: yes   # Use this option if using long unfragmented reads, e.g. preprocessed with pychopper
+  min_qual: 1

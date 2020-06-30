@@ -12,7 +12,12 @@ guppy_basecaller \
     --recursive \
     --save_path a04_01 \
     --device cuda:0 \
-    --config dna_r9.4.1_450bps_hac_prom.cfg
+    --config dna_r9.4.1_450bps_hac_prom.cfg &
 
-
+guppy_basecaller \
+    --input_path 20190502_I19D001a04_Mega15_BP10_AMPure_1X \
+    --recursive \
+    --save_path a04_02 \
+    --device cuda:1 \
+    --config dna_r9.4.1_450bps_hac_prom.cfg &
 """

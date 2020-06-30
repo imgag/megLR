@@ -1,4 +1,4 @@
-#_____ TRANSCRIPT ASSEMBLY ______________________________________________#
+#_____ TRANSCRIPTOME ASSEMBLY ______________________________________________#
 
 rule stringtie:
     input:
@@ -16,13 +16,9 @@ rule stringtie:
         "../env/stringtie.yml"
     shell:
         """
-        {params.stringtie} -L -G {input.annot} -R -A -B -o {output} {input.bam} >{log} 2>&1
+        {params.stringtie} -L -R -A -B -v\
+        -G {input.annot} \
+        -o {output} \
+        {input.bam} \
+        >{log} 2>&1
         """
-
-#____ ISOFORM ANNOTATION ____________________________________________________#
-
-#rule sqanti:
-#    input:
-#        "Sample_{sample}/{sample}.stringtie.gtf"
-#    output:
-#        "Sample_{sample}/{sample}"

@@ -4,8 +4,8 @@ rule copy_prom:
     input:
         config['sample_file']
     output:
-       # directory("run_data/{run}/fastq_pass"),
-       # directory("run_data/{run}/fastq_fail"),
+        directory("run_data/{run}/fastq_pass"),
+        directory("run_data/{run}/fastq_fail"),
        # directory("run_data/{run}/fast5_pass"),
        # directory("run_data/{run}/fast5_fail"),
         touch("run_data/{run}/copy_finished")

@@ -23,11 +23,11 @@ rule medaka_variants:
             -i {input.bam} \
             -r {wildcards.chr} \
             -p  \
-            -o {wildcards.sample}_medaka/{wildcards.chr} \
+            -o variant_calling/{wildcards.sample}/{wildcards.chr} \
             -t {threads} \
             -s {params.model_snp} \
             -m {params.model_final} \
-            >{log} 2> &1
+            >{log} 
         """
 
 rule combine_vcf:

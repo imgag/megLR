@@ -53,6 +53,8 @@ rule collapse_clustered: ## collapse clustered read artifacts
         f = config['pinfish']["collapse_five_tol"],
     conda: 
         "../env/pinfish.yml"
+    threads:
+        1
     shell:
         """
         collapse_partials \
@@ -76,7 +78,7 @@ rule polish_clusters: ## polish read clusters
     conda: 
         "../env/pinfish.yml"
     threads:
-        12
+        16
     shell:
         """
         polish_clusters \
@@ -135,6 +137,8 @@ rule collapse_polished: ## collapse polished read artifacts
         f = config['pinfish']["collapse_five_tol"],
     conda: 
         "../env/pinfish.yml"
+    threads:
+        2
     shell:
         """
         collapse_partials \
@@ -152,6 +156,8 @@ rule gen_corr_trs: ## Generate corrected transcriptome.
         fasta = "Sample_{sample}/pinfish/corrected_transcriptome_polished_collapsed.fasta"
     conda: 
         "../env/pinfish.yml"
+    threads:
+        2
     shell:
         """
         gffread -g {input.genome} -w {output.fasta} {input.gff}

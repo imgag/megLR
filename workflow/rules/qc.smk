@@ -19,7 +19,7 @@ rule run_pycoqc:
             --summary_file $file\
             --html_outfile {output.html} \
             --json_outfile {output.json} \
-            > {log} 2>&1
+            >{log} 2>&1
         """
 
 rule run_multiqc:
@@ -41,7 +41,7 @@ rule run_multiqc:
             --outdir qc/per_run \
             --filename run_multiqc_report \
             qc/per_run/ \
-            > {log} 2>> {log}
+            >{log} 2>> {log}
         """
 
 #_____ SAMPLE READ QC  _________________________________________________________#
@@ -65,7 +65,7 @@ rule sample_pycoqc:
             --summary_file {input.summary_files} \
             --html_outfile {output.html} \
             --json_outfile {output.json} \
-            > {log} 2>&1
+            >{log} 2>&1
         """
 
 #____ GENOME MAPPING QC __________________________________________________________#
@@ -89,7 +89,7 @@ rule qualimap:
             -nt {threads} \
             -outdir {output} \
             --java-mem-size=12G \
-            > {log} 2>&1
+            >{log} 2>&1
         """
 
 #_____ cDNA SPLICED MAPPING QC _________________________________________________#
@@ -113,7 +113,7 @@ rule rna_qualimap:
             -gtf {params.gtf} \
             -outdir qc/qualimap/{wildcards.sample}_rna \
             --java-mem-size=12G \
-            > {log} 2>&1
+            >{log} 2>&1
         """
 
 #____ ASSEMBLY QC _____________________________________________________________#
@@ -139,12 +139,64 @@ rule quast:
             --threads {threads} \
             --no-sv             \
             --reference {params.ref} \
-            --output-dir qc/quast_results 
-            {input}
+            --output-dir qc/quast_results \
+            {input} \
+            >{log} 2>&1
         """
 
 #____ VARIANT QC _____________________________________________________________#
 # TODO
+
+#_____ TRANSCRIPTOME ANNOTATION QC ____________________________________________#
+
+rule sqanti:
+    input:
+        gtf = "Sample_{sample}/{sample}.stringtie.gtf",
+        anno_ref = config['ref']['annotation'],
+        genome = config['ref']['genome']
+    output:
+        "qc/sqanti/{sample}/{sample}_classification.txt"
+    log:
+        "logs/{sample}_sqanti.log"
+    conda:
+        "../env/sqanti.yml"
+    params:
+        sqanti = config['apps']['sqanti'],
+        cdna_cupcake = config['apps']['cdna_cupcake']
+    shell:
+        """
+        set +u;
+        export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}sequence/
+        export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}
+        {params.sqanti} \
+            -d qc/sqanti/{wildcards.sample} \
+            -o {wildcards.sample} \
+            --skipORF \
+            --gtf {input.gtf} \
+            {input.anno_ref} {input.genome} \
+            >{log} 2>&1
+        """
+
+#_______ GFFCOMPARE ___________________________________________________________#
+
+rule gffcompare:
+    input:
+        gtf = "Sample_{sample}/{sample}.{tool}.gtf",
+        ref = config['ref']['annotation'],
+        genome = config['ref']['genome']
+    output:
+        "qc/gffcompare/{sample}_{tool}/{sample}.stats"
+    log:
+        "logs/{sample}_{tool}.log"
+    conda:
+        "../env/gffcompare.yml"
+    shell:
+        """
+        gffcompare \
+            -r {input.ref} \
+            -o qc/gffcompare/{wildcards.sample}_{wildcards.tool}/{wildcards.sample} \
+            {input.gtf} 
+        """
 
 
 #_____ MULTI QC  _____________________________________________________________#
@@ -153,7 +205,9 @@ qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
     'variant_calling':[],
+    #'cDNA_transcriptome_assembly' : expand("qc/sqanti/{s}/{s}_classification.txt", s = ID_samples),
     'cDNA_transcriptome_assembly' : [],
+    'cDNA_flair': expand("qc/gffcompare/{s}_flair.stats", s = ID_samples),
     'cDNA_expression' : 
         expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
@@ -161,6 +215,8 @@ qc_out = {
     'cDNA_pinfish_annotation' : [],
     'qc' : ["qc/per_run/run_multiqc_report.html"],
 }
+
+
 
 # Additional output options
 if config['vc']['create_benchmark']:
@@ -174,6 +230,8 @@ rule multiqc:
         [y for x in qc_out_selected for y in x]
     output:
         "qc/multiqc_report.html"
+    log:
+        "logs/multiqc.log"
     threads:
         1
     params:
@@ -185,5 +243,5 @@ rule multiqc:
             --config config/multiqc.yml \
             --outdir qc\
             --ignore-symlinks \
-            {input}
+            {input} > {log} 2>&1
         """

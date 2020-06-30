@@ -9,5 +9,7 @@ extra_fn_clean_trim:
     - '_stats'      # Pychopper output
     - '_genome'     # QualiMap BAMQC folder
     - '.spliced'    # featureCounts
+    - '.asm.wtdbg'  # Assembly
+    - '.asm.flye'   # Assembly
 
 
