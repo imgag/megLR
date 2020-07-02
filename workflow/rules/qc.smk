@@ -190,9 +190,12 @@ rule gffcompare:
         "logs/{sample}_{tool}.log"
     conda:
         "../env/gffcompare.yml"
+    params:
+        opts = config['gffcompare']['options']
     shell:
         """
         gffcompare \
+            {params.opts} \
             -r {input.ref} \
             -o qc/gffcompare/{wildcards.sample}_{wildcards.tool}/{wildcards.sample} \
             {input.gtf} 
@@ -207,12 +210,12 @@ qc_out = {
     'variant_calling':[],
     #'cDNA_transcriptome_assembly' : expand("qc/sqanti/{s}/{s}_classification.txt", s = ID_samples),
     'cDNA_transcriptome_assembly' : [],
-    'cDNA_flair': expand("qc/gffcompare/{s}_flair.stats", s = ID_samples),
+    'cDNA_flair': expand("qc/gffcompare/{s}_flair/{s}.stats", s = ID_samples),
     'cDNA_expression' : 
         expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
         expand("Sample_{s}/{s}.summary.tsv", s = ID_samples),
-    'cDNA_pinfish_annotation' : [],
+    'cDNA_pinfish' : [],
     'qc' : ["qc/per_run/run_multiqc_report.html"],
 }
 
