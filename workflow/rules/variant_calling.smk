@@ -27,7 +27,7 @@ rule medaka_variants:
             -t {threads} \
             -s {params.model_snp} \
             -m {params.model_final} \
-            >{log} 
+            >{log} 2>&1
         """
 
 rule combine_vcf:

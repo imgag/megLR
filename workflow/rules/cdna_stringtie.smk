@@ -5,7 +5,9 @@ rule stringtie:
         annot = config['ref']['annotation'],
         bam = "Sample_{sample}/{sample}.spliced.bam"
     output:
-        "Sample_{sample}/{sample}.stringtie.gtf"
+        gtf = "Sample_{sample}/{sample}.stringtie.gtf",
+        abundance = "Sample_{sample}/{sample}.stringtie.abundance.tsv"
+
     log:
         "logs/{sample}_stringtie.log"
     threads:
@@ -16,9 +18,10 @@ rule stringtie:
         "../env/stringtie.yml"
     shell:
         """
-        {params.stringtie} -L -R -A -B -v\
+        {params.stringtie} -L -R -v -B\
+        -A {output.abundance} \
         -G {input.annot} \
-        -o {output} \
+        -o {output.gtf} \
         {input.bam} \
         >{log} 2>&1
         """

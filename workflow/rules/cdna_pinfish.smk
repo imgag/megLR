@@ -1,4 +1,6 @@
 #____ PINFISH PIPELINE (ONT) ______________________________________#
+# This pipeline is copied from ONT. It is really slow (barely usable) and
+# unstable. This might get removed if other options work fine
 
 rule convert_bam: ## convert BAM to GFF
     input:

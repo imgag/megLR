@@ -4,8 +4,8 @@ rule run_pycoqc:
     input:
         "run_data/{run}/copy_finished"
     output:
-        html = "qc/per_run/{run}.pycoQC.html",
-        json = "qc/per_run/{run}.pycoQC.json"
+        html = "qc/pycoqc/per_run/{run}.pycoQC.html",
+        json = "qc/pycoqc/per_run/{run}.pycoQC.json"
     log:
         "logs/{run}_pycoqc.log"
     conda:
@@ -24,9 +24,9 @@ rule run_pycoqc:
 
 rule run_multiqc:
     input:
-        expand("qc/per_run/{run}.pycoQC.html", run = ID_runs)
+        expand("qc/pycoqc/per_run/{run}.pycoQC.html", run = ID_runs)
     output:
-        "qc/per_run/run_multiqc_report.html"
+        "qc/pycoqc/per_run/run_multiqc_report.html"
     log:
         "logs/run_multiqc.log"
     threads:
@@ -51,8 +51,8 @@ rule sample_pycoqc:
         unpack(get_summary_files),
         check_copy_finished
     output:
-        html = "Sample_{sample}/{sample}.pycoQC.html",
-        json = "Sample_{sample}/{sample}.pycoQC.json"
+        html = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.html",
+        json = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.json"
     conda:
         "../env/pycoqc.yml"
     log:
@@ -199,6 +199,8 @@ rule gffcompare:
             -r {input.ref} \
             -o qc/gffcompare/{wildcards.sample}_{wildcards.tool}/{wildcards.sample} \
             {input.gtf} 
+        mv {input.gtf}.{wildcards.sample}.refmap qc/gffcompare{wildcards.sample}_{wildcards.tool}/{wildcards.sample}.{wildcards.tool}.gtf.refmap
+        mv {input.gtf}.{wildcards.sample}.tmap qc/gffcompare{wildcards.sample}_{wildcards.tool}/{wildcards.sample}.{wildcards.tool}.gtf.tmap
         """
 
 
@@ -208,15 +210,14 @@ qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
     'variant_calling':[],
-    #'cDNA_transcriptome_assembly' : expand("qc/sqanti/{s}/{s}_classification.txt", s = ID_samples),
-    'cDNA_transcriptome_assembly' : [],
+    'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}.stats", s = ID_samples),
     'cDNA_flair': expand("qc/gffcompare/{s}_flair/{s}.stats", s = ID_samples),
     'cDNA_expression' : 
         expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
         expand("Sample_{s}/{s}.summary.tsv", s = ID_samples),
     'cDNA_pinfish' : [],
-    'qc' : ["qc/per_run/run_multiqc_report.html"],
+    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
 }
 
 
@@ -229,7 +230,7 @@ qc_out_selected = [qc_out[step] for step in config['steps']]
 
 rule multiqc:
     input:
-        expand("Sample_{sample}/{sample}.pycoQC.json", sample = ID_samples),
+        expand("qc/pycoqc/{sample}.pycoQC.json", sample = ID_samples),
         [y for x in qc_out_selected for y in x]
     output:
         "qc/multiqc_report.html"

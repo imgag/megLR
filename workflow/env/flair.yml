@@ -5,6 +5,8 @@ channels:
   - defaults
 dependencies:
   - flair=1.5
+  - pip
+  - cython
   - pip:
     - kerneltree
 

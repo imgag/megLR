@@ -5,9 +5,10 @@ steps:
 # - assembly
 # - structural_variant_calling (TODO)
 # - variant_calling
-# - cDNA_pinfish_annotation
+# - cDNA_pinfish
 # - cDNA_expression (TODO)
-# - cDNA_transcriptome_assembly
+# - cDNA_stringtie
+# - cDNA_flair
 # - repeat_expansion (TODO)
   - qc
 
@@ -86,6 +87,13 @@ pinfish:
   collapse_internal_tol: 5  #Internal exon boundary tolerance for collapsing
   collapse_five_tol: 5000   # Five prime boundary tolerance for collapsing
   collapse_three_tol: 30 # Three prime boundary tolerance for collapsing
+
+#______ QC PARAMETERS ____________________________________________________________#
+
+gffcompare:
+  options: "-R -Q" # Ignore transcript found only in ref oder only in query
+
+#______ FLAIR PARAMETERS _________________________________________________________#
 
 flair:
   manifest: "reads_manifest.tsv"

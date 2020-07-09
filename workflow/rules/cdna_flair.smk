@@ -2,7 +2,7 @@ rule bamtobed12:
     input:
         bam = rules.map_genome_splice.output.bam
     output:
-        bed = "Sample_{sample}/{sample}.splice.bed12"
+        bed = "Sample_{sample}/{sample}.spliced.bed12"
     conda:
         "../env/flair.yml"
     threads:
@@ -24,8 +24,8 @@ rule flairCorrect:
         annot = config['ref']['annotation'],
         chromsize = config['ref']['target_region']
     output:
-        bed_corrected = "flair/{sample}_all_corrected.bed",
-        psl_corrected = "flair/{sample}_all_corrected.psl"
+        bed_corrected = "Sample_{sample}/flair/{sample}_all_corrected.bed",
+        psl_corrected = "Sample_{sample}/flair/{sample}_all_corrected.psl"
     conda:
         "../env/flair.yml"
     threads:
@@ -51,11 +51,12 @@ rule flairCollapse:
     input:
         psl = rules.flairCorrect.output.psl_corrected,
         fastq = rules.pychopper.output.fq,
+        genome = config['ref']['genome'],
         annot = config['ref']['annotation']
     output:
-        gtf = "flair/{sample}.isoforms.gtf",
-        gtf_main = "Sample_{sample}/{sample}.flair.gtf",
-        fasta = "flair/{sample}.isoforms.fa",
+        gtf = "Sample_{sample}/flair/{sample}.isoforms.gtf",
+        gtf_main = "Sample_{sample}/Sample_{sample}/{sample}.flair.gtf",
+        fasta = "Sample_{sample}/flair/{sample}.isoforms.fa",
     conda:
         "../env/flair.yml"
     threads:
@@ -67,10 +68,11 @@ rule flairCollapse:
     shell:
         """
         flair.py collapse \
-            --gtf {input.annot} \
+            --genome {input.genome} \
+            --query {input.psl} \
             --reads {input.fastq} \
-            --query P
             --threads {threads} \
+            --gtf {input.annot} \
             {params.trust_ends} \
             --generate_map \
             --output flair/{wildcards.sample} \
@@ -83,7 +85,7 @@ rule flairQuantify:
         fa = rules.flairCollapse.output.fasta,
         manifest = config['flair']['manifest']
     output:
-        mat = "flair/{sample}.counts_matrix.tsv"
+        mat = "Sample_{sample}/flair/{sample}.counts_matrix.tsv"
     conda:
         "../env/flair.yml"
     threads:
