@@ -32,9 +32,9 @@ rule medaka_variants:
 
 rule combine_vcf:
     input:
-        expand("variant_calling/{S}/{C}/round_1.vcf", S = ID_samples, C = get_chromosomes())
+        expand("variant_calling/{{sample}}/{C}/round_1.vcf",  C = get_chromosomes())
     output:
-        "Sample_{sample}/{sample}_var.vcf"
+        "variant_calling/{sample}/{sample}_var.vcf"
     conda:
         "../env/bcftools.yml"
     threads:
@@ -50,7 +50,7 @@ rule combine_vcf:
 
 rule process_vcf:
     input:
-        "Sample_{sample}/{sample}_var.vcf"
+        rules.combine_vcf.output
     output:
         "Sample_{sample}/{sample}_var.vcf.gz"
     conda:

@@ -145,7 +145,19 @@ rule quast:
         """
 
 #____ VARIANT QC _____________________________________________________________#
-# TODO
+rule bcftools_stats:
+    input:
+        vcf = rules.combine_vcf.output
+    output:
+        "qc/variants/{sample}.stats"
+    log:
+        "logs/{sample}_bcftools.log"
+    conda:
+        "../env/bcftools.yml"
+    shell:
+        """
+        bcftools stats {input} > {output} 2> {log}
+        """
 
 #_____ TRANSCRIPTOME ANNOTATION QC ____________________________________________#
 
@@ -185,7 +197,7 @@ rule gffcompare:
         ref = config['ref']['annotation'],
         genome = config['ref']['genome']
     output:
-        "qc/gffcompare/{sample}_{tool}/{sample}.stats"
+        "qc/gffcompare/{sample}_{tool}/{sample}_{tool}.stats"
     log:
         "logs/{sample}_{tool}.log"
     conda:
@@ -197,21 +209,22 @@ rule gffcompare:
         gffcompare \
             {params.opts} \
             -r {input.ref} \
-            -o qc/gffcompare/{wildcards.sample}_{wildcards.tool}/{wildcards.sample} \
-            {input.gtf} 
-        mv {input.gtf}.{wildcards.sample}.refmap qc/gffcompare{wildcards.sample}_{wildcards.tool}/{wildcards.sample}.{wildcards.tool}.gtf.refmap
-        mv {input.gtf}.{wildcards.sample}.tmap qc/gffcompare{wildcards.sample}_{wildcards.tool}/{wildcards.sample}.{wildcards.tool}.gtf.tmap
+            -o qc/gffcompare/{wildcards.sample}_{wildcards.tool}/{wildcards.sample}_{wildcards.tool} \
+            {input.gtf} \
+            > {log} 2>&1
+        mv Sample_{wildcards.sample}/{wildcards.sample}_{wildcards.tool}.{wildcards.sample}.{wildcards.tool}.gtf.refmap qc/gffcompare/{wildcards.sample}_{wildcards.tool}/{wildcards.sample}.{wildcards.tool}.gtf.refmap
+        mv Sample_{wildcards.sample}/{wildcards.sample}_{wildcards.tool}.{wildcards.sample}.{wildcards.tool}.gtf.tmap qc/gffcompare/{wildcards.sample}_{wildcards.tool}/{wildcards.sample}.{wildcards.tool}.gtf.tmap
         """
-
 
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
-    'variant_calling':[],
-    'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}.stats", s = ID_samples),
-    'cDNA_flair': expand("qc/gffcompare/{s}_flair/{s}.stats", s = ID_samples),
+    'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
+    'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
+         expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
+    'cDNA_flair': expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
     'cDNA_expression' : 
         expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
@@ -219,8 +232,6 @@ qc_out = {
     'cDNA_pinfish' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
 }
-
-
 
 # Additional output options
 if config['vc']['create_benchmark']:
