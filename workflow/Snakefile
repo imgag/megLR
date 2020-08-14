@@ -48,6 +48,7 @@ include: "rules/fetch_reads.smk"
 include: "rules/mapping.smk"
 include: "rules/assembly.smk"
 include: "rules/variant_calling.smk"
+include: "rules/structural_variant_calling.smk"
 include: "rules/cdna_expression.smk"
 include: "rules/cdna_stringtie.smk"
 include: "rules/cdna_pinfish.smk"
@@ -61,7 +62,8 @@ out = {
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
     'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
-    'cDNA_expression' : expand("Sample_{s}/{s}.summary.tsv", s=ID_samples),
+    'structural_variant_calling': expand("{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
+    'cDNA_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
     'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples),
     'cDNA_pinfish' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
     'cDNA_flair': expand("Sample_{s}/{s}.flair.gtf", s=ID_samples),

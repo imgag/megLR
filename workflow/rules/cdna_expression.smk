@@ -34,19 +34,26 @@ rule quant_genes:
         bam = "Sample_{sample}/{sample}.spliced.bam",
         ann = config['ref']['annotation']
     output:
-        counts = "Sample_{sample}/{sample}.tsv",
-        stats = "Sample_{sample}/{sample}.summary.tsv"
+        counts = "Sample_{sample}/{sample}.counts.tsv",
+        stats = "Sample_{sample}/{sample}.counts.tsv.summary"
     conda:
         "../env/subread.yml"
     log:
         "logs/{sample}_featureCounts.log"
     threads:
         1
+    params:
+        level = config['expression']['level'],
+        min_qual = config['expression']['min_qual'],
+        strandedness = config['expression']['strandedness']
     shell:
         """
         featureCounts \
-            -a {input.ann} \
-            -o Sample_{wildcards.sample}/{wildcards.sample} \
+            -t {params.level} \
+            -Q {params.min_qual} \
+            -s {params.strandedness} \
             -L {input.bam} \
+            -a {input.ann} \
+            -o {output.counts} \
             > {log} 2>&1
         """

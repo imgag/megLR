@@ -116,6 +116,23 @@ rule rna_qualimap:
             >{log} 2>&1
         """
 
+rule rseqc_read_distribution:
+    input:
+        bam = "Sample_{sample}/{sample}.spliced.bam",
+        gtf = config['ref']['annotation']
+    output:
+        "qc/rseqc/{sample}.read_distribution.txt"
+    log:
+        "qc/rseqc/{sample}.read_distribution.txt"
+    threads:
+        2
+    conda:
+        "../env/rseqc.yml"
+    shell:
+        """
+        read_distribution.py -i {input.bam} -r {input.gtf} > {output} 2> {log}
+        """
+
 #____ ASSEMBLY QC _____________________________________________________________#
 
 rule quast:
@@ -194,7 +211,7 @@ rule sqanti:
 rule gffcompare:
     input:
         gtf = "Sample_{sample}/{sample}.{tool}.gtf",
-        ref = config['ref']['annotation'],
+        ref = config['ref']['annotation_bed'],
         genome = config['ref']['genome']
     output:
         "qc/gffcompare/{sample}_{tool}/{sample}_{tool}.stats"
@@ -222,13 +239,15 @@ qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
     'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
+    'structural_variant_calling' : [],
     'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
          expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
     'cDNA_flair': expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
     'cDNA_expression' : 
-        expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
+        #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
-        expand("Sample_{s}/{s}.summary.tsv", s = ID_samples),
+        expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'cDNA_pinfish' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
 }
