@@ -123,7 +123,7 @@ rule rseqc_read_distribution:
     output:
         "qc/rseqc/{sample}.read_distribution.txt"
     log:
-        "log/{sample}_rseqc.log"
+        "log/{sample}_rseqc_distribution.log"
     threads:
         2
     conda:
@@ -132,6 +132,24 @@ rule rseqc_read_distribution:
         """
         read_distribution.py -i {input.bam} -r {input.annot} > {output} 2> {log}
         """
+
+rule rseqc_geneBody_coverage:
+    input:
+        bam = "Sample_{sample}/{sample}.spliced.bam",
+        annot = config['ref']['annotation_bed']
+    output:
+        "qc/rseqc/{sample}.geneBody_coverage.txt"
+    log:
+        "log/{sample}_rseqc_coverage.log"
+    threads:
+        2
+    conda:
+        "../env/rseqc.yml"
+    shell:
+        """
+        geneBody_coverage.py -i {input.bam} -r {input.annot} > {output} 2> {log}
+        """
+
 
 #____ ASSEMBLY QC _____________________________________________________________#
 
@@ -246,6 +264,7 @@ qc_out = {
     'cDNA_expression' : 
         #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
         expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.geneBody_coverage.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'cDNA_pinfish' : [],

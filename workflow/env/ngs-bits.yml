@@ -1,0 +1,7 @@
+name: ngs-bits
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - ngs-bits==2020_06
