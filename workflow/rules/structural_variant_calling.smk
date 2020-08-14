@@ -13,7 +13,7 @@ rule sv_sniffles:
     "logs/{sample}_sniffles.log"
   shell:
     """
-    sniffles -m {input} -v {output.vcf} -t {threads} 2> {log}
+    sniffles -m {input} -v {output.vcf} -t {threads} > {log} 2>&1
     """ 
 
 rule process_sv_vcf:

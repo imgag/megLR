@@ -119,18 +119,18 @@ rule rna_qualimap:
 rule rseqc_read_distribution:
     input:
         bam = "Sample_{sample}/{sample}.spliced.bam",
-        gtf = config['ref']['annotation']
+        annot = config['ref']['annotation_bed']
     output:
         "qc/rseqc/{sample}.read_distribution.txt"
     log:
-        "qc/rseqc/{sample}.read_distribution.txt"
+        "log/{sample}_rseqc.log"
     threads:
         2
     conda:
         "../env/rseqc.yml"
     shell:
         """
-        read_distribution.py -i {input.bam} -r {input.gtf} > {output} 2> {log}
+        read_distribution.py -i {input.bam} -r {input.annot} > {output} 2> {log}
         """
 
 #____ ASSEMBLY QC _____________________________________________________________#
@@ -211,7 +211,7 @@ rule sqanti:
 rule gffcompare:
     input:
         gtf = "Sample_{sample}/{sample}.{tool}.gtf",
-        ref = config['ref']['annotation_bed'],
+        ref = config['ref']['annotation'],
         genome = config['ref']['genome']
     output:
         "qc/gffcompare/{sample}_{tool}/{sample}_{tool}.stats"
