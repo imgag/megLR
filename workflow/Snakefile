@@ -64,9 +64,11 @@ out = {
     'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
     'structural_variant_calling': expand("{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
     'cDNA_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
-    'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples),
+    'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples) +
+        expand("qc/sqanti/{s}_stringtie/{s}_stringtie_classification.txt", s = ID_samples),
     'cDNA_pinfish' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
-    'cDNA_flair': expand("Sample_{s}/{s}.flair.gtf", s=ID_samples),
+    'cDNA_flair': expand("Sample_{s}/{s}.flair.gtf", s=ID_samples) +
+        expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
     'qc' : ['qc/multiqc_report.html']
 }
 

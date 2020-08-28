@@ -123,7 +123,7 @@ rule rseqc_read_distribution:
     output:
         "qc/rseqc/{sample}.read_distribution.txt"
     log:
-        "log/{sample}_rseqc_distribution.log"
+        "logs/{sample}_rseqc_distribution.log"
     threads:
         2
     conda:
@@ -138,18 +138,17 @@ rule rseqc_geneBody_coverage:
         bam = "Sample_{sample}/{sample}.spliced.bam",
         annot = config['ref']['annotation_bed']
     output:
-        "qc/rseqc/{sample}.geneBody_coverage.txt"
+        "qc/rseqc/{sample}.geneBodyCoverage.txt"
     log:
-        "log/{sample}_rseqc_coverage.log"
+        "logs/{sample}_rseqc_coverage.log"
     threads:
         2
     conda:
         "../env/rseqc.yml"
     shell:
         """
-        geneBody_coverage.py -i {input.bam} -r {input.annot} > {output} 2> {log}
+        geneBody_coverage.py -i {input.bam} -r {input.annot} -o qc/rseqc/{wildcards.sample} >{log} 2>&1
         """
-
 
 #____ ASSEMBLY QC _____________________________________________________________#
 
@@ -198,13 +197,13 @@ rule bcftools_stats:
 
 rule sqanti:
     input:
-        gtf = "Sample_{sample}/{sample}.stringtie.gtf",
+        gtf = "Sample_{sample}/{sample}.{tool}.gtf",
         anno_ref = config['ref']['annotation'],
         genome = config['ref']['genome']
     output:
-        "qc/sqanti/{sample}/{sample}_classification.txt"
+        "qc/sqanti/{sample}_{tool}/{sample}_{tool}_classification.txt"
     log:
-        "logs/{sample}_sqanti.log"
+        "logs/{sample}_{tool}_sqanti.log"
     conda:
         "../env/sqanti.yml"
     params:
@@ -216,9 +215,8 @@ rule sqanti:
         export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}sequence/
         export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}
         {params.sqanti} \
-            -d qc/sqanti/{wildcards.sample} \
-            -o {wildcards.sample} \
-            --skipORF \
+            -d qc/sqanti/{wildcards.sample}_{wildcards.tool} \
+            -o {wildcards.sample}_{wildcards.tool} \
             --gtf {input.gtf} \
             {input.anno_ref} {input.genome} \
             >{log} 2>&1
@@ -259,12 +257,12 @@ qc_out = {
     'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
     'structural_variant_calling' : [],
     'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
-         expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
+        expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
     'cDNA_flair': expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
     'cDNA_expression' : 
         #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
         expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.geneBody_coverage.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'cDNA_pinfish' : [],

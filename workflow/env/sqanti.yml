@@ -6,6 +6,8 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - bioconductor-noiseq
+  - bioconductor-biobase
   - _anaconda_depends=2020.02=py37_0
   - _libgcc_mutex=0.1=main
   - _r-mutex=1.0.0=anacondar_1
