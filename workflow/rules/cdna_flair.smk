@@ -38,7 +38,7 @@ rule flairCorrect:
             -q {input.bed} \
             -f {input.annot} \
             -g {input.genome} \
-            -o flair/{wildcards.sample} \
+            -o Sample_{wildcards.sample}/flair/{wildcards.sample} \
             --nvrna \
             --threads {threads} \
             >{log} 2>&1
@@ -55,14 +55,14 @@ rule flairCollapse:
         annot = config['ref']['annotation']
     output:
         gtf = "Sample_{sample}/flair/{sample}.isoforms.gtf",
-        gtf_main = "Sample_{sample}/Sample_{sample}/{sample}.flair.gtf",
+        gtf_main = "Sample_{sample}/{sample}.flair.gtf",
         fasta = "Sample_{sample}/flair/{sample}.isoforms.fa",
     conda:
         "../env/flair.yml"
     threads:
         8
     log:
-        "logs/{sample}_flair_correct.log"
+        "logs/{sample}_flair_collapse.log"
     params:
         trust_ends = "--trust_ends" if config['flair']['trust_ends'] else ""
     shell:
@@ -75,7 +75,7 @@ rule flairCollapse:
             --gtf {input.annot} \
             {params.trust_ends} \
             --generate_map \
-            --output flair/{wildcards.sample} \
+            --output Sample_{wildcards.sample}/flair/{wildcards.sample} \
             >{log} 2>&1
         cp {output.gtf} {output.gtf_main}
         """

@@ -38,9 +38,9 @@ rule run_multiqc:
         {params.multiqc} \
             --force \
             --config config/multiqc.yml \
-            --outdir qc/per_run \
+            --outdir qc/pycoqc/per_run \
             --filename run_multiqc_report \
-            qc/per_run/ \
+            qc/pycoqc/per_run/ \
             >{log} 2>> {log}
         """
 
