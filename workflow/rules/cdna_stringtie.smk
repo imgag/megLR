@@ -1,4 +1,6 @@
 #_____ TRANSCRIPTOME ASSEMBLY ______________________________________________#
+# Note: We can run Stringtie in stranded mode since the bam file after
+# Pychopper contains correct strand informations
 
 rule stringtie:
     input:
@@ -18,7 +20,8 @@ rule stringtie:
         "../env/stringtie.yml"
     shell:
         """
-        {params.stringtie} -L -R -v -B\
+        {params.stringtie} -L -R -v -B \
+        --rf \
         -A {output.abundance} \
         -G {input.annot} \
         -o {output.gtf} \

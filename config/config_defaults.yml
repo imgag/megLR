@@ -107,3 +107,10 @@ expression:
   level: "exon"
   min_qual: 3
   strandedness: 1 # 0:unstranded 1:stranded 2:reversely stranded
+
+#______ DUAL BARCODING DEMULTIPLEX ______________________________________________#
+
+demux:
+  bc_index: 'bc_index_file.csv'
+  bc_distance: 3
+  minibar: '/mnt/users/ahgrosc1/tools/miniconda3/bin/python /mnt/users/ahgrosc1/tools/minibar/minibar.py'

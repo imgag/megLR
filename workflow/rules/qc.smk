@@ -74,7 +74,7 @@ rule qualimap:
     input:
         "Sample_{sample}/{sample}.bam"
     output:
-        directory('qc/qualimap/{sample}_genome')
+        'qc/qualimap/{sample}_genome/genome_results.txt'
     log:
         "logs/{sample}_qualimap.log"
     threads:
@@ -194,6 +194,8 @@ rule bcftools_stats:
         """
 
 #_____ TRANSCRIPTOME ANNOTATION QC ____________________________________________#
+# Exons with ambigous strand informations are filtered out to avoid sqanti errors
+# This happens only with stringtie annotation
 
 rule sqanti:
     input:
@@ -214,10 +216,12 @@ rule sqanti:
         set +u;
         export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}sequence/
         export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}
+        tmp=$(mktemp)
+        awk '$7!="." {{print $0}}' {input.gtf} > $tmp
         {params.sqanti} \
             -d qc/sqanti/{wildcards.sample}_{wildcards.tool} \
             -o {wildcards.sample}_{wildcards.tool} \
-            --gtf {input.gtf} \
+            --gtf $tmp \
             {input.anno_ref} {input.genome} \
             >{log} 2>&1
         """
@@ -252,13 +256,16 @@ rule gffcompare:
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
-    'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
+    'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
     'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
     'structural_variant_calling' : [],
     'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
-    'cDNA_flair': expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
+    'cDNA_flair': 
+        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) +    
+        expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
     'cDNA_expression' : 
         #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
         expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
@@ -266,6 +273,7 @@ qc_out = {
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'cDNA_pinfish' : [],
+    'dual_demux' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
 }
 
