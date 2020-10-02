@@ -2,3 +2,4 @@
 resources/*
 !resources/README.md
 test
+*.code-workspace

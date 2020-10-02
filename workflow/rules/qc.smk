@@ -87,7 +87,7 @@ rule qualimap:
             -bam {input} \
             --paint-chromosome-limits \
             -nt {threads} \
-            -outdir {output} \
+            -outdir qc/qualimap/{wildcards.sample}_genome \
             --java-mem-size=12G \
             >{log} 2>&1
         """

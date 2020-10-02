@@ -70,8 +70,8 @@ out = {
     'cDNA_pinfish' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
     'cDNA_flair': expand("Sample_{s}/{s}.flair.gtf", s=ID_samples) +
         expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
-    'dual_demux': expand("Sample_{s}/demux/{s}_unk.fastq", s = ID_samples) +
-        expand("Sample_{s}/{s}.demux.txt", s = ID_samples),
+    'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
+        expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
     'qc' : ['qc/multiqc_report.html']
 }
 

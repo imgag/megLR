@@ -114,3 +114,4 @@ demux:
   bc_index: 'bc_index_file.csv'
   bc_distance: 3
   minibar: '/mnt/users/ahgrosc1/tools/miniconda3/bin/python /mnt/users/ahgrosc1/tools/minibar/minibar.py'
+  target_region: 'testbla'
