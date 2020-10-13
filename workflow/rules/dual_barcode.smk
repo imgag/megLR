@@ -88,8 +88,8 @@ rule bc_map:
         fq = "Sample_{sample}/demux_pass/{sample}_{bc}.fastq",
         genome = config['ref']['genome']
     output:
-        bam = "Sample_{sample}/demux_analysis/{bc}/{sample}_{bc}.bam",
-        bai = "Sample_{sample}/demux_analysis/{bc}/{sample}_{bc}.bam.bai"
+        bam = "Sample_{sample}/demux_analysis/{sample}_{bc}/{sample}_{bc}.bam",
+        bai = "Sample_{sample}/demux_analysis/{sample}_{bc}/{sample}_{bc}.bam.bai"
     conda:
         "../env/minimap2.yml"
     log:
@@ -107,9 +107,9 @@ rule bc_map:
 
 rule bc_bam_qc:
     input:
-        "Sample_{sample}/demux_analysis/{bc}/{sample}_{bc}.bam"
+        "Sample_{sample}/demux_analysis/{sample}_{bc}/{sample}_{bc}.bam"
     output:
-        "Sample_{sample}/demux_analysis/{bc}/genome_results.txt"
+        "Sample_{sample}/demux_analysis/{sample}_{bc}/genome_results.txt"
     conda:
         "../env/ngs-bits.yml"
     log:
@@ -127,21 +127,61 @@ rule bc_bam_qc:
             --paint-chromosome-limits \
             -nt {threads} \
             -outdir Sample_{wildcards.sample}/demux_analysis/{wildcards.bc} \
-            --java-mem-size=3G \
+            --java-mem-size=12G \
             >{log} 2>&1
         """
 
+rule bc_var:
+    input:
+        bam = rules.bc_map.output.bam,
+        ref = config['ref']['genome']
+    output:
+        vcf = "Sample_{sample}/demux_analysis/{sample}_{bc}/round_1.vcf"
+    conda:
+        "../env/medaka.yml"
+    threads:
+        2
+    log:
+        "logs/{sample}_{bc}_medaka.log"
+    params:
+        model_snp = config['vc']['model_initial'],
+        roi = config['demux']['target_region_str']
+    shell:
+        """
+        export OMP_NUM_THREADS={threads}
+        medaka_variant -d \
+            -f {input.ref} \
+            -i {input.bam} \
+            -r {params.roi} \
+            -p  \
+            -o Sample_{wildcards.sample}/demux_analysis/{wildcards.sample}_{wildcards.bc}/ \
+            -t {threads} \
+            -s {params.model_snp} \
+            -S \
+            >{log} 2>&1
+        """
+
+
 def get_demuxed_samples(wildcards):
         pass_folder = checkpoints.mv_mult_files.get(sample=wildcards.sample).output.bc_pass
-        sample_files = expand("Sample_{sample}/demux_analysis/{bc_id}/genome_results.txt",
+        sample_files = expand("Sample_{sample}/demux_analysis/{sample}_{bc_id}/genome_results.txt",
             sample = wildcards.sample,
             bc_id = glob_wildcards(os.path.join(pass_folder, wildcards.sample+"_{bc_id}.fastq" )).bc_id)
         #print(sample_files)
         return sample_files
 
-rule coverage_stats:
+def get_demuxed_variants(wildcards):
+        pass_folder = checkpoints.mv_mult_files.get(sample=wildcards.sample).output.bc_pass
+        sample_files = expand("Sample_{sample}/demux_analysis/{sample}_{bc_id}/round_1.vcf",
+            sample = wildcards.sample,
+            bc_id = glob_wildcards(os.path.join(pass_folder, wildcards.sample+"_{bc_id}.fastq" )).bc_id)
+        #print(sample_files)
+        return sample_files
+
+rule all_demux:
     input:
-        get_demuxed_samples
+        get_demuxed_samples,
+        get_demuxed_variants
     output:
         "Sample_{sample}/coverage_stats.txt"
     shell:

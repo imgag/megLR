@@ -115,3 +115,4 @@ demux:
   bc_distance: 3
   minibar: '/mnt/users/ahgrosc1/tools/miniconda3/bin/python /mnt/users/ahgrosc1/tools/minibar/minibar.py'
   target_region: 'testbla'
+  target_region_str: 'chr1:155232501-155241415'
