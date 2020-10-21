@@ -36,7 +36,8 @@ def get_chromosomes():
 # Load additional project config files and overwrite default config
 def load_project_config(f):
     if os.path.isfile(f):
-        configfile: f
+        repo_root +
+        configfile: repo_root+f
     else:
         print("Project config not available")
         pass

@@ -12,9 +12,12 @@ from glob import glob
 
 include: "rules/helper_scripts.smk"
 
-configfile: "config/config_defaults.yml"
+repo_root = Path(__file__).resolve()
+configfile: repo_root + "/config/config_defaults.yml"
 load_project_config(config['project_config'])
 print_message()
+
+
 
 #_____ PARSE SAMPLE FILE _______________________________________________________#
 
