@@ -37,7 +37,6 @@ rule run_multiqc:
         """
         {params.multiqc} \
             --force \
-            --config config/multiqc.yml \
             --outdir qc/pycoqc/per_run \
             --filename run_multiqc_report \
             qc/pycoqc/per_run/ \
@@ -45,6 +44,16 @@ rule run_multiqc:
         """
 
 #_____ SAMPLE READ QC  _________________________________________________________#
+
+#rule split_summary_files:
+#    input:
+#        get_summary_file_split
+#    output:
+#        "Sample_{s}/runs/{r}/sequencing_summary_split_{s}_{r}.txt"
+#    shell:
+#        """
+#        echo foo
+#        """
 
 rule sample_pycoqc:
     input:
@@ -274,6 +283,7 @@ qc_out = {
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'cDNA_pinfish' : [],
     'dual_demux' : [],
+    'de_analysis' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
 }
 
@@ -285,7 +295,7 @@ qc_out_selected = [qc_out[step] for step in config['steps']]
 
 rule multiqc:
     input:
-        expand("qc/pycoqc/{sample}.pycoQC.json", sample = ID_samples),
+#        expand("qc/pycoqc/{sample}.pycoQC.json", sample = ID_samples),
         [y for x in qc_out_selected for y in x]
     output:
         "qc/multiqc_report.html"
@@ -294,12 +304,13 @@ rule multiqc:
     threads:
         1
     params:
-        multiqc = config['apps']['multiqc']
+        multiqc = config['apps']['multiqc'],
+        multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
         {params.multiqc} \
+            --config  {params.multiqc_config} \
             --force \
-            --config config/multiqc.yml \
             --outdir qc\
             --ignore-symlinks \
             {input} > {log} 2>&1

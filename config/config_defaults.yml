@@ -6,7 +6,8 @@ steps:
 # - structural_variant_calling (TODO)
 # - variant_calling
 # - cDNA_pinfish
-# - cDNA_expression (TODO)
+# - cDNA_expression
+# - expression_analysis
 # - cDNA_stringtie
 # - cDNA_flair
 # - repeat_expansion (TODO)
@@ -15,14 +16,14 @@ steps:
 #_______ REFERENCE FILES _________________________________________________________#
 
 ref:
-  genome: "/mnt/share/data/genomes/GRCh38.fa"
+  genome: "/mnt/storage1/share/data/genomes/GRCh38.fa"
   #annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.chr.gtf"
-  annotation: "/mnt/SRV018/users/ahgrosc1/data/gencode.v34.annotation.gtf"
-  annotation_bed: "/mnt/SRV018/users/ahgrosc1/data/gencode.v34.annotation.bed"
+  annotation: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.gtf"
+  annotation_bed: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.bed"
   cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
-  target_region: "/mnt/SRV018/users/ahgrosc1/data/WGS_grch38.bed"
-  vc_benchmark: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
-  vc_confidence_region: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
+  target_region: "/mnt/storage1/users/ahgrosc1/data/WGS_grch38.bed"
+  vc_benchmark: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
+  vc_confidence_region: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
@@ -40,11 +41,11 @@ sys:
   max_threads: 12
 
 apps:
-  multiqc: "/mnt/SRV018/users/ahgrosc1/dev/multiqc/venv/bin/multiqc"
-  qualimap: "unset DISPLAY; /mnt/SRV018/users/ahgrosc1/tools/qualimap/qualimap" 
-  stringtie: "/mnt/SRV018/users/ahgrosc1/tools/stringtie/stringtie"
-  sqanti: "python /mnt/SRV018/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
-  cdna_cupcake: "/mnt/SRV018/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
+  multiqc: "/mnt/storage1/users/ahgrosc1/tools/bin/multiqc"
+  qualimap: "unset DISPLAY; /mnt/storage1/users/ahgrosc1/tools/qualimap/qualimap" 
+  stringtie: "/mnt/storage1/users/ahgrosc1/tools/stringtie/stringtie"
+  sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
+  cdna_cupcake: "/mnt/storage1/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
 
 #______ ANALYSIS PARAMETERS _______________________________________________________#
 
@@ -107,6 +108,12 @@ expression:
   level: "exon"
   min_qual: 3
   strandedness: 1 # 0:unstranded 1:stranded 2:reversely stranded
+  # Maximum secondary alignments
+  maximum_secondary: 100
+  # Secondary score ratio (-p for minimap2)
+  secondary_score_ratio: 1.0
+  # Salmon library type
+  salmon_libtype: "U"
 
 #______ DUAL BARCODING DEMULTIPLEX ______________________________________________#
 

@@ -1,0 +1,17 @@
+channels:
+  - bioconda
+  - conda-forge
+  - r
+dependencies:
+  - bioconductor-genomicfeatures
+  - bioconductor-drimseq
+  - bioconductor-edger
+  - bioconductor-dexseq
+  - bioconductor-stager
+  - minimap2
+  - samtools
+  - r-dplyr
+  - r-tidyr
+  - pysam
+  - pandas
+  - salmon

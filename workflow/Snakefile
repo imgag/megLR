@@ -9,42 +9,66 @@ import os
 import pathlib
 from collections import defaultdict
 from glob import glob
+import pandas as pd
+from collections import OrderedDict
 
 include: "rules/helper_scripts.smk"
 
-repo_root = Path(__file__).resolve()
-configfile: repo_root + "/config/config_defaults.yml"
+configfile: srcdir('../config/config_defaults.yml')
 load_project_config(config['project_config'])
 print_message()
-
-
 
 #_____ PARSE SAMPLE FILE _______________________________________________________#
 
 ID_runs = set()
 ID_samples = set()
 map_samples_run = defaultdict(list)
+map_samples_barcodes = defaultdict(list)
+
 
 # Parse sample and run id connection table
-with open(config['sample_file']) as f:
-    reader=csv.reader(f, delimiter="\t")
-    for row in reader:
-        if len(row) == 2:
-            #print(row)
-            ID_runs.add(row[0])
-            ID_samples.add(row[1])
-            map_samples_run[row[1]].append(row[0])
+if  os.path.isfile(config['sample_file']):
+    with open(config['sample_file']) as f:
+        reader=csv.reader(f, delimiter="\t")
+        for row in reader:
+            if len(row) == 2:
+                #print(row)
+                ID_runs.add(row[0])
+                ID_samples.add(row[1])
+                map_samples_run[row[1]].append(row[0])
+                try:
+                    #os.makedirs('run_data/'+row[0], exist_ok=True)
+                    os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
+                    os.symlink('../../run_data/'+row[0],
+                        'Sample_'+row[1]+'/runs/'+row[0])
+                except Exception as e:
+                    pass
 
-            try:
-                os.makedirs('run_data/'+row[0], exist_ok=True)
-                os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
-                os.symlink('../../run_data/'+row[0],
-                    'Sample_'+row[1]+'/runs/'+row[0])
-            except Exception as e:
+            # Use reads with demultiplexed barcodes
+            elif len(row) == 3:
+                ID_runs.add(row[0])
+                ID_samples.add(row[1])
+                map_samples_barcodes[row[1]].append(row[2])
+                map_samples_run[row[1]].append(row[0])
+                try:
+                    #os.makedirs('run_data/'+row[0], exist_ok=True)
+                    os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
+                    os.symlink('../../run_data/'+row[0]+'/fastq_pass/'+row[2],
+                        'Sample_'+row[1]+'/runs/'+row[0])
+                except Exception as e:
+                    pass
+
+            else :
+                print("Wrong number of columns in row: ", row, len(row))
                 pass
-        else :
-            print("Wrong number of columns in row: ", row)
+else:
+    ID_samples, = glob_wildcards('Sample_{sample}/')
+    ID_samples = [sample for sample in ID_samples if '/' not in sample]
+    print("Detected the following samples in project dir: ")
+    print(ID_samples)
 
+        
+        
 #_____ INCLUDE MODULES ________________________________________________________#
 
 include: "rules/fetch_reads.smk"
@@ -66,8 +90,9 @@ out = {
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
     'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
-    'structural_variant_calling': expand("{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
+    'structural_variant_calling': expand("Sample_{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
     'cDNA_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
+    'de_analysis' : ["de_analysis/dtu_plots.pdf"],
     'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples) +
         expand("qc/sqanti/{s}_stringtie/{s}_stringtie_classification.txt", s = ID_samples),
     'cDNA_pinfish' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
@@ -83,7 +108,7 @@ if config['vc']['create_benchmark']:
     out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
 
 out_selected = [out[step] for step in config['steps']]
-#print(out_selected)
+print(out_selected)
 rule all:
     input:
         [y for x in out_selected for y in x]
