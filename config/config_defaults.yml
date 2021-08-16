@@ -72,24 +72,6 @@ vc:
   model_final: "r941_prom_high_g303" #Depends on flowcell and guppy version
   create_benchmark: false
 
-#______ PINFISH PARAMETERS _______________________________________________________#
-
-pinfish:
-  minimap2_opts: "-uf" # Find canonical splicing sites on f: transcript strand
-  minimum_mapping_quality: 10
-  spliced_bam2gff_opts: "-s"
-  minimum_cluster_size: 10
-  minimum_isoform_percent: 1.0
-  exon_boundary_tolerance: 10
-  terminal_exon_boundary_tolerance: 30
-  minimap2_opts_polished: "-uf"
-  spliced_bam2gff_opts_pol: "-s"
-  # Options passed to collapse_partials when collapsing fragmentation artifacts
-  # in clustered and polished transcripts.
-  collapse_internal_tol: 5  #Internal exon boundary tolerance for collapsing
-  collapse_five_tol: 5000   # Five prime boundary tolerance for collapsing
-  collapse_three_tol: 30 # Three prime boundary tolerance for collapsing
-
 #______ QC PARAMETERS ____________________________________________________________#
 
 gffcompare:

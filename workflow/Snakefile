@@ -20,11 +20,10 @@ print_message()
 
 #_____ PARSE SAMPLE FILE _______________________________________________________#
 
-ID_runs = set()
 ID_samples = set()
-map_samples_run = defaultdict(list)
+ID_folders = set()
+map_samples_folder = defaultdict(list)
 map_samples_barcodes = defaultdict(list)
-
 
 # Parse sample and run id connection table
 if  os.path.isfile(config['sample_file']):
@@ -33,30 +32,16 @@ if  os.path.isfile(config['sample_file']):
         for row in reader:
             if len(row) == 2:
                 #print(row)
-                ID_runs.add(row[0])
-                ID_samples.add(row[1])
-                map_samples_run[row[1]].append(row[0])
-                try:
-                    #os.makedirs('run_data/'+row[0], exist_ok=True)
-                    os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
-                    os.symlink('../../run_data/'+row[0],
-                        'Sample_'+row[1]+'/runs/'+row[0])
-                except Exception as e:
-                    pass
+                ID_samples.add(row[0])
+                ID_folders.add(row[1])
+                map_samples_folder[row[0]].append(row[1])
 
             # Use reads with demultiplexed barcodes
             elif len(row) == 3:
                 ID_runs.add(row[0])
                 ID_samples.add(row[1])
-                map_samples_barcodes[row[1]].append(row[2])
-                map_samples_run[row[1]].append(row[0])
-                try:
-                    #os.makedirs('run_data/'+row[0], exist_ok=True)
-                    os.makedirs('Sample_'+row[1]+'/runs/', exist_ok=True)
-                    os.symlink('../../run_data/'+row[0]+'/fastq_pass/'+row[2],
-                        'Sample_'+row[1]+'/runs/'+row[0])
-                except Exception as e:
-                    pass
+                map_samples_barcodes[row[0]].append(row[2])
+                map_samples_folder[row[0]].append(row[1])
 
             else :
                 print("Wrong number of columns in row: ", row, len(row))
@@ -64,11 +49,9 @@ if  os.path.isfile(config['sample_file']):
 else:
     ID_samples, = glob_wildcards('Sample_{sample}/')
     ID_samples = [sample for sample in ID_samples if '/' not in sample]
-    print("Detected the following samples in project dir: ")
+    print("Automatically detected the following samples in project dir: ")
     print(ID_samples)
 
-        
-        
 #_____ INCLUDE MODULES ________________________________________________________#
 
 include: "rules/fetch_reads.smk"
@@ -78,7 +61,6 @@ include: "rules/variant_calling.smk"
 include: "rules/structural_variant_calling.smk"
 include: "rules/cdna_expression.smk"
 include: "rules/cdna_stringtie.smk"
-include: "rules/cdna_pinfish.smk"
 include: "rules/cdna_flair.smk"
 include: "rules/dual_barcode.smk"
 include: "rules/qc.smk"
@@ -109,6 +91,7 @@ if config['vc']['create_benchmark']:
 
 out_selected = [out[step] for step in config['steps']]
 print(out_selected)
+
 rule all:
     input:
         [y for x in out_selected for y in x]

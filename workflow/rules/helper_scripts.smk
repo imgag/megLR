@@ -1,32 +1,12 @@
 #_____ HELPER SCRIPTS _______________________________________________________#
-def check_copy_finished(wc):
-    return(["run_data/" + x + "/copy_finished" for x in map_samples_run[wc.sample]])
-
-def get_fastqs(wc):
-    folders = []
-    if (wc.sample in map_samples_barcodes):
-        folders.extend(["run_data/" + x  for x in map_samples_run[wc.sample]])
-    elif (config['use_failed_reads']):
-        folders.extend(["run_data/" + x + "/fastq_fail" for x in map_samples_run[wc.sample]])
-    else: 
-        folders.extend(["run_data/" + x + "/fastq_pass" for x in map_samples_run[wc.sample]])
-    return{'folders': folders}
+def get_input_folders(wc):
+    folders = map_samples_folder[wc.sample]
+    folders_exist = [x for x in folders if os.path.exists(x)]
+    return{'folders': folders_exist} 
 
 def get_summary_files(wc):
     g = "Sample_" + wc.sample + '/**/sequencing_summary*'
     files = [str(f) for f in glob(g, recursive=True)]
-    #if (wc.sample in map_samples_barcodes):
-    #    files.extend([
-    #    "Sample_" +
-    #    wc.sample + 
-    #    "/runs/" + 
-    #    r + 
-    #    "sequencing_summary_split_" +
-    #    wc_sample + 
-    #    "_" +
-    #    r +
-    #    ".txt"
-    #    for r in map_samples_run[wc.samples]])
     return{'summary_files': files}
 
 def get_summary_file_split(wc):

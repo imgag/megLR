@@ -1,8 +1,7 @@
 #_____ RUN READ QC  __________________________________________________________#
 
 rule run_pycoqc:
-    input:
-        "run_data/{run}/copy_finished"
+#        "run_data/{run}/copy_finished"
     output:
         html = "qc/pycoqc/per_run/{run}.pycoQC.html",
         json = "qc/pycoqc/per_run/{run}.pycoQC.json"
@@ -24,7 +23,7 @@ rule run_pycoqc:
 
 rule run_multiqc:
     input:
-        expand("qc/pycoqc/per_run/{run}.pycoQC.html", run = ID_runs)
+        expand("qc/pycoqc/per_run/{run}.pycoQC.html", run = ID_folders)
     output:
         "qc/pycoqc/per_run/run_multiqc_report.html"
     log:
@@ -58,7 +57,6 @@ rule run_multiqc:
 rule sample_pycoqc:
     input:
         unpack(get_summary_files),
-        check_copy_finished
     output:
         html = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.html",
         json = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.json"
