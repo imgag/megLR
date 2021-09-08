@@ -1,7 +1,6 @@
 #_____ RUN READ QC  __________________________________________________________#
 
 rule run_pycoqc:
-#        "run_data/{run}/copy_finished"
     output:
         html = "qc/pycoqc/per_run/{run}.pycoQC.html",
         json = "qc/pycoqc/per_run/{run}.pycoQC.json"
@@ -23,7 +22,7 @@ rule run_pycoqc:
 
 rule run_multiqc:
     input:
-        expand("qc/pycoqc/per_run/{run}.pycoQC.html", run = ID_folders)
+        expand("qc/pycoqc/per_run/{folder}.pycoQC.html", folder = ID_folders)
     output:
         "qc/pycoqc/per_run/run_multiqc_report.html"
     log:
@@ -42,17 +41,28 @@ rule run_multiqc:
             >{log} 2>> {log}
         """
 
+rule barcode_pycoqc:
+    output:
+        html = "qc/pycoqc/{sample}/{sample}.{barcode}.pycoQC.html",
+        json = "qc/pycoqc/{sample}/{sample}.{barcode}.pycoQC.json"
+
 #_____ SAMPLE READ QC  _________________________________________________________#
 
-#rule split_summary_files:
-#    input:
-#        get_summary_file_split
-#    output:
-#        "Sample_{s}/runs/{r}/sequencing_summary_split_{s}_{r}.txt"
-#    shell:
-#        """
-#        echo foo
-#        """
+rule split_summary_perbarcode:
+    input:
+        get_summary_file_split
+    output:
+        directory("qc/pycoqc/split_{folder}")
+    log:
+        "logs/{folder}_pycoqc.log"
+    conda:
+        "../env/pycoqc.yml"
+    shell:
+        """
+        Barcode_split \
+            --summary_file {input} \
+            --output_dir qc/pycoqc/
+        """
 
 rule sample_pycoqc:
     input:

@@ -1,11 +1,13 @@
 #_____ HELPER SCRIPTS _______________________________________________________#
 def get_input_folders(wc):
-    folders = map_samples_folder[wc.sample]
+    folders = ['/pass/'.join(x) if (type(x) == tuple) else x for x in  map_samples_folder[wc.sample]]
+    if config['use_failed_reads']:
+        folders.append(['/failed/'.join(x) if (type(x) == tuple) for x in  map_samples_folder[wc.sample]]
     folders_exist = [x for x in folders if os.path.exists(x)]
     return{'folders': folders_exist} 
 
 def get_summary_files(wc):
-    g = "Sample_" + wc.sample + '/**/sequencing_summary*'
+    g = "Sample_" + wc.folder + '/**/sequencing_summary*'
     files = [str(f) for f in glob(g, recursive=True)]
     return{'summary_files': files}
 

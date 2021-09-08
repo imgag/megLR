@@ -8,19 +8,33 @@ This pipeline is designed to run on a raw data folder of any ONT sequencing plat
 
 ## File locations
 
-ONT Tools normally requires a File of Filenames (FoF) to associate sample IDs and raw data locations. By default, the pipeline will look for a file named `sample_run_table.tsv` in the working directory (can be changed in options file). The FoF must be a Tab separated text file with either two or three columns:
+ONT Tools normally requires a File of Filenames (FoF) to associate sample IDs and raw data locations. By default, the pipeline will look for a file named `sample_run_table.tsv` in the working directory (can be changed in options file). The FoF must be a Tab separated text file with two or three columns:
 
 1. Sample ID 
 2. Data folder
-3. Optional: Barcode. This column can be empty or omitted from the file. 
+3. (Optional) Barcode
 
-A single sample can have multiple data folders, this is used when multiple flowcells were used for the same sample, or if the sequencer created multiple runfolders because of interruptions. In this case there are multiple rows with the sampleID
+### One sample, multiple runs: 
 
-SampleID | Folder  |   |
-|  ---  |  ---  |  ---  |
-| a0001    | /mnt/ontdata/run_20201205/      |       |
-| a0001    | /mnt/ontdata/run_20201205_restarted/      |       |
-| a0002    | /mnt/ontdata/run_20201206      |       |
+A single sample can have multiple data folders, this is used when multiple flowcells were used for the same sample, or if the sequencer created multiple runfolders because of interruptions. In this case there are multiple rows with the sampleID.
+
+SampleID | Folder  |  
+|  ---  |  ---  |  
+| a0001    | /mnt/ontdata/run_20201205      |       
+| a0001    | /mnt/ontdata/run_20201205_restarted      |       
+| a0002    | /mnt/ontdata/run_20201206      |       
+
+### Demultiplexing
+
+Multiple samples can be sequenced in the same run using barcodes. Normally, the raw_data folder already containes subfolders for the different barcodes.  In this case, the FOFN should contain folder locations to the correct barcode subdirectories.
+
+SampleID | Folder  |  Barcode
+|  ---  |  ---  |  --- |
+| a0001    | /mnt/ontdata/run_20201205      |  barcode1     |
+| a0001    | /mnt/ontdata/run_20201205_restarted     | barcode1 |       
+| a0002    | /mnt/ontdata/run_20201205     |  barcode2    |
+
+A separate PycoQC will be created for each row in the Filelist. 
 
 The paths in the Folder column can be absolute or relative to the working directory. They will be searched recursively for all files ending with `.fastq`, `.fastq.gz`, `.fq` , `.fq.gz` and combined into a single compressed FastQ file in the sample directory. 
 

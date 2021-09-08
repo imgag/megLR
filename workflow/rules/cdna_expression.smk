@@ -114,6 +114,7 @@ rule plot_dtu_res:
         """
         {params.script}
         """
+        
 #_____ FEATURE COUNT (GENE LEVEL) _____________________________________________#
 
 rule quant_genes:

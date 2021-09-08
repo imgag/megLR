@@ -31,21 +31,21 @@ if  os.path.isfile(config['sample_file']):
         reader=csv.reader(f, delimiter="\t")
         for row in reader:
             if len(row) == 2:
-                #print(row)
                 ID_samples.add(row[0])
                 ID_folders.add(row[1])
                 map_samples_folder[row[0]].append(row[1])
 
-            # Use reads with demultiplexed barcodes
+            # Add barcodes to folder (tuple)
             elif len(row) == 3:
-                ID_runs.add(row[0])
-                ID_samples.add(row[1])
-                map_samples_barcodes[row[0]].append(row[2])
-                map_samples_folder[row[0]].append(row[1])
+                ID_samples.add(row[0])
+                ID_folders.add(row[1])
+                map_samples_folder[row[0]].append((row[1], row[2]))
 
             else :
                 print("Wrong number of columns in row: ", row, len(row))
                 pass
+
+# If no FOFN available, check dir for  Folders with "Sample_" Prefix
 else:
     ID_samples, = glob_wildcards('Sample_{sample}/')
     ID_samples = [sample for sample in ID_samples if '/' not in sample]
