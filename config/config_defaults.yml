@@ -41,7 +41,7 @@ sys:
   max_threads: 12
 
 apps:
-  multiqc: "/mnt/storage1/users/ahgrosc1/tools/bin/multiqc"
+  multiqc: "/mnt/users/ahgrosc1/tools/bin/multiqc"
   qualimap: "unset DISPLAY; /mnt/storage1/users/ahgrosc1/tools/qualimap/qualimap" 
   stringtie: "/mnt/storage1/users/ahgrosc1/tools/stringtie/stringtie"
   sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"

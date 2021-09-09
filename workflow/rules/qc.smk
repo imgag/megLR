@@ -1,18 +1,18 @@
 #_____ RUN READ QC  __________________________________________________________#
 
-rule run_pycoqc:
+rule folder_pycoqc:
     output:
-        html = "qc/pycoqc/per_run/{run}.pycoQC.html",
-        json = "qc/pycoqc/per_run/{run}.pycoQC.json"
+        html = "qc/pycoqc/per_run/{folder}.pycoQC.html",
+        json = "qc/pycoqc/per_run/{folder}.pycoQC.json"
     log:
-        "logs/{run}_pycoqc.log"
+        "logs/{folder}_pycoqc.log"
     conda:
         "../env/pycoqc.yml"
     threads:
         1
     shell:
         """
-        file=$(find run_data/{wildcards.run} -name 'sequencing_summary*')
+        file=$(find {wildcards.folder} -name 'sequencing_summary*')
         pycoQC \
             --summary_file $file\
             --html_outfile {output.html} \
@@ -41,27 +41,24 @@ rule run_multiqc:
             >{log} 2>> {log}
         """
 
-rule barcode_pycoqc:
-    output:
-        html = "qc/pycoqc/{sample}/{sample}.{barcode}.pycoQC.html",
-        json = "qc/pycoqc/{sample}/{sample}.{barcode}.pycoQC.json"
-
 #_____ SAMPLE READ QC  _________________________________________________________#
 
+# Still todo, this is not implemented yet.
 rule split_summary_perbarcode:
-    input:
-        get_summary_file_split
     output:
         directory("qc/pycoqc/split_{folder}")
     log:
-        "logs/{folder}_pycoqc.log"
+        "logs/{folder}_pycoqc_split.log"
     conda:
         "../env/pycoqc.yml"
     shell:
         """
+        file=$(find {wildcards.folder} -name 'sequencing_summary*')
         Barcode_split \
             --summary_file {input} \
-            --output_dir qc/pycoqc/
+            --output_dir {output} \
+            --output_unclassified \
+            --verbose >{log} 2>&1
         """
 
 rule sample_pycoqc:
