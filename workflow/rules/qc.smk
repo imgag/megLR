@@ -30,12 +30,14 @@ rule run_multiqc:
     threads:
        1
     params:
-        multiqc = config['apps']['multiqc']
+        multiqc = config['apps']['multiqc'],
+        multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
         {params.multiqc} \
             --force \
             --outdir qc/pycoqc/per_run \
+            --config  {params.multiqc_config} \
             --filename run_multiqc_report \
             qc/pycoqc/per_run/ \
             >{log} 2>> {log}
@@ -43,8 +45,9 @@ rule run_multiqc:
 
 #_____ SAMPLE READ QC  _________________________________________________________#
 
-# Still todo, this is not implemented yet.
 rule split_summary_perbarcode:
+    input:
+        lambda wildcards: glob(wildcards.folder + "/sequencing_summary*")
     output:
         directory("qc/pycoqc/split_{folder}")
     log:
@@ -53,7 +56,6 @@ rule split_summary_perbarcode:
         "../env/pycoqc.yml"
     shell:
         """
-        file=$(find {wildcards.folder} -name 'sequencing_summary*')
         Barcode_split \
             --summary_file {input} \
             --output_dir {output} \
@@ -61,12 +63,20 @@ rule split_summary_perbarcode:
             --verbose >{log} 2>&1
         """
 
+rule rename_split_summary_files:
+    input:
+        lookup_split_summary_file
+    output:
+        "Sample_{sample}/sequencing_summary_bc_{sample}.txt"
+    shell:
+        "cp {input} {output}"
+
 rule sample_pycoqc:
     input:
         unpack(get_summary_files),
     output:
-        html = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.html",
-        json = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.json"
+        html = "qc/pycoqc/per_sample/{sample}.pycoQC.html",
+        json = "qc/pycoqc/per_sample/{sample}.pycoQC.json"
     conda:
         "../env/pycoqc.yml"
     log:
@@ -81,6 +91,11 @@ rule sample_pycoqc:
             --json_outfile {output.json} \
             >{log} 2>&1
         """
+
+rule aggregate_sample_pycoqc
+    input:
+        aggregate_sample_pycoqc
+    output: 
 
 #____ GENOME MAPPING QC __________________________________________________________#
 
@@ -289,7 +304,8 @@ qc_out = {
     'cDNA_pinfish' : [],
     'dual_demux' : [],
     'de_analysis' : [],
-    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
+    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
+        expand("qc/pycoqc/per_sample/{s}.pycoQC.html", s = ID_samples)],
 }
 
 # Additional output options
