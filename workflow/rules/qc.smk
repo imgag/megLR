@@ -1,20 +1,18 @@
 #_____ RUN READ QC  __________________________________________________________#
 
-rule run_pycoqc:
-    input:
-        "run_data/{run}/copy_finished"
+rule folder_pycoqc:
     output:
-        html = "qc/pycoqc/per_run/{run}.pycoQC.html",
-        json = "qc/pycoqc/per_run/{run}.pycoQC.json"
+        html = "qc/pycoqc/per_run/{folder}.pycoQC.html",
+        json = "qc/pycoqc/per_run/{folder}.pycoQC.json"
     log:
-        "logs/{run}_pycoqc.log"
+        "logs/{folder}_pycoqc.log"
     conda:
         "../env/pycoqc.yml"
     threads:
         1
     shell:
         """
-        file=$(find run_data/{wildcards.run} -name 'sequencing_summary*')
+        file=$(find {wildcards.folder} -name 'sequencing_summary*')
         pycoQC \
             --summary_file $file\
             --html_outfile {output.html} \
@@ -24,7 +22,7 @@ rule run_pycoqc:
 
 rule run_multiqc:
     input:
-        expand("qc/pycoqc/per_run/{run}.pycoQC.html", run = ID_runs)
+        expand("qc/pycoqc/per_run/{folder}.pycoQC.html", folder = ID_folders)
     output:
         "qc/pycoqc/per_run/run_multiqc_report.html"
     log:
@@ -32,13 +30,14 @@ rule run_multiqc:
     threads:
        1
     params:
-        multiqc = config['apps']['multiqc']
+        multiqc = config['apps']['multiqc'],
+        multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
         {params.multiqc} \
             --force \
-            --config config/multiqc.yml \
             --outdir qc/pycoqc/per_run \
+            --config  {params.multiqc_config} \
             --filename run_multiqc_report \
             qc/pycoqc/per_run/ \
             >{log} 2>> {log}
@@ -46,13 +45,39 @@ rule run_multiqc:
 
 #_____ SAMPLE READ QC  _________________________________________________________#
 
+checkpoint split_summary_perbarcode:
+    input:
+        lambda wildcards: glob(wildcards.folder + "/sequencing_summary*")
+    output:
+        directory("qc/pycoqc/split_{folder}")
+    log:
+        "logs/{folder}_pycoqc_split.log"
+    conda:
+        "../env/pycoqc.yml"
+    shell:
+        """
+        mkdir -p {output}
+        Barcode_split \
+            --summary_file {input} \
+            --output_dir {output} \
+            --output_unclassified \
+            --verbose >{log} 2>&1
+        """
+
+rule rename_split_summary_files:     
+    output:
+        "Sample_{sample}/sequencing_summary_bc_{sample}.txt"
+    params:
+        ssfile = lookup_split_summary_file
+    shell:
+        "cp {params.ssfile} {output}"
+
 rule sample_pycoqc:
     input:
         unpack(get_summary_files),
-        check_copy_finished
     output:
-        html = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.html",
-        json = "qc/pycoqc/{sample,[A-Za-z0-9]+}.pycoQC.json"
+        html = "qc/pycoqc/per_sample/{sample}.pycoQC.html",
+        json = "qc/pycoqc/per_sample/{sample}.pycoQC.json"
     conda:
         "../env/pycoqc.yml"
     log:
@@ -274,7 +299,10 @@ qc_out = {
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'cDNA_pinfish' : [],
     'dual_demux' : [],
-    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
+    'de_analysis' : [],
+    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
+        aggregate_sample_pycoqc, 
+        expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
 }
 
 # Additional output options
@@ -285,7 +313,7 @@ qc_out_selected = [qc_out[step] for step in config['steps']]
 
 rule multiqc:
     input:
-        expand("qc/pycoqc/{sample}.pycoQC.json", sample = ID_samples),
+#        expand("qc/pycoqc/{sample}.pycoQC.json", sample = ID_samples),
         [y for x in qc_out_selected for y in x]
     output:
         "qc/multiqc_report.html"
@@ -294,12 +322,13 @@ rule multiqc:
     threads:
         1
     params:
-        multiqc = config['apps']['multiqc']
+        multiqc = config['apps']['multiqc'],
+        multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
         {params.multiqc} \
+            --config  {params.multiqc_config} \
             --force \
-            --config config/multiqc.yml \
             --outdir qc\
             --ignore-symlinks \
             {input} > {log} 2>&1

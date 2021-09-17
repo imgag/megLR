@@ -1,18 +1,54 @@
 #_____ HELPER SCRIPTS _______________________________________________________#
-def check_copy_finished(wc):
-    return(["run_data/" + x + "/copy_finished" for x in map_samples_run[wc.sample]])
 
-def get_fastqs(wc):
-    folders = []
-    folders.extend(["run_data/" + x + "/fastq_pass" for x in map_samples_run[wc.sample]])
-    if (config['use_failed_reads']):
-        folders.extend(["run_data/" + x + "/fastq_fail" for x in map_samples_run[wc.sample]])
-    return{'folders': folders}
+def get_input_folders(wc):
+    """
+    Return the FASTQ data folder for a sample.
+        Allows multiple runs per sample (restarted, repeated)
+        Demultiplexed samples on a single flowcell with barcode information
+        Includes folder with failed reads when specified in config
+    """
+    folders = map_samples_folder[wc.sample].copy()
+    folders += ['/pass/'.join(x) for x in map_samples_barcode[wc.sample]]
+    if config['use_failed_reads']:
+       folders += ['/fail/'.join(x) for x in map_samples_barcode[wc.sample]]
+    folders_exist = [x for x in folders if os.path.exists(x)]
+    return{'folders': folders_exist} 
+
+def lookup_split_summary_file(wc):
+    """
+    Looks up which split barcode file belongs to the sample in the wildcard.
+    """
+    bc=[unpack(x)[1] for x in map_samples_barcode[wc.sample]][0]
+    #print(bc)
+    f=[unpack(x)[0] for x in map_samples_barcode[wc.sample]][0]
+    #print(f)
+    split_folder = "qc/pycoqc/split_" + f +"/sequencing_summary_"+bc+".txt" 
+    return split_folder
 
 def get_summary_files(wc):
-    g = "Sample_" + wc.sample + '/**/sequencing_summary*'
-    files = [str(f) for f in glob(g, recursive=True)]
+    """
+    Get all summary files that belong to a single sample.
+    Requests summaries split by barcodes if necessary
+    """
+    folders = map_samples_folder[wc.sample].copy()
+    files = [glob(x+"/sequencing_summary*.txt") for x in folders]
+    folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
+    files += [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
     return{'summary_files': files}
+
+def aggregate_sample_pycoqc(wc):
+    """
+    Function that validates the checkpoint and checks for generated sample_pycoqcs
+    that can be used in the multiqc report
+    """
+    folders_barcode = [x[0][0] for x in list(map_samples_barcode.copy().values())]
+    #print(folders_barcode)
+    checkpoint_output=checkpoints.split_summary_perbarcode.get(folder=folders_barcode[0]).output[0]
+    g = glob(os.path.join(checkpoint_output, "/summary_statistics_{bc}.txt"))
+    return(expand("qc/pycoqc/split_{folder}/summary_statistics_{bc}.txt",
+        folder = folders_barcode,
+        bc = g))
+
 
 def print_message():
     print('')
@@ -27,14 +63,14 @@ def print_message():
     print(*config['steps'], sep=" | ")
     pass
 
-# Extract chromosome names from target region bed file
 def get_chromosomes():
+    """Extract chromosome names from target region bed file"""
     with open(config['ref']['target_region']) as f:
         chrs = [row.split()[0] for row in f]
         return(chrs)
 
-# Load additional project config files and overwrite default config
 def load_project_config(f):
+    """Load additional project config files and overwrite default config"""
     if os.path.isfile(f):
         configfile: f
     else:
