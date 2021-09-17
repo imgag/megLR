@@ -161,6 +161,15 @@ rule bc_var:
             >{log} 2>&1
         """
 
+rule vcf2tsv:
+    input:
+        rules.bc_var.output.vcf
+    output:
+        "Sample_{sample}/demux_analysis/{sample}_{bc}/round_1.tsv"
+    shell:
+        """
+        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%FILTER\t[%GT\t%GQ]\n' {input} > {output}
+        """
 
 def get_demuxed_samples(wildcards):
         pass_folder = checkpoints.mv_mult_files.get(sample=wildcards.sample).output.bc_pass
@@ -170,9 +179,17 @@ def get_demuxed_samples(wildcards):
         #print(sample_files)
         return sample_files
 
-def get_demuxed_variants(wildcards):
+def get_demuxed_variants_mm(wildcards):
         pass_folder = checkpoints.mv_mult_files.get(sample=wildcards.sample).output.bc_pass
-        sample_files = expand("Sample_{sample}/demux_analysis/{sample}_{bc_id}/round_1.vcf",
+        sample_files = expand("Sample_{sample}/demux_analysis/{sample}_{bc_id}/round_1.tsv",
+            sample = wildcards.sample,
+            bc_id = glob_wildcards(os.path.join(pass_folder, wildcards.sample+"_{bc_id}.fastq" )).bc_id)
+        #print(sample_files)
+        return sample_files
+
+def get_demuxed_variants_dv(wildcards):
+        pass_folder = checkpoints.mv_mult_files.get(sample=wildcards.sample).output.bc_pass
+        sample_files = expand("Sample_{sample}/demux_analysis/{sample}_{bc_id}/{sample}_{bc_id}.dv.vcf.gz",
             sample = wildcards.sample,
             bc_id = glob_wildcards(os.path.join(pass_folder, wildcards.sample+"_{bc_id}.fastq" )).bc_id)
         #print(sample_files)
@@ -181,7 +198,7 @@ def get_demuxed_variants(wildcards):
 rule all_demux:
     input:
         get_demuxed_samples,
-        get_demuxed_variants
+        get_demuxed_variants_mm
     output:
         "Sample_{sample}/coverage_stats.txt"
     shell:

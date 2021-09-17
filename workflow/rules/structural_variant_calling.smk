@@ -20,7 +20,7 @@ rule process_sv_vcf:
   input:
     rules.sv_sniffles.output.vcf
   output:
-    "{sample}/{sample}.sv_sniffles.vcf.gz"
+    "Sample_{sample}/{sample}.sv_sniffles.vcf.gz"
   threads:
     1
   conda:

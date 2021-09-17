@@ -6,7 +6,8 @@ steps:
 # - structural_variant_calling (TODO)
 # - variant_calling
 # - cDNA_pinfish
-# - cDNA_expression (TODO)
+# - cDNA_expression
+# - expression_analysis
 # - cDNA_stringtie
 # - cDNA_flair
 # - repeat_expansion (TODO)
@@ -15,14 +16,14 @@ steps:
 #_______ REFERENCE FILES _________________________________________________________#
 
 ref:
-  genome: "/mnt/share/data/genomes/GRCh38.fa"
+  genome: "/mnt/storage1/share/data/genomes/GRCh38.fa"
   #annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.chr.gtf"
-  annotation: "/mnt/SRV018/users/ahgrosc1/data/gencode.v34.annotation.gtf"
-  annotation_bed: "/mnt/SRV018/users/ahgrosc1/data/gencode.v34.annotation.bed"
+  annotation: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.gtf"
+  annotation_bed: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.bed"
   cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
-  target_region: "/mnt/SRV018/users/ahgrosc1/data/WGS_grch38.bed"
-  vc_benchmark: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
-  vc_confidence_region: "/mnt/SRV018/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
+  target_region: "/mnt/storage1/users/ahgrosc1/data/WGS_grch38.bed"
+  vc_benchmark: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
+  vc_confidence_region: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
@@ -40,11 +41,11 @@ sys:
   max_threads: 12
 
 apps:
-  multiqc: "/mnt/SRV018/users/ahgrosc1/dev/multiqc/venv/bin/multiqc"
-  qualimap: "unset DISPLAY; /mnt/SRV018/users/ahgrosc1/tools/qualimap/qualimap" 
-  stringtie: "/mnt/SRV018/users/ahgrosc1/tools/stringtie/stringtie"
-  sqanti: "python /mnt/SRV018/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
-  cdna_cupcake: "/mnt/SRV018/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
+  multiqc: "/mnt/users/ahgrosc1/tools/bin/multiqc"
+  qualimap: "unset DISPLAY; /mnt/storage1/users/ahgrosc1/tools/qualimap/qualimap" 
+  stringtie: "/mnt/storage1/users/ahgrosc1/tools/stringtie/stringtie"
+  sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
+  cdna_cupcake: "/mnt/storage1/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
 
 #______ ANALYSIS PARAMETERS _______________________________________________________#
 
@@ -71,24 +72,6 @@ vc:
   model_final: "r941_prom_high_g303" #Depends on flowcell and guppy version
   create_benchmark: false
 
-#______ PINFISH PARAMETERS _______________________________________________________#
-
-pinfish:
-  minimap2_opts: "-uf" # Find canonical splicing sites on f: transcript strand
-  minimum_mapping_quality: 10
-  spliced_bam2gff_opts: "-s"
-  minimum_cluster_size: 10
-  minimum_isoform_percent: 1.0
-  exon_boundary_tolerance: 10
-  terminal_exon_boundary_tolerance: 30
-  minimap2_opts_polished: "-uf"
-  spliced_bam2gff_opts_pol: "-s"
-  # Options passed to collapse_partials when collapsing fragmentation artifacts
-  # in clustered and polished transcripts.
-  collapse_internal_tol: 5  #Internal exon boundary tolerance for collapsing
-  collapse_five_tol: 5000   # Five prime boundary tolerance for collapsing
-  collapse_three_tol: 30 # Three prime boundary tolerance for collapsing
-
 #______ QC PARAMETERS ____________________________________________________________#
 
 gffcompare:
@@ -107,6 +90,12 @@ expression:
   level: "exon"
   min_qual: 3
   strandedness: 1 # 0:unstranded 1:stranded 2:reversely stranded
+  # Maximum secondary alignments
+  maximum_secondary: 100
+  # Secondary score ratio (-p for minimap2)
+  secondary_score_ratio: 1.0
+  # Salmon library type
+  salmon_libtype: "U"
 
 #______ DUAL BARCODING DEMULTIPLEX ______________________________________________#
 

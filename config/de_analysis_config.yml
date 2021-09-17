@@ -1,0 +1,21 @@
+# Control samples
+control_samples:
+    S1: "20081Ia003"
+
+# Treated samples
+treated_samples:
+    S2: "20081Ia004"
+
+# Count filtering options - customize these according to your experimental design:
+# Genes expressed in minimum this many samples
+min_samps_gene_expr: 2
+# Transcripts expressed in minimum this many samples
+min_samps_feature_expr: 2
+# Minimum gene counts
+min_gene_expr: 10
+# Minimum transcript counts
+min_feature_expr: 10
+# Library type
+libtype: "A"
+ #Ignore indels/mismatches in aln (because ONT)
+ignore_error: true

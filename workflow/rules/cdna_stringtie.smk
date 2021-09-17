@@ -18,6 +18,12 @@ rule stringtie:
         stringtie = config['apps']['stringtie']
     conda:
         "../env/stringtie.yml"
+
+    # Stringtie Parameters:
+    # -L : Input consists of long reads
+    # -B : Output coverage data (.ctab) in Ballgown Format
+    # -G : Reference guided (requires input .GTF)
+    # -A : Output gene Abundances
     shell:
         """
         {params.stringtie} -L -R -v -B \
