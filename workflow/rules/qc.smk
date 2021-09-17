@@ -45,7 +45,7 @@ rule run_multiqc:
 
 #_____ SAMPLE READ QC  _________________________________________________________#
 
-rule split_summary_perbarcode:
+checkpoint split_summary_perbarcode:
     input:
         lambda wildcards: glob(wildcards.folder + "/sequencing_summary*")
     output:
@@ -56,6 +56,7 @@ rule split_summary_perbarcode:
         "../env/pycoqc.yml"
     shell:
         """
+        mkdir -p {output}
         Barcode_split \
             --summary_file {input} \
             --output_dir {output} \
@@ -63,13 +64,13 @@ rule split_summary_perbarcode:
             --verbose >{log} 2>&1
         """
 
-rule rename_split_summary_files:
-    input:
-        lookup_split_summary_file
+rule rename_split_summary_files:     
     output:
         "Sample_{sample}/sequencing_summary_bc_{sample}.txt"
+    params:
+        ssfile = lookup_split_summary_file
     shell:
-        "cp {input} {output}"
+        "cp {params.ssfile} {output}"
 
 rule sample_pycoqc:
     input:
@@ -91,11 +92,6 @@ rule sample_pycoqc:
             --json_outfile {output.json} \
             >{log} 2>&1
         """
-
-rule aggregate_sample_pycoqc
-    input:
-        aggregate_sample_pycoqc
-    output: 
 
 #____ GENOME MAPPING QC __________________________________________________________#
 
@@ -305,7 +301,8 @@ qc_out = {
     'dual_demux' : [],
     'de_analysis' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
-        expand("qc/pycoqc/per_sample/{s}.pycoQC.html", s = ID_samples)],
+        aggregate_sample_pycoqc, 
+        expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
 }
 
 # Additional output options

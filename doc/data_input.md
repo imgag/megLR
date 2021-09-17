@@ -14,9 +14,11 @@ ONT Tools normally requires a File of Filenames (FoF) to associate sample IDs an
 2. Data folder
 3. (Optional) Barcode
 
+The sample ID can be defined by the user and will be used for output files and reports. The data folder should be in ONT run folder format and contain subfolders for `fail` and `pass` reads. The sequencing summary file must be located directly in this folder. Other folder structures, for an example a raw folder containing only FASTQs should work but might be buggy. The barcode column must contain the same names as the `barcode` subdirs in the run folder. 
+
 ### One sample, multiple runs: 
 
-A single sample can have multiple data folders, this is used when multiple flowcells were used for the same sample, or if the sequencer created multiple runfolders because of interruptions. In this case there are multiple rows with the sampleID.
+A single sample can have multiple data folders, this is used when multiple flowcells were used for the same sample, or if the sequencer created multiple runfolders because of interruptions. In this case there are multiple rows with the sampleID. 
 
 SampleID | Folder  |  
 |  ---  |  ---  |  
@@ -30,9 +32,9 @@ Multiple samples can be sequenced in the same run using barcodes. Normally, the 
 
 SampleID | Folder  |  Barcode
 |  ---  |  ---  |  --- |
-| a0001    | /mnt/ontdata/run_20201205      |  barcode1     |
-| a0001    | /mnt/ontdata/run_20201205_restarted     | barcode1 |       
-| a0002    | /mnt/ontdata/run_20201205     |  barcode2    |
+| a0001    | /mnt/ontdata/run_20201205      |  barcode01     |
+| a0001    | /mnt/ontdata/run_20201205_restarted     | barcode01 |       
+| a0002    | /mnt/ontdata/run_20201205     |  barcode02    |
 
 A separate PycoQC will be created for each row in the Filelist. 
 

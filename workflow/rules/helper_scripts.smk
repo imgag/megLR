@@ -18,13 +18,12 @@ def lookup_split_summary_file(wc):
     """
     Looks up which split barcode file belongs to the sample in the wildcard.
     """
-    #files = [glob(x+"/sequencing_summary*.txt") for x in wc.folders]
-
-    outfolder = checkpoints.split_summary_perbarcode.get(folder=wildcards.)
-    f = [x[0] for x in map_samples_barcode[wc.sample]]
-    bc = [x[0] for x in map_samples_barcode[wc.sample]]
-    split_folders = ["qc/pycoqc/split_" + x for x in folders_barcode] 
-    return "qc/pycoqc/split_21033_rebasecalled/"
+    bc=[unpack(x)[1] for x in map_samples_barcode[wc.sample]][0]
+    #print(bc)
+    f=[unpack(x)[0] for x in map_samples_barcode[wc.sample]][0]
+    #print(f)
+    split_folder = "qc/pycoqc/split_" + f +"/sequencing_summary_"+bc+".txt" 
+    return split_folder
 
 def get_summary_files(wc):
     """
@@ -35,9 +34,21 @@ def get_summary_files(wc):
     files = [glob(x+"/sequencing_summary*.txt") for x in folders]
     folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
     files += [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
-    print(files)
-    #return "qc/pycoqc/split_21033_rebasecalled/"
     return{'summary_files': files}
+
+def aggregate_sample_pycoqc(wc):
+    """
+    Function that validates the checkpoint and checks for generated sample_pycoqcs
+    that can be used in the multiqc report
+    """
+    folders_barcode = [x[0][0] for x in list(map_samples_barcode.copy().values())]
+    #print(folders_barcode)
+    checkpoint_output=checkpoints.split_summary_perbarcode.get(folder=folders_barcode[0]).output[0]
+    g = glob(os.path.join(checkpoint_output, "/summary_statistics_{bc}.txt"))
+    return(expand("qc/pycoqc/split_{folder}/summary_statistics_{bc}.txt",
+        folder = folders_barcode,
+        bc = g))
+
 
 def print_message():
     print('')

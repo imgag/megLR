@@ -23,7 +23,7 @@ print_message()
 ID_samples = set()
 ID_folders = set()
 map_samples_folder = defaultdict(list)
-map_samples_barcodes = defaultdict(list)
+map_samples_barcode = defaultdict(list)
 
 # Parse sample and run id connection table
 if  os.path.isfile(config['sample_file']):
@@ -39,7 +39,7 @@ if  os.path.isfile(config['sample_file']):
             elif len(row) == 3:
                 ID_samples.add(row[0])
                 ID_folders.add(row[1])
-                map_samples_folder[row[0]].append((row[1], row[2]))
+                map_samples_barcode[row[0]].append((row[1], row[2]))
 
             else :
                 print("Wrong number of columns in row: ", row, len(row))
@@ -90,7 +90,7 @@ if config['vc']['create_benchmark']:
     out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
 
 out_selected = [out[step] for step in config['steps']]
-print(out_selected)
+#print(out_selected)
 
 rule all:
     input:
