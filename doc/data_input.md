@@ -16,7 +16,7 @@ ONT Tools normally requires a File of Filenames (FoF) to associate sample IDs an
 
 The sample ID can be defined by the user and will be used for output files and reports. The data folder should be in ONT run folder format and contain subfolders for `fail` and `pass` reads. The sequencing summary file must be located directly in this folder. Other folder structures, for an example a raw folder containing only FASTQs should work but might be buggy. The barcode column must contain the same names as the `barcode` subdirs in the run folder. 
 
-### One sample, multiple runs: 
+### One sample per run: 
 
 A single sample can have multiple data folders, this is used when multiple flowcells were used for the same sample, or if the sequencer created multiple runfolders because of interruptions. In this case there are multiple rows with the sampleID. 
 

@@ -51,6 +51,9 @@ else:
     ID_samples = [sample for sample in ID_samples if '/' not in sample]
     print("Automatically detected the following samples in project dir: ")
     print(ID_samples)
+    if not ID_samples: 
+        print("NO samples ... quitting")
+        exit(1)
 
 #_____ INCLUDE MODULES ________________________________________________________#
 
