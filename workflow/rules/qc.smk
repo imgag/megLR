@@ -301,7 +301,6 @@ qc_out = {
     'dual_demux' : [],
     'de_analysis' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
-        aggregate_sample_pycoqc, 
         expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
 }
 
@@ -309,11 +308,13 @@ qc_out = {
 if config['vc']['create_benchmark']:
     qc_out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
 
+if map_samples_barcode: 
+    qc_out += aggregate_sample_pycoqc
+
 qc_out_selected = [qc_out[step] for step in config['steps']]
 
 rule multiqc:
     input:
-#        expand("qc/pycoqc/{sample}.pycoQC.json", sample = ID_samples),
         [y for x in qc_out_selected for y in x]
     output:
         "qc/multiqc_report.html"
