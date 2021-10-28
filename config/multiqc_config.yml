@@ -2,8 +2,6 @@ custom_logo: '../resources/logo_ncct.png'
 custom_logo_url: 'https://portal.qbic.uni-tuebingen.de/portal/web/ncct/our-center'
 custom_logo_title: 'NCCT Tübingen'
 
-
-
 extra_fn_clean_exts:
     - '.pycoQC.json'
 
@@ -28,9 +26,11 @@ run_modules:
   - custom_content
   - pycoqc
 
+skip_generalstats: false
+
 report_header_info:
- - Author: 'TODO Your name'
- - Author Contact: 'TODO Your e-mail address'
+ - Author: 'Caspar Gross'
+ - Author Contact: 'caspar.gross@med.uni-tuebingen.de'
  - Project: 'TODO project name, matching NGSD entry'
  - Project Description: 'TODO (not provided)'
  - Application Type: 'TODO RNAseq/WGS/...'

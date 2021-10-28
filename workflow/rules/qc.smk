@@ -1,6 +1,8 @@
 #_____ RUN READ QC  __________________________________________________________#
 
 rule folder_pycoqc:
+    input:
+        lambda wildcards: glob(wildcards.folder + "/**/sequencing_summary*")
     output:
         html = "qc/pycoqc/per_run/{folder}.pycoQC.html",
         json = "qc/pycoqc/per_run/{folder}.pycoQC.json"
@@ -12,9 +14,8 @@ rule folder_pycoqc:
         1
     shell:
         """
-        file=$(find {wildcards.folder} -name 'sequencing_summary*')
         pycoQC \
-            --summary_file $file\
+            --summary_file {input}\
             --html_outfile {output.html} \
             --json_outfile {output.json} \
             >{log} 2>&1
