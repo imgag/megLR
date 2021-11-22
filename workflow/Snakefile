@@ -93,7 +93,6 @@ if config['vc']['create_benchmark']:
     out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
 
 out_selected = [out[step] for step in config['steps']]
-#print(out_selected)
 
 rule all:
     input:

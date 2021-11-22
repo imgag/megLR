@@ -38,23 +38,57 @@ def get_summary_files(wc):
     
     return{'summary_files': files}
 
-def aggregate_sample_pycoqc(wc):
+def aggregate_multiqc_input(wc):
     """
     Function that validates the checkpoint and checks for generated sample_pycoqcs
     that can be used in the multiqc report
     """
+
+    qc_out = {
+    'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
+    'assembly' : ["qc/quast_results/report.tsv"],
+    'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
+    'structural_variant_calling' : [],
+    'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
+        expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
+    'cDNA_flair': 
+        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) +    
+        expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
+    'cDNA_expression' : 
+        #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) + 
+        expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
+        expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
+    'cDNA_pinfish' : [],
+    'dual_demux' : [],
+    'de_analysis' : [],
+    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
+        expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
+    }
+
+    # Additional output options
+    if config['vc']['create_benchmark']:
+        qc_out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
+
+    qc_out_selected = [qc_out[step] for step in config['steps']]    
+
     if map_samples_barcode: 
-        folders_barcode = [x[0][0] for x in list(map_samples_barcode.copy().values())]
-        #print(folders_barcode)
-        checkpoint_output=checkpoints.split_summary_perbarcode.get(folder=folders_barcode[0]).output[0]
-        g = glob(os.path.join(checkpoint_output, "/summary_statistics_{bc}.txt"))
-        return(expand("qc/pycoqc/split_{folder}/summary_statistics_{bc}.txt",
-            folder = folders_barcode,
-            bc = g))
-    else:
-        return("")
+        print(map_samples_barcode)
+        print(len(map_samples_barcode.items()))
+        for k,v in map_samples_barcode.copy().items():
+            print(k)
+            print(v)
+            folders_barcode = v[0][0]
+            print(folders_barcode)
+            checkpoint_output=checkpoints.split_summary_perbarcode.get(folder=folders_barcode[0]).output[0]
+            g = glob(os.path.join(checkpoint_output, "/summary_statistics_{bc}.txt"))
+            qc_out_selected += (expand("qc/pycoqc/split_{folder}/summary_statistics_{bc}.txt",
+                folder = folders_barcode,
+                bc = g))
     
-    
+    return(qc_out_selected)
 
 
 def print_message():
