@@ -281,42 +281,9 @@ rule gffcompare:
 
 #_____ MULTI QC  _____________________________________________________________#
 
-qc_out = {
-    'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
-    'assembly' : ["qc/quast_results/report.tsv"],
-    'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
-    'structural_variant_calling' : [],
-    'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
-        expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
-    'cDNA_flair': 
-        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) +    
-        expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
-    'cDNA_expression' : 
-        #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) + 
-        expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
-        expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
-    'cDNA_pinfish' : [],
-    'dual_demux' : [],
-    'de_analysis' : [],
-    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
-        expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
-}
-
-# Additional output options
-if config['vc']['create_benchmark']:
-    qc_out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
-
-if map_samples_barcode: 
-    qc_out += aggregate_sample_pycoqc
-
-qc_out_selected = [qc_out[step] for step in config['steps']]
-
 rule multiqc:
     input:
-        [y for x in qc_out_selected for y in x]
+        aggregate_multiqc_input
     output:
         "qc/multiqc_report.html"
     log:

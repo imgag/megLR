@@ -13,7 +13,6 @@ extra_fn_clean_trim:
     - '.asm.wtdbg'  # Assembly
     - '.asm.flye'   # Assembly
 
-
 run_modules:
   - readqc
   - pychopper
