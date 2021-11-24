@@ -22,6 +22,7 @@ print_message()
 
 ID_samples = set()
 ID_folders = set()
+ID_barcode_folders = set()
 map_samples_folder = defaultdict(list)
 map_samples_barcode = defaultdict(list)
 
@@ -39,6 +40,7 @@ if  os.path.isfile(config['sample_file']):
             elif len(row) == 3:
                 ID_samples.add(row[0])
                 ID_folders.add(row[1])
+                ID_barcode_folders.add(row[1])
                 map_samples_barcode[row[0]].append((row[1], row[2]))
 
             else :
@@ -54,6 +56,13 @@ else:
     if not ID_samples: 
         print("NO samples ... quitting")
         exit(1)
+
+
+if config['verbose']:
+    print("Samples: ", ID_samples)
+    print("Folders:", ID_folders)
+    print("Barcode Folders: ", ID_barcode_folders)
+    print("Map:", map_samples_barcode)
 
 #_____ INCLUDE MODULES ________________________________________________________#
 
