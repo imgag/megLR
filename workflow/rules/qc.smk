@@ -48,11 +48,11 @@ rule run_multiqc:
 
 checkpoint split_summary_perbarcode:
     input:
-        lambda wildcards: glob(wildcards.folder + "/sequencing_summary*")
+        lambda wildcards: [i for x in [glob(x + "/sequencing_summary*") for x in ID_barcode_folders] for i in x]
     output:
-        directory("qc/pycoqc/split_{folder}")
+        directory("qc/pycoqc/split_barcodes")
     log:
-        "logs/{folder}_pycoqc_split.log"
+        "logs/pycoqc_split.log"
     conda:
         "../env/pycoqc.yml"
     shell:
@@ -65,13 +65,15 @@ checkpoint split_summary_perbarcode:
             --verbose >{log} 2>&1
         """
 
-rule rename_split_summary_files:     
+rule rename_split_summary_files:
+    input:
+        lookup_split_summary_file
     output:
         "Sample_{sample}/sequencing_summary_bc_{sample}.txt"
     params:
         ssfile = lookup_split_summary_file
     shell:
-        "cp {params.ssfile} {output}"
+        "cp {input} {output}"
 
 rule sample_pycoqc:
     input:
@@ -281,9 +283,43 @@ rule gffcompare:
 
 #_____ MULTI QC  _____________________________________________________________#
 
+qc_out = {
+    'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
+    'assembly' : ["qc/quast_results/report.tsv"],
+    'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
+    'structural_variant_calling' : [],
+    'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
+        expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
+    'cDNA_flair': 
+        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) +    
+        expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
+    'cDNA_expression' : 
+        #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) + 
+        expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
+        expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
+    'cDNA_pinfish' : [],
+    'dual_demux' : [],
+    'de_analysis' : [],
+    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
+        expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
+}
+
+# Additional output options
+if config['vc']['create_benchmark']:
+    qc_out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
+
+#if map_samples_barcode: 
+#    qc_out += aggregate_sample_pycoqc
+
+qc_out_selected = [qc_out[step] for step in config['steps']]
+
 rule multiqc:
     input:
-        aggregate_multiqc_input
+        aggregate_sample_pycoqc,
+        [y for x in qc_out_selected for y in x]
     output:
         "qc/multiqc_report.html"
     log:

@@ -47,6 +47,8 @@ apps:
   sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
   cdna_cupcake: "/mnt/storage1/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
 
+verbose: true
+
 #______ ANALYSIS PARAMETERS _______________________________________________________#
 
 assembly:
