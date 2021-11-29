@@ -45,13 +45,11 @@ def aggregate_sample_pycoqc(wc):
     that can be used in the multiqc report
     """
     barcode_qcs = []
-
     #checkpoint_output=checkpoints.split_summary_perbarcode.get(folder=ID_folders).output[0]
-    [checkpoints.split_summary_perbarcode.get(folder=x).output[0] for x in ID_samples]
-    for v in ID_folders:
-        print(v)
-
-
+    if map_samples_barcode:
+        [checkpoints.split_summary_perbarcode.get(folder=x).output[0] for x in ID_samples]
+    else:
+        return(barcode_qcs)
 
     #if map_samples_barcode: 
     #    for k,v in map_samples_barcode.copy().items():
@@ -62,10 +60,6 @@ def aggregate_sample_pycoqc(wc):
     #        qc_out_selected += (expand("qc/pycoqc/split_{folder}/summary_statistics_{bc}.txt",
     #            folder = folders_barcode,
     #            bc = g))
-    
-    print("HA:L:O@")
-    print(barcode_qcs)
-    return(barcode_qcs)
 
 
 def print_message():
