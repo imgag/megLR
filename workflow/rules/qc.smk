@@ -2,7 +2,7 @@
 
 rule folder_pycoqc:
     input:
-        lambda wildcards: glob(wildcards.folder + "/**/sequencing_summary*")
+        lambda wildcards: glob(wildcards.folder + "**/sequencing_summary*", recursive = True)
     output:
         html = "qc/pycoqc/per_run/{folder}.pycoQC.html",
         json = "qc/pycoqc/per_run/{folder}.pycoQC.json"

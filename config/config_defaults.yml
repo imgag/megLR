@@ -3,7 +3,7 @@
 steps:
 # - mapping
 # - assembly
-# - structural_variant_calling (TODO)
+# - structural_variant_calling
 # - variant_calling
 # - cDNA_pinfish
 # - cDNA_expression

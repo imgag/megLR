@@ -32,7 +32,7 @@ def get_summary_files(wc):
     Requests summaries split by barcodes if necessary
     """
     folders = map_samples_folder[wc.sample].copy()
-    files = [s for t in [glob(x+"/**/sequencing_summary*") for x in folders] for s in t]
+    files = [s for t in [glob(x+"**/sequencing_summary*", recursive = True) for x in folders] for s in t]
     if map_samples_barcode:
         folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
         files += [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
@@ -45,8 +45,7 @@ def aggregate_sample_pycoqc(wc):
     that can be used in the multiqc report
     """
     barcode_qcs = []
-    #checkpoint_output=checkpoints.split_summary_perbarcode.get(folder=ID_folders).output[0]
-    if map_samples_barcode:
+    if ID_barcode_folders:
         [checkpoints.split_summary_perbarcode.get(folder=x).output[0] for x in ID_samples]
     else:
         return(barcode_qcs)
