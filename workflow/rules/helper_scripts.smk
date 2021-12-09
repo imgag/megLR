@@ -46,7 +46,8 @@ def aggregate_sample_pycoqc(wc):
     """
     barcode_qcs = []
     if ID_barcode_folders:
-        [checkpoints.split_summary_perbarcode.get(folder=x).output[0] for x in ID_samples]
+        barcode_qcs += [checkpoints.split_summary_perbarcode.get(folder=x).output[0] for x in ID_samples]
+        return(barcode_qcs)
     else:
         return(barcode_qcs)
 
