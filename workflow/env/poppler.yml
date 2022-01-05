@@ -1,0 +1,6 @@
+name: poppler
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - poppler=21.11.0

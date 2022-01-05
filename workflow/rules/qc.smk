@@ -2,7 +2,7 @@
 
 rule folder_pycoqc:
     input:
-        lambda wildcards: glob(wildcards.folder + "**/sequencing_summary*", recursive = True)
+        lambda wildcards: glob(wildcards.folder + "/**/sequencing_summary*", recursive = True)
     output:
         html = "qc/pycoqc/per_run/{folder}.pycoQC.html",
         json = "qc/pycoqc/per_run/{folder}.pycoQC.json"
@@ -305,6 +305,7 @@ qc_out = {
     'de_analysis' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
         expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
+    'qc_db': []
 }
 
 # Additional output options

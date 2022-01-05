@@ -32,7 +32,11 @@ def get_summary_files(wc):
     Requests summaries split by barcodes if necessary
     """
     folders = map_samples_folder[wc.sample].copy()
-    files = [s for t in [glob(x+"**/sequencing_summary*", recursive = True) for x in folders] for s in t]
+    print(folders)
+    files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders] for s in t]
+
+    #files = [glob(x+"**/sequencing_summary*", recursive = True) for x in folders]
+    print(files)
     if map_samples_barcode:
         folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
         files += [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]

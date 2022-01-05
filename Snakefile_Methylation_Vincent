@@ -1,0 +1,218 @@
+# Vincent Hammer
+# 30.9.2021
+# this is a template of the pipeline. Paths, file names, and parameters have to be adapted
+
+
+# 1. uncomment pipeline steps to be performed
+steps = [
+    "multi_to_single",
+    "preprocess",
+    "resquiggle",
+    "call_mods",
+    "frequency",
+    "prep_deep_4dss",   #DA
+    "dss",              #DA
+    "promoter_stats"    #DA
+    ]
+
+
+# 2. enter sample paths and names here
+# sample names
+SAMPLES = ['SAMPLE_A', 'SAMPLE_B']
+
+# paths to Nanopore sequencing folder
+nanopore_path = '/.../fast5s/'
+
+
+# 3. adjust parameters here
+max_num_threads = 40
+max_num_threads_gpu = 15
+
+ref_genome_path = '/.../GRCh38.fa'
+path_deepsignal_model = '/.../model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+/bn_17.sn_360.epoch_9.ckpt'
+output_path = '/.../results/'
+path_promoters = '/.../relevant_promoters.annotated.tsv'    #DA
+
+frequency_script = '/.../call_modification_frequency.py'
+
+
+# 4. adjust analysis parameters here
+context_size = 2000     #DA
+dss_pvalue = 0.05       #DA
+max_prom_length = 400   #DA
+min_coverage = 5        #DA
+
+
+out = {
+    'multi_to_single' : expand(output_path + '{sample}/fast5_pass_single/', sample = SAMPLES),
+    'preprocess' : expand(output_path + '{sample}/logs/{sample}_preprocess.log', sample = SAMPLES),
+    'resquiggle' : expand(output_path + '{sample}/logs/{sample}_resquiggle.log', sample = SAMPLES),
+    'call_mods' : expand(output_path + '{sample}/deepsignal.call_mods.tsv/', sample = SAMPLES),
+    'frequency' : expand(output_path + '{sample}/deepsignal.call_mods.tsv/', sample = SAMPLES),
+    'prep_deep_4dss' : expand(output_path + '{sample}/{sample}.dss.tsv', sample = SAMPLES),
+    'dss' : [output_path + SAMPLES[0] + '_' + SAMPLES[1] + '.dmr.tsv'],
+    'promoter_stats' : [output_path + f'{SAMPLES[0]}_{SAMPLES[1]}_l{max_prom_length}_c{min_coverage}.tsv']
+    }
+
+
+out_selected = [out[step] for step in steps]
+rule all:
+    input: [y for x in out_selected for y in x]
+
+
+#____RULES____________________________________________________________________________________________
+
+
+rule multi_to_single:
+    input: nanopore_path + '{sample}/fast5s/'
+    output: directory(output_path + '{sample}/fast5_pass_single/')
+    threads: 2
+    conda: 'envs/ont_api.yml'
+    shell:
+        """
+        mkdir '../datasets/{wildcards.sample}/fast5_pass_single/'
+        multi_to_single_fast5 -i {input} -s {output} -t {threads} --recursive
+        """
+
+
+rule preprocess:
+    input: 
+        fast5s = output_path + '{sample}/fast5_pass_single/',
+        fastq = nanopore_path + 'fastqs_pass.fastq'
+    output: output_path + '{sample}/logs/{sample}_preprocess.log'
+    threads: max_num_threads
+    conda: 'envs/tombo.yml'
+    shell:
+        """
+        tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.fast5s} \
+        --fastq-filenames {input.fastq} \
+        --basecall-group Basecall_1D_000 \
+        --basecall-subgroup BaseCalled_template \
+        --processes {threads} \
+        > {output}
+        """
+
+
+rule resquiggle:
+    input: 
+        log = output_path + '{sample}/logs/{sample}_preprocess.log',
+    	fast5s = output_path + '{sample}/fast5_pass_single/',
+        ref_genome = ref_genome_path
+    output: output_path + '{sample}/logs/{sample}_resquiggle.log'
+    threads: 40
+    conda: 'envs/tombo.yml'
+    shell:
+        """
+        tombo resquiggle {input.fast5s} {input.ref_genome} \
+        --processes {threads} \
+        > {output}
+        """
+
+
+rule call_mods:
+    input:
+        log = output_path + '{sample}/logs/{sample}_resquiggle.log',
+        fast5s = output_path + '{sample}/fast5_pass_single/',
+        ref_genome = ref_genome_path,
+        model = path_deepsignal_model
+    output: output_path + '{sample}/deepsignal.call_mods.tsv'
+    threads: max_num_threads_gpu
+    conda: 'envs/test.yml'
+    shell:
+        """
+        deepsignal call_mods \
+        --input_path {input.fast5s} \
+        --model_path {input.model} \
+        --result_file {output} \
+        --nproc {threads} \
+        --is_gpu yes \
+        --reference_path {input.ref_genome}
+        """
+
+
+rule frequency:
+    input:
+        script = frequency_script,
+        calls = output_path + '{sample}/deepsignal.call_mods.tsv'
+    output: output_path + '{sample}/call_mods_frequency.tsv'
+    shell:
+        """
+        python {input.script} \
+        --input_path {input.calls} \
+        --result_file {output} \
+        --prob_cf 0
+        """
+
+
+rule prep_deep_4dss:
+    input:
+        freq_file = output_path + '{sample}/call_mods_frequency.tsv',
+        promoters = path_promoters,
+        script = 'scripts/prep_deep_4dss.py'
+    params:
+        context = str(context_size),
+        out_path = output_path + '{sample}/'
+    output:
+        full_dss = output_path + '{sample}/{sample}.dss.tsv',
+        relevant_dss = output_path + '{sample}/{sample}_relevant.dss.tsv'
+    conda:
+        'envs/python.yml'
+    shell:
+        """
+        python {input.script} \
+        -c {params.context} \
+        -p {input.promoters} \
+        -o {params.out_path} \
+        -n {wildcards.sample}
+        """
+
+
+rule dss:
+    input:
+        sample_A = output_path + f'{SAMPLES[0]}/{SAMPLES[0]}_relevant.dss.tsv',
+        sample_B = output_path + f'{SAMPLES[1]}/{SAMPLES[1]}_relevant.dss.tsv'
+    params:
+        pvalue = str(dss_pvalue),
+        name_A = SAMPLES[0],
+        name_B = SAMPLES[1]
+    output: output_path + SAMPLES[0] + '_' + SAMPLES[1] + '.dmr.tsv'
+    threads: max_num_threads
+    conda: 'envs/dss.yml'
+    shell:
+        """
+        Rscript scripts/dss.R \
+        --sampleA {input.sample_A} \
+        --sampleB {input.sample_B} \
+        --nameA {params.name_A} \
+        --nameB {params.name_B} \
+        --threads {threads} \
+        --p_value {params.pvalue}
+        """
+        
+
+rule promoter_stats:
+    input:
+        sample_A = output_path + f'{SAMPLES[0]}/{SAMPLES[0]}_relevant.dss.tsv',
+        sample_B = output_path + f'{SAMPLES[1]}/{SAMPLES[1]}_relevant.dss.tsv',
+        promoters = path_promoters,
+        dmr = output_path + SAMPLES[0] + '_' + SAMPLES[1] + '.dmr.tsv',
+        script = 'scripts/promoter_stats.py'
+    params:
+        prom_length = str(max_prom_length),
+        coverage = str(min_coverage),
+        name_A = SAMPLES[0],
+        name_B = SAMPLES[1]
+    output: output_path + f'{SAMPLES[0]}_{SAMPLES[1]}_l{max_prom_length}_c{min_coverage}.tsv' 
+    conda: 'envs/python.yml'
+    shell:
+        """
+        python {input.script} \
+        -l {params.prom_length} \
+        -p {input.promoters} \
+        -c {params.coverage} \
+        -a {input.sample_A} \
+        -b {input.sample_B} \
+        --nameA {params.name_A} \
+        --nameB {params.name_B} \
+        -d {input.dmr}
+        """
