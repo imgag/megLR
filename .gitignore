@@ -3,3 +3,5 @@ resources/*
 !resources/README.md
 test
 *.code-workspace
+.vscode/launch.json
+.gitignore

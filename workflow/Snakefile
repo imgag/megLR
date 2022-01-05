@@ -22,9 +22,11 @@ print_message()
 
 ID_samples = set()
 ID_folders = set()
+ID_runs = set()
 ID_barcode_folders = set()
 map_samples_folder = defaultdict(list)
 map_samples_barcode = defaultdict(list)
+map_runs_folder = defaultdict(list)
 
 # Parse sample and run id connection table
 if  os.path.isfile(config['sample_file']):
@@ -57,13 +59,27 @@ else:
         print("NO samples ... quitting")
         exit(1)
 
+# Create run names from the Folder_IDs. IE only `20211213_1214_2-A7-D7_PAI80186_4d463244_02064` 
+# Regex for run name:   "^\d{8}_\d{4}_\w+-\w+-\w+_\D{3}\d{5}_\w{8}_\w{5}$"
+for folder in ID_folders:
+    run =  os.path.basename(folder)
+    run_pattern = re.compile("^\d{8}_\d{4}_\w+-\w+-\w+_\D{3}\d{5}_\w{8}_\w{5}$")
+    if bool(run_pattern.match(run)):
+        ID_runs.add(run)
+        map_runs_folder[run].append(folder)
+    else:
+        print("Run name has incorrect name: ", run)
+        print("Forgot adding run suffix?")
+        exit(1)
 
 if config['verbose']:
     print("Samples: ", ID_samples)
     print("Folders:", ID_folders)
-    print("Map Folder:", map_samples_folder)
+    print("Runs:", ID_runs)
     print("Barcode Folders: ", ID_barcode_folders)
+    print("Map Folder:", map_samples_folder)
     print("Map Barcode:", map_samples_barcode)
+    print("Map Runs:", map_runs_folder)
 
 #_____ INCLUDE MODULES ________________________________________________________#
 
@@ -77,6 +93,7 @@ include: "rules/cdna_stringtie.smk"
 include: "rules/cdna_flair.smk"
 include: "rules/dual_barcode.smk"
 include: "rules/qc.smk"
+include: "rules/qc_database.smk"
 
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
 
@@ -95,7 +112,8 @@ out = {
         expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
     'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
         expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
-    'qc' : ['qc/multiqc_report.html']
+    'qc' : ['qc/multiqc_report.html'],
+    'qc_db' : [config['run_db_root'] + "/ont_runs_multiqc.html"]
 }
 
 # Additional output options

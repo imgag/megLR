@@ -12,6 +12,7 @@ steps:
 # - cDNA_flair
 # - repeat_expansion (TODO)
   - qc
+  - qc_db
 
 #_______ REFERENCE FILES _________________________________________________________#
 
@@ -78,6 +79,10 @@ vc:
 
 gffcompare:
   options: "-R -Q" # Ignore transcript found only in ref oder only in query
+
+#______ RUN QC DATABASE ___________________________________________________________#
+
+run_db_root: "/mnt/share/data/ont_run_qc"
 
 #______ FLAIR PARAMETERS _________________________________________________________#
 
