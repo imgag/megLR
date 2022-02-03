@@ -3,7 +3,7 @@
 rule copy_runqc:
     input:
         html = "qc/pycoqc/per_run/{run}/{run}.pycoQC.html",
-        json = "qc/pycoqc/per_run/{run}/{run}.pycoQC.html",
+        json = "qc/pycoqc/per_run/{run}/{run}.pycoQC.json",
     output:
         html = config['run_db_root'] + "/{run}/{run}.pycoQC.html",
         json = config['run_db_root'] + "/{run}/{run}.pycoQC.json"
@@ -46,7 +46,7 @@ rule copy_barcode_stats:
 
 rule all_multiqc:
     input:
-        expand(config['run_db_root'] + "/{run}/{run}.pycoQC.html", run = ID_runs),
+        expand(config['run_db_root'] + "/{run}/{run}.pycoQC.json", run = ID_runs),
         expand(config['run_db_root'] + "/{run}/{run}.report.pdf", run = ID_runs),
         expand(config['run_db_root'] + "/{run}/{run}.barcodes.tsv", run = ID_runs)
     output:
