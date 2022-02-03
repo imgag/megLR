@@ -115,7 +115,14 @@ out = {
     'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
         expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
     'qc' : ['qc/multiqc_report.html'],
-    'qc_db' : [config['run_db_root'] + "/ont_runs_multiqc.html"]
+    'qc_db' : [
+        expand(config['run_db_root'] + "/{run}/{run}.pycoQC.html", run = ID_runs),
+        expand(config['run_db_root'] + "/{run}/{run}.pycoQC.json", run = ID_runs),
+        expand(config['run_db_root'] + "/{run}/{run}.report.pdf", run = ID_runs),
+        expand(config['run_db_root'] + "/{run}/{run}.report.md", run = ID_runs),
+        expand(config['run_db_root'] + "/{run}/{run}.barcodes.tsv", run = ID_runs),
+        config['run_db_root'] + "/ont_runs_multiqc.html"
+        ]
 }
 
 # Additional output options
