@@ -2,8 +2,8 @@
 
 rule copy_runqc:
     input:
-        html = lambda wildcards: ["qc/pycoqc/per_run/" + r + ".pycoQC.html" for r in map_runs_folder[wildcards.run]],
-        json = lambda wildcards: ["qc/pycoqc/per_run/" + r + ".pycoQC.json" for r in map_runs_folder[wildcards.run]],
+        html = "qc/pycoqc/per_run/{run}/{run}.pycoQC.html",
+        json = "qc/pycoqc/per_run/{run}/{run}.pycoQC.html",
     output:
         html = config['run_db_root'] + "/{run}/{run}.pycoQC.html",
         json = config['run_db_root'] + "/{run}/{run}.pycoQC.json"
@@ -17,8 +17,8 @@ rule copy_runqc:
 
 rule copy_run_report:
     input:
-        pdf = lambda wildcards: [x for y in [glob(r + "/report_*.pdf") for r in map_runs_folder[wildcards.run]] for x in y],
-        md = lambda wildcards:  [x for y in [glob(r + "/report_*.md") for r in map_runs_folder[wildcards.run]] for x in y]
+        pdf = lambda wildcards: [x for y in [glob(r + "/**/report_*.pdf") for r in map_runs_folder[wildcards.run]] for x in y],
+        md = lambda wildcards:  [x for y in [glob(r + "/**/report_*.md") for r in map_runs_folder[wildcards.run]] for x in y]
     output:
         pdf = config['run_db_root'] + "/{run}/{run}.report.pdf",
         md = config['run_db_root'] + "/{run}/{run}.report.md"
@@ -33,21 +33,22 @@ rule copy_run_report:
         """
 
 rule copy_barcode_stats:
-# TODO ptional copy the barcode stats (If available)
     input:
-    
+        tsv = lambda wildcards: [x for y in [glob(r + "/**/barcode_alignment*.tsv") for r in map_runs_folder[wildcards.run]] for x in y]
     output:
-    
+        tsv = config['run_db_root'] + "/{run}/{run}.barcodes.tsv"  
+    log:
+        "logs/{run}_copy_barcode_stats.log"
     shell:
         """
-
+        cat {input.tsv} > {output.tsv} 2>{log}
         """
-
 
 rule all_multiqc:
     input:
         expand(config['run_db_root'] + "/{run}/{run}.pycoQC.html", run = ID_runs),
-        expand(config['run_db_root'] + "/{run}/{run}.report.pdf", run = ID_runs)
+        expand(config['run_db_root'] + "/{run}/{run}.report.pdf", run = ID_runs),
+        expand(config['run_db_root'] + "/{run}/{run}.barcodes.tsv", run = ID_runs)
     output:
         config['run_db_root'] + "/ont_runs_multiqc.html"
     log:
@@ -64,6 +65,7 @@ rule all_multiqc:
             --force \
             --outdir {params.multiqc_out} \
             --ignore-symlinks \
+            --filename ont_runs_multiqc.html \
             {params.multiqc_in} > {log} 2>&1
         """
 
@@ -75,4 +77,3 @@ rule all_multiqc:
 # TODO
 
 #rule commit_new_files:
-# TODO
