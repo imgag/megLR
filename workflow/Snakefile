@@ -61,9 +61,11 @@ else:
 
 # Create run names from the Folder_IDs. IE only `20211213_1214_2-A7-D7_PAI80186_4d463244_02064` 
 # Regex for run name:   "^\d{8}_\d{4}_\w+-\w+-\w+_\D{3}\d{5}_\w{8}_\w{5}$"
+# New folder names: "QIGMI017AF_21061LRa001_02013" or "21061LRa001_02013"
+# Regex for new run name:   "^(?:Q\w{9}_)?\d{5}\w*_\d{5}$"
 for folder in ID_folders:
     run =  os.path.basename(folder)
-    run_pattern = re.compile("^\d{8}_\d{4}_\w+-\w+-\w+_\D{3}\d{5}_\w{8}_\w{5}$")
+    run_pattern = re.compile("^(?:Q\w{9}_)?\d{5}\w*_\d{5}$")
     if bool(run_pattern.match(run)):
         ID_runs.add(run)
         map_runs_folder[run].append(folder)

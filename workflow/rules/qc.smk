@@ -2,12 +2,12 @@
 
 rule folder_pycoqc:
     input:
-        lambda wildcards: glob(wildcards.folder + "/**/sequencing_summary*", recursive = True)
+        summarystats = lambda wildcards: [x for y in [glob(r + "/**/sequencing_summary*.txt") for r in map_runs_folder[wildcards.run]] for x in y]
     output:
-        html = "qc/pycoqc/per_run/{folder}.pycoQC.html",
-        json = "qc/pycoqc/per_run/{folder}.pycoQC.json"
+        html = "qc/pycoqc/per_run/{run}/{run}.pycoQC.html",
+        json = "qc/pycoqc/per_run/{run}/{run}.pycoQC.json"
     log:
-        "logs/{folder}_pycoqc.log"
+        "logs/{run}_pycoqc.log"
     conda:
         "../env/pycoqc.yml"
     threads:
@@ -15,7 +15,7 @@ rule folder_pycoqc:
     shell:
         """
         pycoQC \
-            --summary_file {input}\
+            --summary_file {input.summarystats}\
             --html_outfile {output.html} \
             --json_outfile {output.json} \
             >{log} 2>&1
@@ -23,7 +23,7 @@ rule folder_pycoqc:
 
 rule run_multiqc:
     input:
-        expand("qc/pycoqc/per_run/{folder}.pycoQC.html", folder = ID_folders)
+        expand("qc/pycoqc/per_run/{run}.pycoQC.html", run = ID_runs)
     output:
         "qc/pycoqc/per_run/run_multiqc_report.html"
     log:
