@@ -104,7 +104,10 @@ out = {
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
     'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
-    'structural_variant_calling': expand("Sample_{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
+    'structural_variant_calling': [
+        expand("Sample_{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
+        expand("Sample_{s}/{s}.sv_cutesv.vcf.gz", s=ID_samples)
+    ],
     'cDNA_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
     'de_analysis' : ["de_analysis/dtu_plots.pdf"],
     'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples) +
@@ -121,6 +124,7 @@ out = {
         expand(config['run_db_root'] + "/{run}/{run}.report.pdf", run = ID_runs),
         expand(config['run_db_root'] + "/{run}/{run}.report.md", run = ID_runs),
         expand(config['run_db_root'] + "/{run}/{run}.barcodes.tsv", run = ID_runs),
+        expand(config['run_db_root'] + "/{run}/{run}.mux.csv", run = ID_runs),
         config['run_db_root'] + "/ont_runs_multiqc.html"
         ]
 }
