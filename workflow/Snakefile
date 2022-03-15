@@ -103,7 +103,8 @@ out = {
     'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
-    'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
+    #'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
+    'variant_calling': expand("variant_calling/{s}/{s}.output", s=ID_samples),
     'structural_variant_calling': [
         expand("Sample_{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
         expand("Sample_{s}/{s}.sv_cutesv.vcf.gz", s=ID_samples)
@@ -119,12 +120,12 @@ out = {
         expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [
-        expand(config['run_db_root'] + "/{run}/{run}.pycoQC.html", run = ID_runs),
-        expand(config['run_db_root'] + "/{run}/{run}.pycoQC.json", run = ID_runs),
-        expand(config['run_db_root'] + "/{run}/{run}.report.pdf", run = ID_runs),
-        expand(config['run_db_root'] + "/{run}/{run}.report.md", run = ID_runs),
-        expand(config['run_db_root'] + "/{run}/{run}.barcodes.tsv", run = ID_runs),
-        expand(config['run_db_root'] + "/{run}/{run}.mux.csv", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.html", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.json", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.report.pdf", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.report.md", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.barcodes.tsv", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.mux.csv", run = ID_runs),
         config['run_db_root'] + "/ont_runs_multiqc.html"
         ]
 }
