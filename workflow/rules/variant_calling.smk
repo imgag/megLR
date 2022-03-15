@@ -9,7 +9,7 @@ rule medaka_variants:
     conda:
         "../env/medaka.yml"
     threads:
-        2
+        20
     log:
         "logs/{sample}_{chr}_medaka.log"
     params:
@@ -61,6 +61,39 @@ rule process_vcf:
         """
         bgzip -c {input} > {output} 2> {log}
         tabix {output} 2>>{log}
+        """
+
+#____ VARIANT CALLING WITH DEEPVARIANT _______________________________________________________#
+
+rule deepvariant:
+    input:
+        bam = rules.map_genome_all.output.bam,
+        ref = config['ref']['genome']
+    output:
+        vcf = "variant_calling/{sample}/{sample}.output"
+    log:
+        "logs/{sample}_deepvariant_pepper.log"
+    params:
+        model = "--ont_r9_guppy5_sup"
+    threads:
+        8
+    shell:
+        """
+        docker run \
+        -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
+        -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
+        -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+        --gpus 1 \
+        kishwars/pepper_deepvariant:r0.7-gpu \
+        run_pepper_margin_deepvariant call_variant \
+        -b "/mnt/input_bam/$(basename {input.bam})" \
+        -f "/mnt/input_ref/$(basename {input.ref})" \
+        -t {threads} \
+        {params.model} \
+        -o "/mnt/output" \
+        >{log} 2>&1
+
+        touch {output.vcf}
         """
 
 #____ VARIANT BENCHMARK TO REFERENCE ___________________________________________________#
