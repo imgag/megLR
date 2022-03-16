@@ -30,6 +30,7 @@ ref:
 
 sample_file: "sample_run_table.tsv"
 project_config: "config.yml"
+use_gpu: true
 
 prom:
   ssh_profile: "microbio"
