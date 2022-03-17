@@ -71,13 +71,16 @@ rule pepper_marging_deepvariant:
         bam = rules.map_genome_all.output.bam,
         ref = config['ref']['genome']
     output:
-        vcf = "variant_calling/{sample}/{sample}.output"
+        vcf = "variant_calling/{sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.vcf.gz"
     log:
         "logs/{sample}_deepvariant_pepper.log"
     params:
-        model = "--ont_r9_guppy5_sup"
-    threads:
-        30
+        model = "--ont_r9_guppy5_sup",
+        gpu_id = config['gpu_id'],
+        target_region = "--region "+ config['vc']['target_region'] if config['vc']['target_region'] else ""
+    group:
+        "variant_calling"
+    threads: 30
     run:
         if config['use_gpu']:
             shell(
@@ -86,18 +89,17 @@ rule pepper_marging_deepvariant:
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
-                --gpus 1 \
-                kishwars/pepper_deepvariant:r0.7-gpu \
+                --gpus device={params.gpu_id} \
+                kishwars/pepper_deepvariant:r0.8-gpu \
                 run_pepper_margin_deepvariant call_variant \
                 --bam "/mnt/input_bam/$(basename {input.bam})" \
                 --fasta "/mnt/input_ref/$(basename {input.ref})" \
                 --threads 8 \
                 --gpu \
+                --phased_output \
                 --output_dir "/mnt/output" \
-                {params.model} \
+                {params.target_region} {params.model} \
                 >{log} 2>&1
-
-                touch {output.vcf}
                 """
             )
         else:
@@ -108,19 +110,30 @@ rule pepper_marging_deepvariant:
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
                 --gpus 1 \
-                kishwars/pepper_deepvariant:r0.7 \
+                kishwars/pepper_deepvariant:r0.8 \
                 run_pepper_margin_deepvariant call_variant \
                 --bam "/mnt/input_bam/$(basename {input.bam})" \
                 --fasta "/mnt/input_ref/$(basename {input.ref})" \
                 --threads {threads} \
+                --phased_output \
                 --output_dir "/mnt/output" \
-                {params.model} \
+                {params.target_region} {params.model} \
                 >{log} 2>&1
-
-                touch {output.vcf}
                 """
             )
 
+
+rule copy_vcf:
+    input:
+        vcf = rules.pepper_marging_deepvariant.output.vcf
+    output:
+        vcf = "Sample_{sample}/{sample}.pepper_margin_dv.vcf.gz"
+    shell:
+        """
+        cp {input.vcf} {output.vcf}
+        cp {input.vcf}.tbi {output.vcf}.tbi
+        """
+    
 
 #____ VARIANT BENCHMARK TO REFERENCE ___________________________________________________#
 
