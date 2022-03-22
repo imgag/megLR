@@ -71,13 +71,14 @@ rule pepper_marging_deepvariant:
         bam = rules.map_genome_all.output.bam,
         ref = config['ref']['genome']
     output:
-        vcf = "variant_calling/{sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.vcf.gz"
+        vcf = "variant_calling/{sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz"
     log:
         "logs/{sample}_deepvariant_pepper.log"
     params:
         model = "--ont_r9_guppy5_sup",
         gpu_id = config['gpu_id'],
-        target_region = "--region "+ config['vc']['target_region'] if config['vc']['target_region'] else ""
+        target_region = "--region "+ config['vc']['target_region'] if config['vc']['target_region'] else "",
+        output_phased = "--phased_output" if config['vc']['phased_output'] else ""
     group:
         "variant_calling"
     threads: 30
@@ -89,6 +90,7 @@ rule pepper_marging_deepvariant:
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                --user $(id -u):$(id -g) \
                 --gpus device={params.gpu_id} \
                 kishwars/pepper_deepvariant:r0.8-gpu \
                 run_pepper_margin_deepvariant call_variant \
@@ -96,9 +98,8 @@ rule pepper_marging_deepvariant:
                 --fasta "/mnt/input_ref/$(basename {input.ref})" \
                 --threads 8 \
                 --gpu \
-                --phased_output \
                 --output_dir "/mnt/output" \
-                {params.target_region} {params.model} \
+                {params.target_region} {params.output_phased} {params.model} \
                 >{log} 2>&1
                 """
             )
@@ -108,16 +109,16 @@ rule pepper_marging_deepvariant:
                 docker run \
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
-                -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \                                --user $(id -u):$(id -g) \
+                --user $(id -u):$(id -g) \
                 --gpus 1 \
                 kishwars/pepper_deepvariant:r0.8 \
                 run_pepper_margin_deepvariant call_variant \
                 --bam "/mnt/input_bam/$(basename {input.bam})" \
                 --fasta "/mnt/input_ref/$(basename {input.ref})" \
                 --threads {threads} \
-                --phased_output \
                 --output_dir "/mnt/output" \
-                {params.target_region} {params.model} \
+                {params.target_region} {params.output_phased} {params.model} \
                 >{log} 2>&1
                 """
             )

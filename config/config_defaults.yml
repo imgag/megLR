@@ -31,6 +31,7 @@ ref:
 sample_file: "sample_run_table.tsv"
 project_config: "config.yml"
 use_gpu: true
+gpu_id: "GPU-2c38ecef-c1ce-d516-ebb9-2b381cf15f21"
 
 prom:
   ssh_profile: "microbio"
@@ -49,7 +50,7 @@ apps:
   sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
   cdna_cupcake: "/mnt/storage1/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
 
-verbose: true
+verbose: false  # Prints samples, barcode and folder informations
 
 #______ ANALYSIS PARAMETERS _______________________________________________________#
 
@@ -75,6 +76,8 @@ vc:
   model_initial: "r941_prom_snp_g303" #Depends on flowcell and guppy version
   model_final: "r941_prom_high_g303" #Depends on flowcell and guppy version
   create_benchmark: false
+  target_region: false    # Restrict variant calling / phasing to target region
+  phased_output: true     # Generate phased variant calling output
 
 #______ QC PARAMETERS ____________________________________________________________#
 
