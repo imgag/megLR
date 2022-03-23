@@ -144,7 +144,7 @@ rule bc_var:
     log:
         "logs/{sample}_{bc}_medaka.log"
     params:
-        model_snp = config['vc']['model_initial'],
+        model_snp = config['vc_medaka']['model_initial'],
         roi = config['demux']['target_region_str']
     shell:
         """

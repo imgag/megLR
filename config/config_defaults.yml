@@ -51,6 +51,7 @@ apps:
   cdna_cupcake: "/mnt/storage1/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
 
 verbose: false  # Prints samples, barcode and folder informations
+skip_name_check: false # Dont check run folder names for correct formatq
 
 #______ ANALYSIS PARAMETERS _______________________________________________________#
 
@@ -72,12 +73,25 @@ mapping:
   #Min mapping quality filter (Full_length splice)
   min_qual: 20
 
+#_____ VARIANT CALLING PARAMETERS _______________________________________________#
+
 vc:
+  medaka: false 
+  pepper: true
+  clair3: false
+  phased_output: true     # Generate phased variant calling output (Supported in Pepper and Clair3)
+  create_benchmark: false #TODO Check if this works
+
+vc_clair3:
+  model: "r941_prom_sup_g5014"
+
+vc_medaka:
   model_initial: "r941_prom_snp_g303" #Depends on flowcell and guppy version
   model_final: "r941_prom_high_g303" #Depends on flowcell and guppy version
-  create_benchmark: false
+
+vc_pepper:
+  model: "ont_r9_guppy5_sup"
   target_region: false    # Restrict variant calling / phasing to target region
-  phased_output: true     # Generate phased variant calling output
 
 #______ QC PARAMETERS ____________________________________________________________#
 
