@@ -23,7 +23,7 @@ rule folder_pycoqc:
 
 rule run_multiqc:
     input:
-        expand("qc/pycoqc/per_run/{run}.pycoQC.html", run = ID_runs)
+        expand("qc/pycoqc/per_run/{run}/{run}.pycoQC.html", run = ID_runs)
     output:
         "qc/pycoqc/per_run/run_multiqc_report.html"
     log:

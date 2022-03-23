@@ -9,7 +9,7 @@ def get_input_folders(wc):
     """
     folders = map_samples_folder[wc.sample].copy()
     folders.append(['/fastq_pass/'.join(x) for x in map_samples_barcode[wc.sample]])
-    print("Input Folders:" + str(folders[0]))
+    if config['verbose']: print("Input Folders:" + str(folders[0]))
     if config['use_failed_reads']:
        folders.append(['/fastq_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
     folders_exist = [x for x in folders[0] if os.path.exists(x)]
@@ -20,9 +20,7 @@ def lookup_split_summary_file(wc):
     Looks up which split barcode file belongs to the sample in the wildcard.
     """
     bc=[unpack(x)[1] for x in map_samples_barcode[wc.sample]][0]
-    #print(bc)
     f=[unpack(x)[0] for x in map_samples_barcode[wc.sample]][0]
-    #print(f)
     split_folder = "qc/pycoqc/split_barcodes/sequencing_summary_"+bc+".txt" 
     return split_folder
 
@@ -32,11 +30,8 @@ def get_summary_files(wc):
     Requests summaries split by barcodes if necessary
     """
     folders = map_samples_folder[wc.sample].copy()
-    #print(folders)
     files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders] for s in t]
 
-    #files = [glob(x+"**/sequencing_summary*", recursive = True) for x in folders]
-    #print(files)
     if map_samples_barcode:
         folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
         files += [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
@@ -55,17 +50,6 @@ def aggregate_sample_pycoqc(wc):
     else:
         return(barcode_qcs)
 
-    #if map_samples_barcode: 
-    #    for k,v in map_samples_barcode.copy().items():
-    #        if k in ID_folders:
-    #            print("Found" + k)
-    #        folders_barcode = v[0]
-    #        g = glob(os.path.join(checkpoint_output, "/summary_statistics_{bc}.txt"))
-    #        qc_out_selected += (expand("qc/pycoqc/split_{folder}/summary_statistics_{bc}.txt",
-    #            folder = folders_barcode,
-    #            bc = g))
-
-
 def print_message():
     print('')
     print('  ██████╗ ███╗   ██╗████████╗  ████████╗ ██████╗  ██████╗ ██╗     ███████╗')
@@ -74,9 +58,10 @@ def print_message():
     print(' ██║   ██║██║╚██╗██║   ██║        ██║   ██║   ██║██║   ██║██║     ╚════██║')
     print(' ╚██████╔╝██║ ╚████║   ██║███████╗██║   ╚██████╔╝╚██████╔╝███████╗███████║')
     print('  ╚═════╝ ╚═╝  ╚═══╝   ╚═╝╚══════╝╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝') 
-    print()
-    print('Pipeline runs these steps:')
-    print(*config['steps'], sep=" | ")
+    print('')
+    print('Pipeline branches:')
+    print('╦')
+    print(*["╠═ "+s for s in config['steps']], sep="\n")
     pass
 
 def get_chromosomes():
