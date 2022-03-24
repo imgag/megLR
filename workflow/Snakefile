@@ -33,18 +33,18 @@ if  os.path.isfile(config['sample_file']):
     with open(config['sample_file']) as f:
         reader=csv.reader(f, delimiter="\t")
         for row in reader:
-            if len(row) == 2:
+            if len(row) == 0:
+                pass
+            elif len(row) == 2:
                 ID_samples.add(row[0])
                 ID_folders.add(row[1])
                 map_samples_folder[row[0]].append(row[1])
-
             # Add barcodes to folder (tuple)
             elif len(row) == 3:
                 ID_samples.add(row[0])
                 ID_folders.add(row[1])
                 ID_barcode_folders.add(row[1])
                 map_samples_barcode[row[0]].append((row[1], row[2]))
-
             else :
                 print("Wrong number of columns in row: ", row, len(row))
                 pass
@@ -65,14 +65,18 @@ else:
 # Regex for new run name:   "^(?:Q\w{9}_)?\d{5}\w*_\d{5}$"
 for folder in ID_folders:
     run =  os.path.basename(folder)
-    run_pattern = re.compile("^(?:Q\w{9}_)?\d{5}\w*_\d{5}$")
-    if bool(run_pattern.match(run)):
+    if config['skip_name_check']:
         ID_runs.add(run)
         map_runs_folder[run].append(folder)
     else:
-        print("Run name has incorrect name: ", run)
-        print("Forgot adding run suffix?")
-        exit(1)
+        run_pattern = re.compile("^(?:Q\w{9}_)?\d{5}\w*_\d{5}$")
+        if bool(run_pattern.match(run)):
+            ID_runs.add(run)
+            map_runs_folder[run].append(folder)
+        else:
+            print("Run name has incorrect name: ", run)
+            print("Forgot adding run suffix?")
+            exit(1)
 
 if config['verbose']:
     print("Samples: ", ID_samples)
@@ -103,8 +107,7 @@ out = {
     'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
-    #'variant_calling': expand("Sample_{s}/{s}_var.vcf.gz", s=ID_samples),
-    'variant_calling': expand("variant_calling/{s}/{s}.output", s=ID_samples),
+    'variant_calling': [],
     'structural_variant_calling': [
         expand("Sample_{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
         expand("Sample_{s}/{s}.sv_cutesv.vcf.gz", s=ID_samples)
@@ -133,6 +136,14 @@ out = {
 # Additional output options
 if config['vc']['create_benchmark']:
     out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
+
+# Variant calling output
+if config['vc']['pepper']:
+    out['variant_calling'] += expand("Sample_{s}/{s}.pepper_margin_dv.vcf.gz", s=ID_samples)
+if config['vc']['clair3']:
+    out['variant_calling'] += expand("variant_calling/{s}_clair3", s=ID_samples)
+if config['vc']['medaka']:
+    out['variant_calling'] += expand("Sample_{s}/{s}.medaka.vcf.gz", s=ID_samples)
 
 out_selected = [out[step] for step in config['steps']]
 
