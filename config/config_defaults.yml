@@ -93,6 +93,9 @@ vc_pepper:
   model: "ont_r9_guppy5_sup"
   target_region: false    # Restrict variant calling / phasing to target region
 
+sv_cutesv:
+  enable_genotyping: true 
+
 #______ QC PARAMETERS ____________________________________________________________#
 
 gffcompare:

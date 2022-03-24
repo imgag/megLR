@@ -54,13 +54,14 @@ rule sv_cutesv:
   log: 
     "logs/{sample}_cutesv.log"
   params:
-    ref = config['ref']['genome']
+    ref = config['ref']['genome'],
+    genotyping = "--genotype" if config['sv_cutesv']['enable_genotyping'] else ""
   shell:
     """
     cuteSV \
       --threads {threads} \
       --sample {wildcards.sample} \
-      {input} {params.ref} {output.vcf} $(dirname {output.vcf}) \
+      {input} {params.ref} {params.genotyping} {output.vcf} $(dirname {output.vcf}) \
       > {log} 2>&1
     """ 
 
