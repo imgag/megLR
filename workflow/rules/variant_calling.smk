@@ -13,10 +13,9 @@ rule pepper_marging_deepvariant:
         model = "--" + config['vc_pepper']['model'],
         gpu_id = config['gpu_id'],
         target_region = "--region "+ config['vc_pepper']['target_region'] if config['vc_pepper']['target_region'] else "",
-        output_phased = "--phased_output" if config['vc']['phased_output'] else ""
-    group:
-        "variant_calling"
-    threads: 30
+        output_phased = "--phased_output" if config['vc']['phased_output'] else "",
+        keep_supp = '--pepper_include_supplementary' if config['vc']['include_supplementary'] else ""
+    threads: 20
     run:
         if config['use_gpu']:
             shell(
@@ -34,7 +33,7 @@ rule pepper_marging_deepvariant:
                 --threads 8 \
                 --gpu \
                 --output_dir "/mnt/output" \
-                {params.target_region} {params.output_phased} {params.model} \
+                {params.target_region} {params.keep_supp} {params.output_phased} {params.model} \
                 >{log} 2>&1
                 """
             )
@@ -52,7 +51,7 @@ rule pepper_marging_deepvariant:
                 --fasta "/mnt/input_ref/$(basename {input.ref})" \
                 --threads {threads} \
                 --output_dir "/mnt/output" \
-                {params.target_region} {params.output_phased} {params.model} \
+                {params.target_region} {params.keep_supp} {params.output_phased} {params.model} \
                 >{log} 2>&1
                 """
             )
@@ -93,7 +92,7 @@ rule clair3_variants:
         model = config['vc_clair3']['model'],
         output_phased = "--enable_phasing" if config['vc']['phased_output'] else ""
     threads:
-        30
+        20
     log:
         "logs/{sample}_clair3.log"
     shell:
@@ -121,7 +120,7 @@ rule medaka_variants:
     conda:
         "../env/medaka.yml"
     threads:
-        15
+        3
     log:
         "logs/{sample}_{chr}_medaka.log"
     params:
