@@ -56,7 +56,7 @@ rule pepper_marging_deepvariant:
                 """
             )
 
-rule copy_vcf:
+rule copy_vcf_pepper:
     input:
         vcf = "variant_calling/{sample}_pepper/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.vcf.gz"
     output:
@@ -67,8 +67,8 @@ rule copy_vcf:
                 """
                 cp {input.vcf} {output.vcf}
                 cp {input.vcf}.tbi {output.vcf}.tbi
-                cp variant_calling/{wildcards.sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz Sample_{wildcards.sample}/{wildcards.sample}.pepper_margin_dv.phased.vcf.gz
-                cp variant_calling/{wildcards.sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz.tbi Sample_{wildcards.sample}/{wildcards.sample}.pepper_margin_dv.phased.vcf.gz.tbi
+                cp variant_calling/{wildcards.sample}_pepper/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz Sample_{wildcards.sample}/{wildcards.sample}.pepper_margin_dv.phased.vcf.gz
+                cp variant_calling/{wildcards.sample}_pepper/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz.tbi Sample_{wildcards.sample}/{wildcards.sample}.pepper_margin_dv.phased.vcf.gz.tbi
                 """)
         else: 
             shell(
@@ -84,7 +84,7 @@ rule clair3_variants:
         bam = rules.map_genome_all.output.bam,
         ref = config['ref']['genome']
     output:
-        directory("variant_calling/{sample}_clair3")
+        "variant_calling/{sample}_clair3/merge_output.vcf.gz"
     conda:
         "../env/clair3.yml" 
     params:
@@ -108,6 +108,28 @@ rule clair3_variants:
             >{log} 2>&1        
         """
 
+rule copy_vcf_clair:
+    input:
+        vcf = "variant_calling/{sample}_clair3/merge_output.vcf.gz"
+    output:
+        vcf = "Sample_{sample}/{sample}.clair3.vcf.gz"
+    log:
+        "logs/{sample}_copy_vcf_clair3.log"
+    run:
+        if config['vc']['phased_output']:
+            shell(
+                """
+                cp {input.vcf} {output.vcf} > {log} 2>&1
+                cp {input.vcf}.tbi {output.vcf}.tbi > {log} 2>&1
+                cp variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz > {log} 2>&1
+                cp variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz.tbi Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz.tbi > {log} 2>&1
+                """)
+        else: 
+            shell(
+                """
+                cp {input.vcf} {output.vcf} > {log} 2>&1
+                cp {input.vcf} {output.vcf} > {log} 2>&1
+                """)
 
 #____ VARIANT CALLING WITH MEDAKA (DEPRECATED BY ONT) ________________________________________________#
 

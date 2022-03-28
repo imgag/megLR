@@ -6,3 +6,5 @@ channels:
 dependencies:
   - pycoqc=2.5.2
   - pysam=0.15.3
+  - markupsafe=2.0.1
+
