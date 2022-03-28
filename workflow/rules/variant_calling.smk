@@ -13,8 +13,8 @@ rule pepper_marging_deepvariant:
         model = "--" + config['vc_pepper']['model'],
         gpu_id = config['gpu_id'],
         target_region = "--region "+ config['vc_pepper']['target_region'] if config['vc_pepper']['target_region'] else "",
-        output_phased = "--phased_output" if config['vc']['phased_output'] else "",
-        keep_supp = '--pepper_include_supplementary' if config['vc']['include_supplementary'] else ""
+        phased_output = "--phased_output" if config['vc']['phased_output'] else "",
+        keep_supp = '--pepper_include_supplementary' if config['vc']['keep_supplementary'] else ""
     threads: 20
     run:
         if config['use_gpu']:
@@ -33,7 +33,7 @@ rule pepper_marging_deepvariant:
                 --threads 8 \
                 --gpu \
                 --output_dir "/mnt/output" \
-                {params.target_region} {params.keep_supp} {params.output_phased} {params.model} \
+                {params.target_region} {params.keep_supp} {params.phased_output} {params.model} \
                 >{log} 2>&1
                 """
             )
@@ -51,7 +51,7 @@ rule pepper_marging_deepvariant:
                 --fasta "/mnt/input_ref/$(basename {input.ref})" \
                 --threads {threads} \
                 --output_dir "/mnt/output" \
-                {params.target_region} {params.keep_supp} {params.output_phased} {params.model} \
+                {params.target_region} {params.keep_supp} {params.phased_output} {params.model} \
                 >{log} 2>&1
                 """
             )
@@ -62,13 +62,13 @@ rule copy_vcf:
     output:
         vcf = "Sample_{sample}/{sample}.pepper_margin_dv.vcf.gz"
     run:
-        if config['output_phased']:
+        if config['vc']['phased_output']:
             shell(
                 """
                 cp {input.vcf} {output.vcf}
                 cp {input.vcf}.tbi {output.vcf}.tbi
-                cp variant_calling/{sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz Sample_{sample}/{sample}.pepper_margin_dv.phased.vcf.gz
-                cp variant_calling/{sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz.tbi Sample_{sample}/{sample}.pepper_margin_dv.phased.vcf.gz.tbi
+                cp variant_calling/{wildcards.sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz Sample_{wildcards.sample}/{wildcards.sample}.pepper_margin_dv.phased.vcf.gz
+                cp variant_calling/{wildcards.sample}/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.phased.vcf.gz.tbi Sample_{wildcards.sample}/{wildcards.sample}.pepper_margin_dv.phased.vcf.gz.tbi
                 """)
         else: 
             shell(
@@ -90,7 +90,7 @@ rule clair3_variants:
     params:
         platform = "ont",
         model = config['vc_clair3']['model'],
-        output_phased = "--enable_phasing" if config['vc']['phased_output'] else ""
+        phased_output = "--enable_phasing" if config['vc']['phased_output'] else ""
     threads:
         20
     log:
@@ -104,7 +104,7 @@ rule clair3_variants:
             --platform={params.platform} \
             --model_path="${{CONDA_PREFIX}}/bin/models/{params.model}" \
             --output={output} \
-            --sample_name={wildcards.sample}  {params.output_phased} \
+            --sample_name={wildcards.sample}  {params.phased_output} \
             >{log} 2>&1        
         """
 
