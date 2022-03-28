@@ -286,7 +286,7 @@ rule gffcompare:
 qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
-    'variant_calling':[expand("qc/variants/{s}.stats", s = ID_samples)],
+    'variant_calling':[],
     'structural_variant_calling' : [],
     'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
