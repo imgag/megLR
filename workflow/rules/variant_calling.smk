@@ -103,7 +103,7 @@ rule clair3_variants:
             --threads={threads} \
             --platform={params.platform} \
             --model_path="${{CONDA_PREFIX}}/bin/models/{params.model}" \
-            --output={output} \
+            --output=$(dirname {output}) \
             --sample_name={wildcards.sample}  {params.phased_output} \
             >{log} 2>&1        
         """
