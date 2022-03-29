@@ -1,0 +1,7 @@
+channels:
+  - bioconda
+  - anaconda
+  - conda-forge
+dependencies:
+  - samtools
+  - bwa-mem2==2.2.1
