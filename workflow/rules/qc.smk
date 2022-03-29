@@ -323,7 +323,6 @@ qc_out = {
         expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) + 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
-    'cDNA_pinfish' : [],
     'dual_demux' : [],
     'de_analysis' : [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
