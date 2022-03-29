@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+  - anaconda
+  - conda-forge
+dependencies:
+  - racon==1.4.20

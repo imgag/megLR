@@ -1,37 +1,56 @@
-rule map_plasmid:
+nrounds = 3
+
+rule all:
+    input:
+        "Sample_{sample}/{sample}.polished.fasta"
+
+rule initialize_first_round:
+    input:
+        "Sample_{sample}/{sample}.asm.fasta"
+    output:
+        "racon_polishing/{sample}_round0.fasta"
+    shell:
+        """
+        cp {input} {output}
+        """
+
+rule map_sr:
     input:
         fa = "vector_polishing/{sample}_round{r}.fasta",
-        fq = "reads_viral/{sample}.viral.sr.R1.fastq",
+        fq1 = "Sample_{sample}/{sample}*R1_001.fastq.gz",
+        fq2 = "Sample_{sample}/{sample}*R2_001.fastq.gz",
     output:
-        sam = "vector_polishing/{sample}_round{r}.sam"
+        sam = "racon_polishing/{sample}_round{r}.sam"
     conda:
         "env/bwamem2.yml"
     log:
         "log/{sample}_{r}_map_plasmid.log"
     threads:
-        4
+        20
     shell:
         """
         bwa-mem2 index {input.fa}
         bwa-mem2 mem \
             -t {threads} \
-            {input.fa} {input.fq}|\
+            {input.fa} {input.fq1} {input.fq2}|\
         samtools sort -O sam -o {output.sam} - > {log} 2>&1
         """
 
 rule polish_plasmid:
     input:
         bam = "vector_polishing/{sample}_round{r}.sam",
-        fq = "reads_viral/{sample}.viral.sr.R1.fastq",
-        fa = "vector_polishing/{sample}_round{r}.fasta"
+        fq = "Sample_{sample}/{sample}*.fastq.gz",
+        fa = "racon/{sample}_round{r}.fasta"
     output:
-        fa = "vector_polishing/{sample}_round{r}.polished.fasta"
+        fa = "racon_polishing/{sample}_round{r}.polished.fasta"
+    group:
+        "polish"
     conda:
         "env/racon.yml"
     log:
         "log/{sample}_{r}_polish_plasmid.log"
     threads:
-        4
+        20
     shell:
         """
         racon --threads {threads} \
@@ -41,10 +60,18 @@ rule polish_plasmid:
     
 rule rename_polished_fasta:
     input:
-        lambda wildcards: "vector_polishing/" + wildcards.sample + "_round" + str(int(wildcards.r)-1) + ".polished.fasta"
+        lambda wildcards: "racon_polishing/" + wildcards.sample + "_round" + str(int(wildcards.r)-1) + ".polished.fasta"
     output:
-        "vector_polishing/{sample}_round{r}.fasta"
+        "racon_polishing/{sample}_round{r}.fasta"
+    group:
+        "polish"
     shell:
         """
         mv {input} {output}
         """
+
+rule publish_final_fasta:
+    input:
+        "racon_polishing/{sample}_round"
+    output:
+        "Sample_{sample}/{sample}.polished.fasta"
