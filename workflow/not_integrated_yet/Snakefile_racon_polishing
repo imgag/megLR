@@ -1,0 +1,50 @@
+rule map_plasmid:
+    input:
+        fa = "vector_polishing/{sample}_round{r}.fasta",
+        fq = "reads_viral/{sample}.viral.sr.R1.fastq",
+    output:
+        sam = "vector_polishing/{sample}_round{r}.sam"
+    conda:
+        "env/bwamem2.yml"
+    log:
+        "log/{sample}_{r}_map_plasmid.log"
+    threads:
+        4
+    shell:
+        """
+        bwa-mem2 index {input.fa}
+        bwa-mem2 mem \
+            -t {threads} \
+            {input.fa} {input.fq}|\
+        samtools sort -O sam -o {output.sam} - > {log} 2>&1
+        """
+
+rule polish_plasmid:
+    input:
+        bam = "vector_polishing/{sample}_round{r}.sam",
+        fq = "reads_viral/{sample}.viral.sr.R1.fastq",
+        fa = "vector_polishing/{sample}_round{r}.fasta"
+    output:
+        fa = "vector_polishing/{sample}_round{r}.polished.fasta"
+    conda:
+        "env/racon.yml"
+    log:
+        "log/{sample}_{r}_polish_plasmid.log"
+    threads:
+        4
+    shell:
+        """
+        racon --threads {threads} \
+        {input.fq} {input.bam} {input.fa} \
+        > {output.fa} 2> {log}
+        """
+    
+rule rename_polished_fasta:
+    input:
+        lambda wildcards: "vector_polishing/" + wildcards.sample + "_round" + str(int(wildcards.r)-1) + ".polished.fasta"
+    output:
+        "vector_polishing/{sample}_round{r}.fasta"
+    shell:
+        """
+        mv {input} {output}
+        """
