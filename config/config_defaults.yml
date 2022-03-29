@@ -11,6 +11,7 @@ steps:
 # - cDNA_stringtie
 # - cDNA_flair
 # - repeat_expansion (TODO)
+# - modbases
   - qc
   - qc_db
 
@@ -25,7 +26,6 @@ ref:
   target_region: "/mnt/storage1/users/ahgrosc1/data/WGS_grch38.bed"
   vc_benchmark: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
   vc_confidence_region: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
-
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
@@ -74,6 +74,13 @@ mapping:
   #Min mapping quality filter (Full_length splice)
   min_qual: 20
 
+bonito:
+  model: "dna_r9.4.1_e8_hac@v3.3"
+  modified_bases: "5mC"
+
+# Should modbases bam from bonito be used for variant calling?
+use_mod_bam: false
+
 #_____ VARIANT CALLING PARAMETERS _______________________________________________#
 
 vc:
@@ -83,7 +90,6 @@ vc:
   phased_output: true     # Generate phased variant calling output (Supported in Pepper and Clair3)
   create_benchmark: false #TODO Check if this works
   keep_supplementary: false
-
 
 vc_clair3:
   model: "r941_prom_sup_g5014"

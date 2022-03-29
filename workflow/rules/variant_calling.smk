@@ -3,7 +3,7 @@
 #  Inference is speed up massively using GPU support.
 rule pepper_marging_deepvariant:
     input:
-        bam = rules.map_genome_all.output.bam,
+        bam = use_bam,
         ref = config['ref']['genome']
     output:
         vcf = "variant_calling/{sample}_pepper/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.vcf.gz"
@@ -81,7 +81,7 @@ rule copy_vcf_pepper:
 
 rule clair3_variants:
     input:
-        bam = rules.map_genome_all.output.bam,
+        bam = use_bam,
         ref = config['ref']['genome']
     output:
         "variant_calling/{sample}_clair3/merge_output.vcf.gz"
@@ -119,23 +119,24 @@ rule copy_vcf_clair:
         if config['vc']['phased_output']:
             shell(
                 """
-                cp {input.vcf} {output.vcf} > {log} 2>&1
-                cp {input.vcf}.tbi {output.vcf}.tbi > {log} 2>&1
+                tabix 
+                cp {input.vcf} {output.vcf} >{log} 2>&1
+                cp {input.vcf}.tbi {output.vcf}.tbi >{log} 2>&1
                 cp variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz > {log} 2>&1
                 cp variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz.tbi Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz.tbi > {log} 2>&1
                 """)
         else: 
             shell(
                 """
-                cp {input.vcf} {output.vcf} > {log} 2>&1
-                cp {input.vcf} {output.vcf} > {log} 2>&1
+                cp {input.vcf} {output.vcf} >{log} 2>&1
+                cp {input.vcf} {output.vcf} >{log} 2>&1
                 """)
 
 #____ VARIANT CALLING WITH MEDAKA (DEPRECATED BY ONT) ________________________________________________#
 
 rule medaka_variants:
     input:
-        bam = rules.map_genome_all.output.bam,
+        bam = use_bam,
         ref = config['ref']['genome']
     output:
         vcf = "variant_calling/{sample}_medaka/{chr}/round_1.vcf"

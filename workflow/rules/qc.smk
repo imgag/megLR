@@ -120,6 +120,28 @@ rule qualimap:
             >{log} 2>&1
         """
 
+rule qualimap_mod:
+    input:
+        "Sample_{sample}/{sample}.mod.bam"
+    output:
+        'qc/qualimap/{sample}_modbases/genome_results.txt'
+    log:
+        "logs/{sample}_qualimap.log"
+    threads:
+        8
+    params:
+        qualimap = config['apps']['qualimap']
+    shell:
+        """
+        {params.qualimap} bamqc \
+            -bam {input} \
+            --paint-chromosome-limits \
+            -nt {threads} \
+            -outdir qc/qualimap/{wildcards.sample}_modbases \
+            --java-mem-size=12G \
+            >{log} 2>&1
+        """
+
 #_____ cDNA SPLICED MAPPING QC _________________________________________________#
 
 rule rna_qualimap:
@@ -286,6 +308,7 @@ rule gffcompare:
 qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
+    'modbases' : expand("qc/qualimap/{s}_modbases/genome_results.txt", s = ID_samples),
     'variant_calling':[],
     'structural_variant_calling' : [],
     'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
