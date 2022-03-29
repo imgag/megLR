@@ -90,6 +90,7 @@ if config['verbose']:
 #_____ INCLUDE MODULES ________________________________________________________#
 
 include: "rules/fetch_reads.smk"
+include: "rules/bonito.smk"
 include: "rules/mapping.smk"
 include: "rules/assembly.smk"
 include: "rules/variant_calling.smk"
@@ -104,6 +105,7 @@ include: "rules/qc_database.smk"
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
 
 out = {
+    'modbases' : expand("Sample_{s}/{s}.mod.bam", s=ID_samples),
     'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
@@ -132,7 +134,6 @@ out = {
         config['run_db_root'] + "/ont_runs_multiqc.html"
         ]
 }
-
 
 # Variant calling output
 if config['vc']['pepper']:

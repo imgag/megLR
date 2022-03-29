@@ -1,12 +1,21 @@
-nrounds = 3
-
-rule all:
-    input:
-        "Sample_{sample}/{sample}.polished.fasta"
+rule flye:
+  input:
+    "data/{sample}.fastq.gz"
+  output:
+    "flye_{sample}/assembly.fasta"
+  log:
+    "{sample}_flye.log"
+  conda:
+    "flye_env.yaml"
+  threads: 70
+  shell:
+    """
+    flye --nano-raw {input} -o {output} --genome-size=2.9G --threads {threads} > {log}
+    """
 
 rule initialize_first_round:
     input:
-        "Sample_{sample}/{sample}.asm.fasta"
+        "flye_{sample}/assembly.fasta"
     output:
         "racon_polishing/{sample}_round0.fasta"
     shell:
@@ -14,39 +23,45 @@ rule initialize_first_round:
         cp {input} {output}
         """
 
+rule merge_reads:
+    input:
+        fq1 = "data/{sample}_04_R1.fastq.gz",
+        fq2 = "data/{sample}_04_R2.fastq.gz"
+    output:
+        "data/{sample}.sr_merged.fastq"
+    shell:
+        """	
+        zcat {input.fq1} {input.fq2} | tr -d ' ' > {output}	
+        """
+
 rule map_sr:
     input:
-        fa = "vector_polishing/{sample}_round{r}.fasta",
-        fq1 = "Sample_{sample}/{sample}*R1_001.fastq.gz",
-        fq2 = "Sample_{sample}/{sample}*R2_001.fastq.gz",
+        fa = "racon_polishing/{sample}_round{r}.fasta",
+        fq = "data/{sample}.sr_merged.fastq"
     output:
         sam = "racon_polishing/{sample}_round{r}.sam"
     conda:
-        "env/bwamem2.yml"
+        "minimap2_env.yml"
     log:
         "log/{sample}_{r}_map_plasmid.log"
     threads:
-        20
+	      20
     shell:
         """
-        bwa-mem2 index {input.fa}
-        bwa-mem2 mem \
-            -t {threads} \
-            {input.fa} {input.fq1} {input.fq2}|\
-        samtools sort -O sam -o {output.sam} - > {log} 2>&1
+        minimap2 -ax sr {input.fa} {input.fq} > {output}
         """
 
 rule polish_plasmid:
     input:
-        bam = "vector_polishing/{sample}_round{r}.sam",
-        fq = "Sample_{sample}/{sample}*.fastq.gz",
-        fa = "racon/{sample}_round{r}.fasta"
+        bam = "racon_polishing/{sample}_round{r}.sam",
+        fq = "data/{sample}.sr_merged.fastq",
+        fa = "racon_polishing/{sample}_round{r}.fasta"
     output:
         fa = "racon_polishing/{sample}_round{r}.polished.fasta"
     group:
         "polish"
     conda:
-        "env/racon.yml"
+        "racon_env.yml"
     log:
         "log/{sample}_{r}_polish_plasmid.log"
     threads:
@@ -54,6 +69,7 @@ rule polish_plasmid:
     shell:
         """
         racon --threads {threads} \
+        --include-unpolished \
         {input.fq} {input.bam} {input.fa} \
         > {output.fa} 2> {log}
         """
@@ -69,9 +85,3 @@ rule rename_polished_fasta:
         """
         mv {input} {output}
         """
-
-rule publish_final_fasta:
-    input:
-        "racon_polishing/{sample}_round"
-    output:
-        "Sample_{sample}/{sample}.polished.fasta"

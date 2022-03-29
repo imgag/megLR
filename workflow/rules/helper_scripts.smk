@@ -15,6 +15,29 @@ def get_input_folders(wc):
     folders_exist = [x for x in folders[0] if os.path.exists(x)]
     return{'folders': folders[0]}
 
+def get_input_folders_fast5(wc):
+    """
+    Return the FAST5 data folder for a sample.
+        Allows multiple runs per sample (restarted, repeated)
+        Demultiplexed samples on a single flowcell with barcode information
+        Includes folder with failed reads when specified in config
+    """
+    folders = map_samples_folder[wc.sample].copy()
+    folders.append(['/fast5_pass/'.join(x) for x in map_samples_barcode[wc.sample]])
+    if config['verbose']: print("Input Folders:" + str(folders[0]))
+    if config['use_failed_reads']:
+       folders.append(['/fast5_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
+    folders_exist = [x for x in folders[0] if os.path.exists(x)]
+    return{'folders': folders[0]}
+
+def use_bam(wc):
+    """
+    Decide whether to use normal (Guppy) aligned bam
+    or Bonito bam (with modified bases)
+    """
+    bam = "Sample_{s}/{s}.mod.bam".format(s=wc.sample) if config['use_mod_bam'] else "Sample_{s}/{s}.bam".format(s=wc.sample)
+    return(bam)
+
 def lookup_split_summary_file(wc):
     """
     Looks up which split barcode file belongs to the sample in the wildcard.

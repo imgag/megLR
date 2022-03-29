@@ -2,7 +2,7 @@
 
 rule sv_sniffles: 
   input:
-    rules.map_genome_all.output.bam
+    use_bam
   output:
     vcf="variant_calling/{sample}/{sample}_sniffles.vcf",
     snf="variant_calling/{sample}/{sample}_sniffles.snf"
@@ -46,7 +46,7 @@ rule process_sv_vcf:
 
 rule sv_cutesv:
   input:
-    rules.map_genome_all.output.bam
+    use_bam
   output:
     vcf="variant_calling/{sample}/{sample}_cutesv.vcf"
   conda:
