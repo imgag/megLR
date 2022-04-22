@@ -26,13 +26,3 @@ run_modules:
   - pycoqc
 
 skip_generalstats: false
-
-report_header_info:
- - Author: 'Caspar Gross'
- - Author Contact: 'caspar.gross@med.uni-tuebingen.de'
- - Project: 'TODO project name, matching NGSD entry'
- - Project Description: 'TODO (not provided)'
- - Application Type: 'TODO RNAseq/WGS/...'
- - Library Preparation: 'TODO protocol name/processing system, please describe'
- - Sequencing Platform: 'TODO NovaSeq 6000'
- - Sequencing Setup: 

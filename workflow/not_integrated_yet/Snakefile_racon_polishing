@@ -64,12 +64,16 @@ rule polish_plasmid:
         "racon_env.yml"
     log:
         "log/{sample}_{r}_polish_plasmid.log"
+    params:
+        chunk_size = 200000000
     threads:
-        20
+        30
     shell:
         """
-        racon --threads {threads} \
+        racon_wrapper \
+        --threads {threads} \
         --include-unpolished \
+        --split {params.chunk_size} \
         {input.fq} {input.bam} {input.fa} \
         > {output.fa} 2> {log}
         """

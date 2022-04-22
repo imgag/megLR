@@ -118,7 +118,6 @@ out = {
     'de_analysis' : ["de_analysis/dtu_plots.pdf"],
     'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples) +
         expand("qc/sqanti/{s}_stringtie/{s}_stringtie_classification.txt", s = ID_samples),
-    'cDNA_pinfish' : expand("Sample_{s}/pinfish/corrected_transcriptome_polished_collapsed.fasta", s=ID_samples),
     'cDNA_flair': expand("Sample_{s}/{s}.flair.gtf", s=ID_samples) +
         expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
     'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 

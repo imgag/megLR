@@ -11,7 +11,7 @@ rule pepper_marging_deepvariant:
         "logs/{sample}_deepvariant_pepper.log"
     params:
         model = "--" + config['vc_pepper']['model'],
-        gpu_id = config['gpu_id'],
+        gpu_id = config['gpu_id']['id'],
         target_region = "--region "+ config['vc_pepper']['target_region'] if config['vc_pepper']['target_region'] else "",
         phased_output = "--phased_output" if config['vc']['phased_output'] else "",
         keep_supp = '--pepper_include_supplementary' if config['vc']['keep_supplementary'] else ""
