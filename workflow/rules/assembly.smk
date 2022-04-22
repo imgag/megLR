@@ -85,7 +85,7 @@ rule flye:
     params:
         g=config['assembly']['genome_size']
     threads:
-        config['sys']['max_threads']
+        70
     shell:
         """
         flye \

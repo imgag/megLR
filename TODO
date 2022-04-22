@@ -6,3 +6,5 @@ QC check
     - One flowcell with single sample
 
 Include BAM QC into PycoQC
+
+Add shasta assembly

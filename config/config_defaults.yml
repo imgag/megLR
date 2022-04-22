@@ -81,6 +81,13 @@ bonito:
 # Should modbases bam from bonito be used for variant calling?
 use_mod_bam: false
 
+#_____ SV CALLING PARAMETERS ____________________________________________________#
+
+sv:
+  sniffles: true
+  cutesv: true
+  dipdiff: false
+
 #_____ VARIANT CALLING PARAMETERS _______________________________________________#
 
 vc:
@@ -104,6 +111,11 @@ vc_pepper:
 
 sv_cutesv:
   enable_genotyping: true 
+
+#______ ASSEMBLY PARAMETERS ______________________________________________________#
+
+assembler: "flye"
+# assembler: "wtdbg2"
 
 #______ QC PARAMETERS ____________________________________________________________#
 
