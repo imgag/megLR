@@ -5,9 +5,7 @@ steps:
 # - assembly
 # - structural_variant_calling
 # - variant_calling
-# - cDNA_pinfish
 # - cDNA_expression
-# - expression_analysis
 # - cDNA_stringtie
 # - cDNA_flair
 # - repeat_expansion (TODO)
@@ -32,7 +30,9 @@ ref:
 sample_file: "sample_run_table.tsv"
 project_config: "config.yml"
 use_gpu: true
-gpu_id: "GPU-2c38ecef-c1ce-d516-ebb9-2b381cf15f21"
+gpu_id:
+  id: "GPU-2c38ecef-c1ce-d516-ebb9-2b381cf15f21"
+  cuda: "cuda:0"
 
 prom:
   ssh_profile: "microbio"

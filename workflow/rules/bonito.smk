@@ -8,16 +8,17 @@ rule bonito:
     conda:
         "../env/bonito.yml"
     log:
-        "logs/{sample}_bonito.smk"
+        "logs/{sample}_bonito.log"
     params:
         model = config['bonito']['model'],
         modbases = config['bonito']['modified_bases'],
         ref = config['ref']['genome'],
-        gpu = config['gpu_id']
+        gpu = config['gpu_id']['cuda']
     threads:
         8
     shell:
         """
+        export CUDA_LAUNCH_BLOCKING=1
         bonito basecaller \
             {params.model} \
             {input} \
@@ -25,7 +26,7 @@ rule bonito:
             --recursive \
             --reference {params.ref} \
             --alignment-threads {threads} \
-            --device {params.gpu} \
+            --device '{params.gpu}' \
             > {output} 2> {log}
          """
 
