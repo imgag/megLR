@@ -5,6 +5,8 @@ rule join_fastq:
         unpack(get_input_folders)
     output:
         "Sample_{sample}/{sample}.fastq.gz"
+    log:
+        "logs/{sample}_fetch_reads.log"
     threads:
         8
     conda:
@@ -21,6 +23,14 @@ rule join_fastq:
           -name '*.fq.gz' \
           ')'  -exec zcat -f {{}} + \
             | pigz -p {threads} -c > {output}
+        
+        echo $(find {input.folders} -type f  \
+        {params.exclude_failed} '(' \
+          -name '*.fastq' -o \
+          -name '*.fastq.gz' -o \
+          -name '*.fq' -o \
+          -name '*.fq.gz' \
+          ')') > {log}
         """
 
 #____ cDNA READ ORIENTATION AND PRIMER TRIMMING _____________________________#

@@ -8,7 +8,6 @@ steps:
 # - cDNA_expression
 # - cDNA_stringtie
 # - cDNA_flair
-# - repeat_expansion (TODO)
 # - modbases
   - qc
   - qc_db
