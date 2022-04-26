@@ -142,7 +142,7 @@ rule dipdiff:
   log:
     "log/{sample}_dipdiff.log"
   threads:
-    30
+    40
   shell: 
     """
     docker run \
