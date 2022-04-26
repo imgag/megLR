@@ -21,8 +21,6 @@ ref:
   annotation_bed: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.bed"
   cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
   target_region: "/mnt/storage1/users/ahgrosc1/data/WGS_grch38.bed"
-  vc_benchmark: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
-  vc_confidence_region: "/mnt/storage1/users/ahgrosc1/data/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
@@ -33,19 +31,13 @@ gpu_id:
   id: "GPU-2c38ecef-c1ce-d516-ebb9-2b381cf15f21"
   cuda: "cuda:0"
 
-prom:
-  ssh_profile: "microbio"
-  data_folder: "/mnt/promdata"
-
 use_failed_reads: false
-transfer_fast5: true
 
 sys:
-  max_threads: 12
+  max_threads: 40
 
 apps:
   multiqc: "/mnt/users/ahgrosc1/tools/bin/multiqc"
-  qualimap: "unset DISPLAY; /mnt/storage1/users/ahgrosc1/tools/qualimap/qualimap" 
   stringtie: "/mnt/storage1/users/ahgrosc1/tools/stringtie/stringtie"
   sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
   cdna_cupcake: "/mnt/storage1/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder

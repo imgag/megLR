@@ -14,8 +14,6 @@ rule stringtie:
         "logs/{sample}_stringtie.log"
     threads:
         2
-    params:
-        stringtie = config['apps']['stringtie']
     conda:
         "../env/stringtie.yml"
 
@@ -26,7 +24,7 @@ rule stringtie:
     # -A : Output gene Abundances
     shell:
         """
-        {params.stringtie} -L -R -v -B \
+        stringtie -L -R -v -B \
         --rf \
         -A {output.abundance} \
         -G {input.annot} \

@@ -28,6 +28,8 @@ rule run_multiqc:
         "qc/pycoqc/per_run/run_multiqc_report.html"
     log:
         "logs/run_multiqc.log"
+    conda:
+        "../env/multiqc.yml"
     threads:
        1
     params:
@@ -35,7 +37,7 @@ rule run_multiqc:
         multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
-        {params.multiqc} \
+        multiqc \
             --force \
             --outdir qc/pycoqc/per_run \
             --config  {params.multiqc_config} \
@@ -108,10 +110,10 @@ rule qualimap:
     threads:
         8
     params:
-        qualimap = config['apps']['qualimap']
+        "../env/qualimap.yml"
     shell:
         """
-        {params.qualimap} bamqc \
+        qualimap bamqc \
             -bam {input} \
             --paint-chromosome-limits \
             -nt {threads} \
@@ -130,10 +132,10 @@ rule qualimap_mod:
     threads:
         8
     params:
-        qualimap = config['apps']['qualimap']
+        "../env/qualimap.yml"
     shell:
         """
-        {params.qualimap} bamqc \
+        qualimap bamqc \
             -bam {input} \
             --paint-chromosome-limits \
             -nt {threads} \
@@ -155,10 +157,11 @@ rule rna_qualimap:
         2
     params:
         gtf = config['ref']['annotation'],
-        qualimap = config['apps']['qualimap']
+    conda:
+        "../env/qualimap.yml"
     shell:
         """
-        {params.qualimap} rnaseq \
+        qualimap rnaseq \
             -bam {input} \
             -gtf {params.gtf} \
             -outdir qc/qualimap/{wildcards.sample}_rna \
@@ -259,13 +262,10 @@ rule sqanti:
     conda:
         "../env/sqanti.yml"
     params:
-        sqanti = config['apps']['sqanti'],
-        cdna_cupcake = config['apps']['cdna_cupcake']
+        sqanti = config['apps']['sqanti']
     shell:
         """
         set +u;
-        export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}sequence/
-        export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}
         tmp=$(mktemp)
         awk '$7!="." {{print $0}}' {input.gtf} > $tmp
         {params.sqanti} \
@@ -347,6 +347,8 @@ rule multiqc:
         "qc/multiqc_report.html"
     log:
         "logs/multiqc.log"
+    conda:
+        "../env/multiqc.yml"
     threads:
         1
     params:
@@ -354,7 +356,7 @@ rule multiqc:
         multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
-        {params.multiqc} \
+        multiqc \
             --config  {params.multiqc_config} \
             --force \
             --outdir qc\
