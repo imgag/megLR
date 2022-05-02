@@ -119,9 +119,10 @@ rule hapdup:
    40
   shell:
     """
+    mkdir -p 
     docker run \
-    -v "$(realpath $(dirname {input.bam})":"/mnt/hapdup" \
-    -v "$(realpath $(dirname {input.fa})":"/mnt/assembly" \
+    -v "$(realpath $(dirname {input.bam}))":"/mnt/hapdup" \
+    -v "$(realpath $(dirname {input.fa}))":"/mnt/assembly" \
     -u `id -u`:`id -g` mkolmogo/hapdup:0.6 \
         hapdup \
     --assembly /mnt/assembly/assembly.fasta \
