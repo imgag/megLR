@@ -95,7 +95,7 @@ rule map_to_assembly:
   output:
     bam = "variant_calling/{sample}_hapdup/assembly_aln.bam"
   log:
-    "log/{sample}_map_assembly.log"
+    "logs/{sample}_map_assembly.log"
   conda:
     "../env/minimap2.yml"
   threads:
@@ -114,19 +114,18 @@ rule hapdup:
     f1 = "variant_calling/{sample}_hapdup/haplotype_1.fasta",
     f2 = "variant_calling/{sample}_hapdup/haplotype_2.fasta"
   log:
-    "log/{sample}_hapdup.log"
+    "logs/{sample}_hapdup.log"
   threads:
    40
   shell:
     """
-    mkdir -p 
     docker run \
     -v "$(realpath $(dirname {input.bam}))":"/mnt/hapdup" \
     -v "$(realpath $(dirname {input.fa}))":"/mnt/assembly" \
     -u `id -u`:`id -g` mkolmogo/hapdup:0.6 \
         hapdup \
-    --assembly /mnt/assembly/assembly.fasta \
-    --bam /mnt/hapdup/assembly_aln.bam \
+    --assembly /mnt/assembly/$(basename {input.fa})\
+    --bam /mnt/hapdup/$(basename {input.bam}) \
     --out-dir /mnt/hapdup \
     -t {threads} \
     --rtype ont \
@@ -141,7 +140,7 @@ rule dipdiff:
   output:
     vcf = "variant_calling/{sample}_dipdiff/variants.vcf"
   log:
-    "log/{sample}_dipdiff.log"
+    "logs/{sample}_dipdiff.log"
   threads:
     40
   shell: 
@@ -175,7 +174,7 @@ rule process_variants:
     target_region = f"-reg {config['ref']['target_region']}" if config['ref']['target_region'] else ""
   shell:
     """
-    VcfFilter -in {input} -out {output.filtered} -reg {params.target_region}
+    VcfFilter -in {input} -out {output.filtered} {params.target_region}
     VcfSort -in {output.filtered} -out {output.sorted}
     bgzip -c {output.sorted}  > {output.final}
     tabix {output.final}
