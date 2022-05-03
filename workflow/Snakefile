@@ -110,10 +110,7 @@ out = {
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
     'variant_calling': [],
-    'structural_variant_calling': [
-        expand("Sample_{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
-        expand("Sample_{s}/{s}.sv_cutesv.vcf.gz", s=ID_samples)
-    ],
+    'structural_variant_calling': [],
     'cDNA_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
     'de_analysis' : ["de_analysis/dtu_plots.pdf"],
     'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples) +
@@ -134,13 +131,21 @@ out = {
         ]
 }
 
-# Variant calling output
+# Add Variant calling outputs:
 if config['vc']['pepper']:
     out['variant_calling'] += expand("Sample_{s}/{s}.pepper_margin_dv.vcf.gz", s=ID_samples)
 if config['vc']['clair3']:
     out['variant_calling'] += expand("Sample_{s}/{s}.clair3.vcf.gz", s=ID_samples)
 if config['vc']['medaka']:
     out['variant_calling'] += expand("Sample_{s}/{s}.medaka.vcf.gz", s=ID_samples)
+
+# Add SV calling outputs:
+if config['sv']['sniffles']:
+    out['structural_variant_calling'] += expand("Sample_{s}/{s}.sv_sniffles.vcf.gz", s=ID_samples),
+if config['sv']['cutesv']:
+    out['structural_variant_calling'] +=expand("Sample_{s}/{s}.sv_cutesv.vcf.gz", s=ID_samples),
+if config['sv']['dipdiff']:
+    out['structural_variant_calling'] +=expand("Sample_{s}/{s}.dipdiff.vcf.gz", s=ID_samples)
 
 out_selected = [out[step] for step in config['steps']]
 

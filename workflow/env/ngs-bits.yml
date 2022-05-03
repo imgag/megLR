@@ -5,3 +5,4 @@ channels:
   - defaults
 dependencies:
   - ngs-bits==2020_06
+  - tabix=0.2.6

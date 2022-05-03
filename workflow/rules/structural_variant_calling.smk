@@ -85,3 +85,97 @@ rule process_cutesv_vcf:
     bgzip -c variant_calling/{wildcards.sample}/{wildcards.sample}.sorted.vcf  > {output}
     tabix {output}
     """
+
+#_______ SV HAPDUP DIPDIFF _________________________________________________________#
+
+rule map_to_assembly:
+  input:
+    fq = "Sample_{sample}/{sample}.fastq.gz",
+    fa = lambda wildcards: f"Sample_{wildcards.sample}/{wildcards.sample}.asm.{config['assembler']}.fasta"
+  output:
+    bam = "variant_calling/{sample}_hapdup/assembly_aln.bam"
+  log:
+    "logs/{sample}_map_assembly.log"
+  conda:
+    "../env/minimap2.yml"
+  threads:
+    40
+  shell:
+     """
+     minimap2 -ax map-ont -t {threads} {input.fa} {input.fq} | samtools sort -@ 4 -m 4G > {output.bam}
+     samtools index -@ 4 {output.bam}
+     """
+
+rule hapdup:
+  input:
+    bam = "variant_calling/{sample}_hapdup/assembly_aln.bam",
+    fa = lambda wildcards: f"Sample_{wildcards.sample}/{wildcards.sample}.asm.{config['assembler']}.fasta"
+  output:
+    f1 = "variant_calling/{sample}_hapdup/haplotype_1.fasta",
+    f2 = "variant_calling/{sample}_hapdup/haplotype_2.fasta"
+  log:
+    "logs/{sample}_hapdup.log"
+  threads:
+   40
+  shell:
+    """
+    docker run \
+    -v "$(realpath $(dirname {input.bam}))":"/mnt/hapdup" \
+    -v "$(realpath $(dirname {input.fa}))":"/mnt/assembly" \
+    -u `id -u`:`id -g` mkolmogo/hapdup:0.6 \
+        hapdup \
+    --assembly /mnt/assembly/$(basename {input.fa})\
+    --bam /mnt/hapdup/$(basename {input.bam}) \
+    --out-dir /mnt/hapdup \
+    -t {threads} \
+    --rtype ont \
+    >{log} 2>&1
+   """
+
+rule dipdiff:
+  input:
+    ref = config['ref']['genome'],
+    f1 = "variant_calling/{sample}_hapdup/haplotype_1.fasta",
+    f2 = "variant_calling/{sample}_hapdup/haplotype_2.fasta"
+  output:
+    vcf = "variant_calling/{sample}_dipdiff/variants.vcf"
+  log:
+    "logs/{sample}_dipdiff.log"
+  threads:
+    40
+  shell: 
+    """
+    docker run \
+        -v "$(realpath $(dirname {input.ref}))":"/mnt/ref" \
+        -v "$(realpath $(dirname {input.f1}))":"/mnt/hapdup" \
+        -v "$(realpath $(dirname {output.vcf}))":"/mnt/output" \
+        -u `id -u`:`id -g` mkolmogo/dipdiff:0.3 \
+        dipdiff.py \
+        --reference "/mnt/ref/$(basename {input.ref})" \
+        --pat "/mnt/hapdup/haplotype_1.fasta" \
+        --mat "/mnt/hapdup/haplotype_2.fasta" \
+        --out-dir /mnt/output \
+        -t {threads} \
+        >{log} 2>&1
+    """
+
+rule process_variants:
+  input:
+    vcf = "variant_calling/{sample}_dipdiff/variants.vcf"
+  output:
+    filtered = "variant_calling/{sample}_dipdiff/{sample}.filtered.vcf",
+    sorted = "variant_calling/{sample}_dipdiff/{sample}.sorted.vcf",
+    final = "Sample_{sample}/{sample}.dipdiff.vcf.gz"
+  threads:
+    1
+  conda:
+    "../env/ngs-bits.yml"
+  params:
+    target_region = f"-reg {config['ref']['target_region']}" if config['ref']['target_region'] else ""
+  shell:
+    """
+    VcfFilter -in {input} -out {output.filtered} {params.target_region}
+    VcfSort -in {output.filtered} -out {output.sorted}
+    bgzip -c {output.sorted}  > {output.final}
+    tabix {output.final}
+    """
