@@ -165,7 +165,7 @@ rule process_variants:
   output:
     filtered = "variant_calling/{sample}_dipdiff/{sample}.filtered.vcf",
     sorted = "variant_calling/{sample}_dipdiff/{sample}.sorted.vcf",
-    final = "Sample_{sample}/{sample}.dipdiff.vcf.gz"
+    final = "Sample_{sample}/{sample}.sv_dipdiff.vcf.gz"
   threads:
     1
   conda:

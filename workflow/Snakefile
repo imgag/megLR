@@ -145,7 +145,7 @@ if config['sv']['sniffles']:
 if config['sv']['cutesv']:
     out['structural_variant_calling'] +=expand("Sample_{s}/{s}.sv_cutesv.vcf.gz", s=ID_samples),
 if config['sv']['dipdiff']:
-    out['structural_variant_calling'] +=expand("Sample_{s}/{s}.dipdiff.vcf.gz", s=ID_samples)
+    out['structural_variant_calling'] +=expand("Sample_{s}/{s}.sv_dipdiff.vcf.gz", s=ID_samples)
 
 out_selected = [out[step] for step in config['steps']]
 
