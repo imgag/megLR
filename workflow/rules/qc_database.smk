@@ -17,12 +17,11 @@ rule copy_runqc:
         cp -v {input.json} {output.json} >> {log} 2>&1
         """
 
-rule copy_run_report:
+rule copy_run_report_md:
     input:
-        pdf = lambda wildcards: [x for y in [glob(r + "/**/report_*.pdf") for r in map_runs_folder[wildcards.run]] for x in y],
-        md = lambda wildcards:  [x for y in [glob(r + "/**/report_*.md") for r in map_runs_folder[wildcards.run]] for x in y]
+        ancient(get_db_report_md)
     output:
-        pdf = config['run_db_root'] + "/runs/{run}/{run}.report.pdf",
+
         md = config['run_db_root'] + "/runs/{run}/{run}.report.md"
     conda:
         "../env/poppler.yml"
@@ -32,13 +31,28 @@ rule copy_run_report:
         "qc_db"
     shell:
         """
-        pdfunite {input.pdf} {output.pdf} > {log} 2>&1
-        cat {input.md} > {output.md} 2> {log}
+        cat {input} > {output.md} 2> {log}
         """
+
+rule copy_run_report_pdf:
+    input:
+        ancient(get_db_report_pdf)
+    output:
+        pdf = config['run_db_root'] + "/runs/{run}/{run}.report.pdf",
+    conda:
+        "../env/poppler.yml"
+    log:
+        "logs/multiqc_copy_report_{run}.log"
+    group:
+        "qc_db"
+    shell:
+        """
+        pdfunite {input} {output.pdf} > {log} 2>&1
+        """        
 
 rule copy_barcode_stats:
     input:
-        tsv = lambda wildcards: [x for y in [glob(r + "/**/barcode_alignment*.tsv") for r in map_runs_folder[wildcards.run]] for x in y]
+        ancient(get_db_barcode)
     output:
         tsv = config['run_db_root'] + "/runs/{run}/{run}.barcodes.tsv"
     log:
@@ -47,12 +61,12 @@ rule copy_barcode_stats:
         "qc_db"
     shell:
         """
-        cat  {input.tsv} " " > {output.tsv} 2>{log}
+        cat  {input} > {output.tsv} 2>{log}       
         """
 
 rule copy_mux_stats:
     input:
-        mux = lambda wildcards: [x for y in [glob(r + "/**/other_reports/mux_scan_data*.csv") for r in map_runs_folder[wildcards.run]] for x in y]
+        ancient(get_db_mux)
     output:
         mux = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
     log:
@@ -61,15 +75,13 @@ rule copy_mux_stats:
         "qc_db"
     shell:
         """
-        touch {output.mux}
-        cat {input.mux} >> {output.mux} 2>{log}
+        cat {input} > {output.mux} 2>{log}
         """
 
 rule all_multiqc:
     input:
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.json", run = ID_runs),
         expand(config['run_db_root'] + "/runs/{run}/{run}.report.pdf", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.barcodes.tsv", run = ID_runs)
     output:
         config['run_db_root'] + "/ont_runs_multiqc.html"
     log:
@@ -92,10 +104,34 @@ rule all_multiqc:
             {params.multiqc_in} > {log} 2>&1
         """
 
-#rule copy_run_stats:
-# TODO
 
-#rule create_tables:
-# TODO
+rule update_table:
+    input:
+        expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.json", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.report.md", run = ID_runs)
+    output:
+        csv = config['run_db_root'] + "/ont_runs.csv",
+        xlsx = config['run_db_root'] + "/ont_runs.xlsx"
+    conda:
+        "../env/R.yml"
+    group:
+        "qc_db"
+    params:
+        db_root = config['run_db_root']
+    script: 
+        "../scripts/db_collect.R"
 
-#rule commit_new_files:
+
+rule create_plots:
+    input:
+        csv = config['run_db_root'] + "/ont_runs.csv"
+    output:
+        timeline = config['run_db_root'] + "/plot/timeline.png",
+        len_yield = config['run_db_root'] + "/plot/length_yield.png",
+        device_pos = config['run_db_root'] + "/plot/device_position.png",
+    conda:
+        "../env/R.yml"
+    group:
+        "qc_db"
+    script: 
+        "../scripts/db_plot.R"
