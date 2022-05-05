@@ -103,11 +103,33 @@ rule all_multiqc:
             {params.multiqc_in} > {log} 2>&1
         """
 
-#rule update_table:
-# TODO
+rule update_table:
+    input:
+        expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.json", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.report.md", run = ID_runs)
+    output:
+        csv = config['run_db_root'] + "/ont_runs.csv",
+        xlsx = config['run_db_root'] + "/ont_runs.xlsx"
+    conda:
+        "../env/R.yml"
+    group:
+        "qc_db"
+    params:
+        db_root = config['run_db_root']
+    script: 
+        "../scripts/db_collect.R"
 
-# rule create_plots:
-# TODO
 
-# rule update_xlsx:
-#
+rule create_plots:
+    input:
+        csv = config['run_db_root'] + "/ont_runs.csv"
+    output:
+        timeline = config['run_db_root'] + "/plot/timeline.png",
+        len_yield = config['run_db_root'] + "/plot/length_yield.png",
+        device_pos = config['run_db_root'] + "/plot/device_position.png",
+    conda:
+        "../env/R.yml"
+    group:
+        "qc_db"
+    script: 
+        "../scripts/db_plot.R"

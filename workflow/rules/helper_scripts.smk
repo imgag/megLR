@@ -70,7 +70,7 @@ def get_db_report_md(wc):
     md = [x for y in [glob(r + "/**/report_*.md") for r in map_runs_folder[wc.run]] for x in y]
 
     if not md:
-        print("Warning: No markdown report found for run(s) " + wc.run)
+        if config['verbose']: print("Warning: No markdown report found for run(s) " + wc.run)
         md = str(os.path.join(workflow.basedir, "../resources/dummyfiles/report.md"))
     
     return(md)
@@ -83,7 +83,7 @@ def get_db_report_pdf(wc):
 
     pdf = [x for y in [glob(r + "/**/report_*.pdf") for r in map_runs_folder[wc.run]] for x in y]
     if not pdf:
-        print("Warning: No PDF report found for run(s) " + wc.run)
+        if config['verbose']: print("Warning: No PDF report found for run(s) " + wc.run)
         pdf = str(os.path.join(workflow.basedir, "../resources/dummyfiles/report.pdf"))
     
     return(pdf)
@@ -97,7 +97,7 @@ def get_db_mux(wc):
     mux = [x for y in [glob(r + "/**/other_reports/mux_scan_data*.csv") for r in map_runs_folder[wc.run]] for x in y]
 
     if not mux:
-        print("Warning: No mux stats (.csv) found for run(s) " + wc.run)
+        if config['verbose']: print("Warning: No mux stats (.csv) found for run(s) " + wc.run)
         mux = str(os.path.join(workflow.basedir, "../resources/dummyfiles/mux.csv"))
     
     return(mux)
@@ -111,7 +111,7 @@ def get_db_barcode(wc):
     bc = [x for y in [glob(r + "/**/barcode_alignment*.tsv") for r in map_runs_folder[wc.run]] for x in y]
 
     if not bc:
-        print("Warning: No barcode file (.csv) found for run(s) " + wc.run)
+        if config['verbose']: print("Warning: No barcode file (.csv) found for run(s) " + wc.run)
         bc = str(os.path.join(workflow.basedir, "../resources/dummyfiles/barcodes.tsv"))
     
     return(bc)

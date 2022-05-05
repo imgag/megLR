@@ -36,12 +36,10 @@ my_palette <- function(...) {
     
 }
 
-
 scale_fill_custom <- function(..., aesthetics = "fill") {
     
     discrete_scale(aesthetics, "custom", my_palette(), ...)
 }
-
 
 
 mytheme <- list(
