@@ -8,12 +8,11 @@ def get_input_folders(wc):
         Includes folder with failed reads when specified in config
     """
     folders = map_samples_folder[wc.sample].copy()
-    folders.append(['/fastq_pass/'.join(x) for x in map_samples_barcode[wc.sample]])
-    if config['verbose']: print("Input Folders:" + str(folders[0]))
+    [folders.append('/fastq_pass/'.join(x)) for x in map_samples_barcode[wc.sample]]
     if config['use_failed_reads']:
        folders.append(['/fastq_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
-    folders_exist = [x for x in folders[0] if os.path.exists(x)]
-    return{'folders': folders[0]}
+    if config['verbose']: print("Input Folders:" + str(folders))
+    return{'folders': folders}
 
 def get_input_folders_fast5(wc):
     """

@@ -77,23 +77,33 @@ rule flye:
     input:
         "Sample_{sample}/{sample}.fastq.gz"
     output:
-        "Sample_{sample}/{sample}.asm.flye.fasta"
+        "assembly/{sample}_flye/assembly.fasta"
     conda:
         "../env/flye.yml"
     log:
         "logs/{sample}_flye.log"
     params:
         g=config['assembly']['genome_size']
+    group:
+        "flye"
     threads:
-        config['sys']['max_threads']
+        40
     shell:
         """
-        flye \
-            --nano-raw      {input}     \
-            --genome-size   {params.g}  \
-            --threads       {threads}   \
-            --out-dir       assembly/{wildcards.sample}_flye/ \
-            > {log} 2>&1
-        cp assembly/{wildcards.sample}_flye/assembly.fasta {output}
+        flye --nano-raw {input} --genome-size {params.g} --threads {threads} -o assembly/{wildcards.sample}_flye > {log} 2>&1
+        """
+
+rule cp_flye:
+    input:
+        "assembly/{sample}_flye/assembly.fasta"
+    output:
+        "Sample_{sample}/{sample}.asm.flye.fasta"
+    group:
+        "flye"
+    threads:
+        1
+    shell:
+        """
+        cp {input} {output}
         """
         

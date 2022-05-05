@@ -114,14 +114,15 @@ rule bc_bam_qc:
         "../env/ngs-bits.yml"
     log:
         "logs/{sample}_{bc}qualimap.log"
+    conda:
+        "../env/qualimap.yml"
     threads:
         4
     params:
-        qualimap = config['apps']['qualimap'],
         roi = config['demux']['target_region']
     shell:
         """
-        {params.qualimap} bamqc \
+        qualimap bamqc \
             -bam {input} \
             --feature-file {params.roi} \
             --paint-chromosome-limits \
