@@ -130,7 +130,7 @@ out = {
         expand(config['run_db_root'] + "/runs/{run}/{run}.mux.csv", run = ID_runs),
         config['run_db_root'] + "/ont_runs_multiqc.html",
         config['run_db_root'] + "/ont_runs.xlsx",
-        config['run_db_root'] + "/plot/timeline.png"
+        config['run_db_root'] + "/plot/timeline.png",
         config['run_db_root'] + "/ont_runs_multiqc.html"
         ]
 }
