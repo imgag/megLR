@@ -60,6 +60,61 @@ def get_summary_files(wc):
     
     return{'summary_files': files}
 
+def get_db_report_md(wc):
+    """
+    Get Report .pdf and Report.md files
+    Replace with empty dummy files if not available
+    """
+
+    md = [x for y in [glob(r + "/**/report_*.md") for r in map_runs_folder[wc.run]] for x in y]
+
+    if not md:
+        if config['verbose']: print("Warning: No markdown report found for run(s) " + wc.run)
+        md = str(os.path.join(workflow.basedir, "../resources/dummyfiles/report.md"))
+    
+    return(md)
+    
+def get_db_report_pdf(wc):
+    """
+    Get Report .pdf and Report.md files
+    Replace with empty dummy files if not available
+    """
+
+    pdf = [x for y in [glob(r + "/**/report_*.pdf") for r in map_runs_folder[wc.run]] for x in y]
+    if not pdf:
+        if config['verbose']: print("Warning: No PDF report found for run(s) " + wc.run)
+        pdf = str(os.path.join(workflow.basedir, "../resources/dummyfiles/report.pdf"))
+    
+    return(pdf)
+
+def get_db_mux(wc):
+    """
+    Get mux stats file
+    Replace with empty dummy files if not available
+    """
+
+    mux = [x for y in [glob(r + "/**/other_reports/mux_scan_data*.csv") for r in map_runs_folder[wc.run]] for x in y]
+
+    if not mux:
+        if config['verbose']: print("Warning: No mux stats (.csv) found for run(s) " + wc.run)
+        mux = str(os.path.join(workflow.basedir, "../resources/dummyfiles/mux.csv"))
+    
+    return(mux)
+
+def get_db_barcode(wc):
+    """
+    Get barcode tsv file
+    Replace with empty dummy files if not available
+    """
+
+    bc = [x for y in [glob(r + "/**/barcode_alignment*.tsv") for r in map_runs_folder[wc.run]] for x in y]
+
+    if not bc:
+        if config['verbose']: print("Warning: No barcode file (.csv) found for run(s) " + wc.run)
+        bc = str(os.path.join(workflow.basedir, "../resources/dummyfiles/barcodes.tsv"))
+    
+    return(bc)
+
 def aggregate_sample_pycoqc(wc):
     """
     Function that validates the checkpoint and checks for generated sample_pycoqcs

@@ -1,0 +1,8 @@
+# Write Tests!
+
+QC check
+    - One sample multiple flowcells --> Combining stats files
+    - One flowcell with multiple samples --> Split barcods
+    - One flowcell with single sample
+
+Include BAM QC into PycoQC

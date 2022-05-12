@@ -1,8 +1,8 @@
 .snakemake
-resources/*
 !resources/README.md
-test
+logo_ncct.png
 *.code-workspace
 .vscode/launch.json
 .gitignore
-workflow/rules/.nfs0000002f8a75d38e00007522
+test
+test_qc_db

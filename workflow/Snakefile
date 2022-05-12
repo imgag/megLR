@@ -63,6 +63,7 @@ else:
 # Regex for run name:   "^\d{8}_\d{4}_\w+-\w+-\w+_\D{3}\d{5}_\w{8}_\w{5}$"
 # New folder names: "QIGMI017AF_21061LRa001_02013" or "21061LRa001_02013"
 # Regex for new run name:   "^(?:Q\w{9}_)?\d{5}\w*_\d{5}$"
+
 for folder in ID_folders:
     run =  os.path.basename(folder)
     if config['skip_name_check']:
@@ -127,6 +128,9 @@ out = {
         expand(config['run_db_root'] + "/runs/{run}/{run}.report.md", run = ID_runs),
         expand(config['run_db_root'] + "/runs/{run}/{run}.barcodes.tsv", run = ID_runs),
         expand(config['run_db_root'] + "/runs/{run}/{run}.mux.csv", run = ID_runs),
+        config['run_db_root'] + "/ont_runs_multiqc.html",
+        config['run_db_root'] + "/ont_runs.xlsx",
+        config['run_db_root'] + "/plot/timeline.png"
         config['run_db_root'] + "/ont_runs_multiqc.html"
         ]
 }

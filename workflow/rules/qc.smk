@@ -131,7 +131,7 @@ rule qualimap_mod:
         "logs/{sample}_qualimap.log"
     threads:
         8
-    params:
+    conda:
         "../env/qualimap.yml"
     shell:
         """
