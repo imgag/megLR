@@ -66,7 +66,7 @@ rule map_genome_splice:
     conda:
         "../env/minimap2.yml"
     threads:
-        config['sys']['max_threads']
+        config['max_threads']
     params:    
         min_mq = config['mapping']['min_qual']
     shell:

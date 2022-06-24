@@ -33,8 +33,7 @@ gpu_id:
 
 use_failed_reads: false
 
-sys:
-  max_threads: 40
+max_threads: 40
 
 apps:
   multiqc: "/mnt/users/ahgrosc1/tools/bin/multiqc"
@@ -49,7 +48,7 @@ skip_name_check: false # Dont check run folder names for correct formatq
 
 assembly:
   methods: 
-    - "wtdbg"
+#    - "wtdbg"
     - "flye"
   genome_size: "3G"
 

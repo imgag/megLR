@@ -21,7 +21,7 @@ rule sv_sniffles:
       --threads {threads} > {log} 2>&1
     """ 
 
-rule process_sv_vcf:
+rule process_sniffles_sv:
   input:
     rules.sv_sniffles.output.vcf
   output:
@@ -36,9 +36,9 @@ rule process_sv_vcf:
     coregenome="/mnt/projects/external/promethion/reference_genomes/WGS_grch38.bed"
   shell:
     """
-    VcfFilter -in {input} -out variant_calling/{wildcards.sample}/{wildcards.sample}.filtered.vcf -reg {params.coregenome} > {log} 2>&1
-    VcfSort -in variant_calling/{wildcards.sample}/{wildcards.sample}.filtered.vcf -out variant_calling/{wildcards.sample}/{wildcards.sample}.sorted.vcf >> {log} 2>&1
-    bgzip -c variant_calling/{wildcards.sample}/{wildcards.sample}.sorted.vcf  > {output} 2>> {log}
+    VcfFilter -in {input} -out variant_calling/{wildcards.sample}/{wildcards.sample}.sniffles.filtered.vcf -reg {params.coregenome} > {log} 2>&1
+    VcfSort -in variant_calling/{wildcards.sample}/{wildcards.sample}.sniffles.filtered.vcf -out variant_calling/{wildcards.sample}/{wildcards.sample}.sniffles.sorted.vcf >> {log} 2>&1
+    bgzip -c variant_calling/{wildcards.sample}/{wildcards.sample}.sniffles.sorted.vcf  > {output} 2>> {log}
     tabix {output}  2>> {log}
     """
 
@@ -72,6 +72,8 @@ rule process_cutesv_vcf:
     rules.sv_cutesv.output.vcf
   output:
     "Sample_{sample}/{sample}.sv_cutesv.vcf.gz"
+  log:
+    "logs/{sample}_process_sv_vcf_cutesv.log"
   threads:
     1
   conda:
@@ -80,9 +82,9 @@ rule process_cutesv_vcf:
     coregenome="/mnt/projects/external/promethion/reference_genomes/WGS_grch38.bed"
   shell:
     """
-    VcfFilter -in {input} -out variant_calling/{wildcards.sample}/{wildcards.sample}.filtered.vcf -reg {params.coregenome}
-    VcfSort -in variant_calling/{wildcards.sample}/{wildcards.sample}.filtered.vcf -out variant_calling/{wildcards.sample}/{wildcards.sample}.sorted.vcf
-    bgzip -c variant_calling/{wildcards.sample}/{wildcards.sample}.sorted.vcf  > {output}
+    VcfFilter -in {input} -out variant_calling/{wildcards.sample}/{wildcards.sample}.cutesv.filtered.vcf -reg {params.coregenome}
+    VcfSort -in variant_calling/{wildcards.sample}/{wildcards.sample}.cutesv.filtered.vcf -out variant_calling/{wildcards.sample}/{wildcards.sample}.cutesv.sorted.vcf
+    bgzip -c variant_calling/{wildcards.sample}/{wildcards.sample}.cutesv.sorted.vcf  > {output}
     tabix {output}
     """
 
@@ -99,7 +101,7 @@ rule map_to_assembly:
   conda:
     "../env/minimap2.yml"
   threads:
-    40
+    config['max_threads']
   shell:
      """
      minimap2 -ax map-ont -t {threads} {input.fa} {input.fq} | samtools sort -@ 4 -m 4G > {output.bam}
@@ -116,7 +118,7 @@ rule hapdup:
   log:
     "logs/{sample}_hapdup.log"
   threads:
-   40
+   config['max_threads']
   shell:
     """
     docker run \
@@ -142,7 +144,7 @@ rule dipdiff:
   log:
     "logs/{sample}_dipdiff.log"
   threads:
-    40
+    config['max_threads']
   shell: 
     """
     docker run \
@@ -159,7 +161,7 @@ rule dipdiff:
         >{log} 2>&1
     """
 
-rule process_variants:
+rule process_dipdiff_vcf:
   input:
     vcf = "variant_calling/{sample}_dipdiff/variants.vcf"
   output:

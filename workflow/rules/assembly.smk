@@ -12,7 +12,7 @@ rule wtdbg2:
     params:
         g=config['assembly']['genome_size']
     threads:
-        config['sys']['max_threads']
+        config['max_threads']
     shell:
         """
         outf=assembly/{wildcards.sample}_wtdbg
@@ -36,7 +36,7 @@ rule wtdbg2_consensus:
     log:
         "logs/{sample}_wtdbg_consensus.log"
     threads:
-        config['sys']['max_threads']
+        config['max_threads']
     shell:
         """
         outf=assembly/{wildcards.sample}_wtdbg
@@ -58,7 +58,7 @@ rule wtdbg2_polishing:
     log:
         "logs/{sample}_wtdbg_consensus.log"
     threads:
-        config['sys']['max_threads']
+        config['max_threads']
     shell:
         """
         outf=assembly/{wildcards.sample}_wtdbg
@@ -84,10 +84,8 @@ rule flye:
         "logs/{sample}_flye.log"
     params:
         g=config['assembly']['genome_size']
-    group:
-        "flye"
     threads:
-        40
+        config['max_threads']
     shell:
         """
         flye --nano-raw {input} --genome-size {params.g} --threads {threads} -o assembly/{wildcards.sample}_flye > {log} 2>&1
@@ -98,8 +96,6 @@ rule cp_flye:
         "assembly/{sample}_flye/assembly.fasta"
     output:
         "Sample_{sample}/{sample}.asm.flye.fasta"
-    group:
-        "flye"
     threads:
         1
     shell:
