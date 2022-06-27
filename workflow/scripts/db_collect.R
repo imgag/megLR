@@ -23,6 +23,7 @@ dt <- tibble(
   "flow_cell_position" = character(),
   "sequencer" = character(),
   "flow_cell_product_code" = character(),
+  "guppy_version" = character(),
   "run_duration" = numeric(),
   "reads_number" = numeric(),
   "bases_number" = numeric(),
@@ -65,6 +66,7 @@ for (f in subf) {
       "flow_cell_position" = "device_id",
       "sequencer" = "hostname",
       "flow_cell_product_code",
+      "guppy_version"
     ))
   
   # Extract info from folder name
@@ -127,6 +129,7 @@ wb <-
 sheet <-
   "Runs"
 openxlsx::addWorksheet(wb, sheet)
+#openxlsx::conditionalFormatting(wb, sheet, cols = c(14,15,16), rows = 1:nrow(dt_rep), type = "databar",  style = c("#a6a6a6", "#a6a6a6"), showValue = TRUE, gradient = TRUE)
 openxlsx::writeDataTable(wb,
   sheet = sheet,
   x = dtt,
