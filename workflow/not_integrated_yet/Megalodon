@@ -1,0 +1,26 @@
+FAST5DIR="/mnt/promdata/22046/22046LRa001_02374/20220627_1217_2G_PAK13669_e71a19d5/fast5_pass"
+REF="/mnt/storage1/share/data/genomes/GRCh38.fa"
+GPU="cuda:0"
+OUT="/mnt/projects/research/22046I_1012_methylation/remora_v0"
+
+docker run \
+                -v "$(dirname $(realpath ${FAST5DIR}))":"/mnt/fast5dir" \
+                -v "$(dirname $(realpath ${REF}))":"/mnt/input_ref" \
+                -v "${OUT}":"/mnt/out" \
+                --user $(id -u):$(id -g) \
+                -it \
+                --gpus all \
+                nanozoo/megalodon:2.5.0--508a789 \
+                megalodon \
+                ${FAST5DIR} \
+                --guppy-config dna_r9.4.1_450bps_hac.cfg \
+                --guppy-server-path /opt/ont/guppy/bin/guppy_basecall_server \
+                --remora-modified-bases dna_r9.4.1_e8 fast 0.0.0 5hmc_5mc CG 0 \
+                --reference "/mnt/input_ref/$(basename ${REF})" \
+                --output-directory "/mnt/out/megalodon_result" \
+                --processes 8 \
+                --devices 0 1\
+                --overwrite \
+                --outputs basecalls mappings mod_mappings variants
+
+
