@@ -77,6 +77,19 @@ rule copy_vcf_pepper:
                 cp {input.vcf} {output.vcf}
                 """)
 
+rule output_haplotagged_bam:
+    input:
+        vcf = "variant_calling/{sample}_pepper/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.vcf.gz"
+    output:
+        bam = "Sample_{sample}/{sample}.haplotagged.bam"
+    threads:
+        4
+    shell:
+        """
+        mv variant_calling/{wildcards.sample}_pepper/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.haplotagged.bam {output}
+        samtools index -@{threads} {output}
+        """
+
 #____ VARIANT CALLING WITH CLAIR3 ______________________________________________________#
 
 rule clair3_variants:

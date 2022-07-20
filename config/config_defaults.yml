@@ -82,6 +82,7 @@ vc:
   pepper: true
   clair3: false
   phased_output: true     # Generate phased variant calling output (Supported in Pepper and Clair3)
+  haplotagged_bam: true
   create_benchmark: false #TODO Check if this works
   keep_supplementary: false
 
