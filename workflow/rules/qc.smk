@@ -104,7 +104,7 @@ rule qualimap:
     input:
         "Sample_{sample}/{sample}.bam"
     output:
-        'qc/qualimap/{sample}_genome/genome_results.txt'
+        directory('qc/qualimap/{sample}_genome')
     log:
         "logs/{sample}_qualimap.log"
     threads:
@@ -126,7 +126,7 @@ rule qualimap_mod:
     input:
         "Sample_{sample}/{sample}.mod.bam"
     output:
-        'qc/qualimap/{sample}_modbases/genome_results.txt'
+        directory('qc/qualimap/{sample}_modbases')
     log:
         "logs/{sample}_qualimap.log"
     threads:
@@ -306,9 +306,9 @@ rule gffcompare:
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
-    'mapping' : expand("qc/qualimap/{s}_genome/genome_results.txt", s = ID_samples),
+    'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
-    'modbases' : expand("qc/qualimap/{s}_modbases/genome_results.txt", s = ID_samples),
+    'modbases' : expand("qqc/qualimap/{s}_modbases", s = ID_samples),
     'variant_calling':[],
     'structural_variant_calling' : [],
     'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +

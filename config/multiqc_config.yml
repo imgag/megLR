@@ -26,3 +26,11 @@ run_modules:
   - pycoqc
 
 skip_generalstats: false
+
+table_columns_visible:
+  QualiMap:
+    avg_gc: false
+    general_error_rate: true
+    mean_coverage: false
+    5_x_pc: true
+  
