@@ -17,37 +17,26 @@ rule copy_runqc:
         cp -v {input.json} {output.json} >> {log} 2>&1
         """
 
-rule copy_run_report_md:
+rule copy_run_report:
     input:
-        ancient(get_db_report_md)
+        unpack(get_db_report)
     output:
         md = config['run_db_root'] + "/runs/{run}/{run}.report.md"
-    conda:
-        "../env/poppler.yml"
     log:
         "logs/multiqc_copy_report_{run}.log"
     group:
         "qc_db"
     shell:
         """
-        cat {input} > {output.md} 2> {log}
+        cat {input.md} > {output.md} 2> {log}
+        
+        for path in {input.reports}
+        do
+            root="${{path%.*}}"
+            ext="${{path#"$root"}}"
+            cp ${{path}} $(dirname {output.md})/{wildcards.run}.report${{ext}}
+        done
         """
-
-rule copy_run_report_pdf:
-    input:
-        ancient(get_db_report_pdf)
-    output:
-        pdf = config['run_db_root'] + "/runs/{run}/{run}.report.pdf",
-    conda:
-        "../env/poppler.yml"
-    log:
-        "logs/multiqc_copy_report_{run}.log"
-    group:
-        "qc_db"
-    shell:
-        """
-        pdfunite {input} {output.pdf} > {log} 2>&1
-        """        
 
 rule copy_barcode_stats:
     input:
@@ -80,7 +69,7 @@ rule copy_mux_stats:
 rule all_multiqc:
     input:
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.json", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.report.pdf", run = ID_runs),
+        expand(config['run_db_root'] + "/runs/{run}/{run}.report.md", run = ID_runs),
     output:
         config['run_db_root'] + "/ont_runs_multiqc.html"
     log:

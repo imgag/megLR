@@ -60,33 +60,25 @@ def get_summary_files(wc):
     
     return{'summary_files': files}
 
-def get_db_report_md(wc):
+def get_db_report(wc):
     """
     Get Report .pdf and Report.md files
     Replace with empty dummy files if not available
     """
 
-    md = [x for y in [glob(r + "/**/report_*.md") for r in map_runs_folder[wc.run]] for x in y]
+    reports = [x for y in [glob(r + "/**/report_*") for r in map_runs_folder[wc.run]] for x in y]
+    md = [x for x in reports if x.endswith('.md')]
+    reports = [x for x in reports if x not in md]
+
+    #print(md)
+    #print(reports)
 
     if not md:
         if config['verbose']: print("Warning: No markdown report found for run(s) " + wc.run)
         md = str(os.path.join(workflow.basedir, "../resources/dummyfiles/report.md"))
     
-    return(md)
+    return{'md': md, 'reports': reports}
     
-def get_db_report_pdf(wc):
-    """
-    Get Report .pdf and Report.md files
-    Replace with empty dummy files if not available
-    """
-
-    pdf = [x for y in [glob(r + "/**/report_*.pdf") for r in map_runs_folder[wc.run]] for x in y]
-    if not pdf:
-        if config['verbose']: print("Warning: No PDF report found for run(s) " + wc.run)
-        pdf = str(os.path.join(workflow.basedir, "../resources/dummyfiles/report.pdf"))
-    
-    return(pdf)
-
 def get_db_mux(wc):
     """
     Get mux stats file

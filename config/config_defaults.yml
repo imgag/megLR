@@ -114,6 +114,10 @@ gffcompare:
 #______ RUN QC DATABASE ___________________________________________________________#
 
 run_db_root: "/mnt/share/data/ont_run_qc"
+report_filetypes:
+  - md
+  - html
+  - json
 
 #______ FLAIR PARAMETERS _________________________________________________________#
 
