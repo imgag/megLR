@@ -111,16 +111,20 @@ rule qualimap:
         8
     conda:
         "../env/qualimap.yml"
+    params:
+        target = "--outside-stats --feature-file " + config['qualimap']['target'] if config['qualimap']['target'] else ""
+
     shell:
         """
         qualimap bamqc \
             -bam {input} \
             --paint-chromosome-limits \
-            -nt {threads} \
+            -nt {threads} {params.target}\
             -outdir qc/qualimap/{wildcards.sample}_genome \
             --java-mem-size=12G \
             >{log} 2>&1
         """
+    
 
 rule qualimap_mod:
     input:

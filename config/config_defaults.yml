@@ -111,6 +111,9 @@ assembler: "flye"
 gffcompare:
   options: "-R -Q" # Ignore transcript found only in ref oder only in query
 
+qualimap:
+  target: false
+
 #______ RUN QC DATABASE ___________________________________________________________#
 
 run_db_root: "/mnt/share/data/ont_run_qc"
