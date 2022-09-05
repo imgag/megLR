@@ -5,8 +5,16 @@ suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(rjson))
 suppressPackageStartupMessages(library(openxlsx))
 
-#print(str(snakemake))
-folder <- snakemake@params$db_root
+# Define default in/out files for testing if not run inside snakemake
+if (exists("snakemake")) {
+  folder <- snakemake@params$db_root
+  out_csv <- snakemake@output$csv
+  out_xlsx <- snakemake@output$xlsx 
+} else {
+  folder <- getwd()
+  out_csv <- "table_out.csv"
+  out_xlsx <- "table_out.xlsx"
+}
 
 # Regex to match folder names
 subf <- na.omit(str_match(list.dirs(paste0(folder, "/runs"), recursive = F), regex("(?:Q\\w{9}_)?\\d{5}\\w*_\\d{5}$")))
@@ -116,7 +124,7 @@ for (f in subf) {
 
 print(dt)
 # Export data to CSV
-write_csv(dt, snakemake@output$csv)
+write_csv(dt, out_csv)
 
 dtt <- dt %>%
   mutate(start_time = lubridate::as_datetime(start_time)) %>%
@@ -129,7 +137,6 @@ wb <-
 sheet <-
   "Runs"
 openxlsx::addWorksheet(wb, sheet)
-#openxlsx::conditionalFormatting(wb, sheet, cols = c(14,15,16), rows = 1:nrow(dt_rep), type = "databar",  style = c("#a6a6a6", "#a6a6a6"), showValue = TRUE, gradient = TRUE)
 openxlsx::writeDataTable(wb,
   sheet = sheet,
   x = dtt,
@@ -140,5 +147,29 @@ openxlsx::writeDataTable(wb,
     wrapText = TRUE
   )
 )
-openxlsx::setColWidths(wb, sheet, cols = c(1:3, 5:6, 8:9), widths = 25)
-openxlsx::saveWorkbook(wb, snakemake@output$xlsx, overwrite = TRUE)
+# Add databar for QC values
+openxlsx::conditionalFormat(wb, sheet,
+                      cols = 14,
+                      rows = 1:nrow(dtt)+1,
+                      type = "databar"
+)
+openxlsx::conditionalFormat(wb, sheet,
+                      cols = 15,
+                      rows = 1:nrow(dtt)+1,
+                      type = "databar"
+)
+openxlsx::conditionalFormat(wb, sheet,
+                      cols = 16,
+                      rows = 1:nrow(dtt)+1,
+                      type = "databar"
+)
+# Truncate to GBases for Yield
+openxlsx::addStyle(wb = wb, sheet = sheet, 
+          style = createStyle(numFmt = "##0.0E+0"),
+          rows = 1:nrow(dtt)+1,
+          cols = 14:15,
+          gridExpand = TRUE
+)
+openxlsx::setColWidths(wb, sheet, cols = c(2:6, 9:11), widths = 15)
+openxlsx::setColWidths(wb, sheet, cols = c(1, 7:8, 12:16), widths = 25)
+openxlsx::saveWorkbook(wb, out_xlsx, overwrite = TRUE)
