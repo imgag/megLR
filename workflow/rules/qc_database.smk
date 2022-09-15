@@ -54,17 +54,17 @@ rule copy_barcode_stats:
 
 rule copy_mux_stats:
     input:
-        ancient(get_db_mux)
+        csv = ancient(get_db_mux)
     output:
         mux = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
     log:
         "logs/{run}_copy_mux_stats.log"
+    conda:
+        "../env/R.yml"
     group:
         "qc_db"
-    shell:
-        """
-        cat {input} > {output.mux} 2>{log}
-        """
+    script: 
+        "../scripts/db_mux_stats.R"
 
 rule all_multiqc:
     input:
@@ -109,6 +109,19 @@ rule update_table:
     script: 
         "../scripts/db_collect.R"
 
+
+rule create_mux_plots:
+    input:
+        csv = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
+    output:
+        plot_scan = config['run_db_root'] + "/runs/{run}/{run}.pore_yield.png",
+        plot_total = config['run_db_root'] + "/runs/{run}/{run}.pore_status.png"
+    conda:
+        "../env/R.yml"
+    group:
+        "qc_db"
+    script: 
+        "../scripts/db_mux_plot.R"
 
 rule create_plots:
     input:
