@@ -106,6 +106,13 @@ assembler: "flye"
 # assembler: "wtdbg2"
 
 
+#_______ LOCAL ASSEMBLY PARAMETERS _______________________________________________#
+
+local_assembly_regions:
+
+# chrX:1234567-1237890
+
+
 #______ QC PARAMETERS ____________________________________________________________#
 
 gffcompare:

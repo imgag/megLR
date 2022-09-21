@@ -1,0 +1,73 @@
+#____ EXTRACT READS FROM TARGET REGION ___________________________________________#
+local_assembly_regions =['chrX:154143640-154295680']
+
+ID_samples, = glob_wildcards('Sample_{sample}/')
+ID_samples = [sample for sample in ID_samples if '/' not in sample]
+
+print(ID_samples)
+
+rule all:
+    input: 
+        expand("Sample_{s}/local_assembly/{t}.fasta", s = ID_samples, t = local_assembly_regions)
+
+rule create_target_beds:
+    output:
+        "Sample_{sample}/local_assembly/{target}.bed"
+    params:
+        t = lambda wildcards: wildcards['target']
+    run:
+        with open(output[0], "w") as out:
+            bed_line = params['t'].replace(':', '\t').replace('-','\t')
+            out.write(bed_line)
+    
+rule extract_read_ids:
+    input:
+        bam = "Sample_{sample}/{sample}.bam",
+        region = "Sample_{sample}/local_assembly/{target}.bed"
+    output:
+        "Sample_{sample}/local_assembly/{target}.read_ids.txt"
+    conda:
+        "../env/samtools.yml"
+    shell:
+        """
+        samtools view {input.bam} --region-file {input.region} | cut -f 1 | sort | uniq > {output}
+        """
+
+rule extract_reads:
+    input:
+        fastq = "Sample_{sample}/{sample}.bam",
+        read_ids = "Sample_{sample}/local_assembly/{target}.read_ids.txt"
+    output:
+        fastq = "Sample_{sample}/local_assembly/{target}.fastq"
+    conda:
+        "../env/seqtk.yml"
+    shell:
+        """
+        seqtk subseq {input.fastq} {input.read_ids} > {output.fastq}
+        """
+
+#____ ASSEMBLY USING RAVEN ________________________________________________________#
+
+rule raven_assmbly:
+    input:
+        fastq = "Sample_{sample}/local_assembly/{target}.fastq"
+    output:
+        fa = "Sample_{sample}/local_assembly/{target}.fasta",
+        gfa = "Sample_{sample}/local_assembly/{target}.gfa"
+    conda:
+        "../env/raven.yml"
+    log:
+        "logs/{sample}_{target}_raven.log"
+    params:
+        polishing = 2
+    threads:
+        8
+    shell:
+        """
+        raven \
+            --threads {threads} \
+            --graphical-fragment-assembly {output.gfa} \
+            --polishing-rounds {params.polishing} \
+            {input.fastq} > {output.fa} 2>{log}
+        """
+

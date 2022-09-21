@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+  - anaconda
+  - conda-forge
+dependencies:
+  - seqtk==1.3
