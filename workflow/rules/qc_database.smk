@@ -91,8 +91,7 @@ rule all_multiqc:
             --filename ont_runs_multiqc.html \
             {params.multiqc_in} > {log} 2>&1
         """
-
-
+        
 rule update_table:
     input:
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.json", run = ID_runs),
@@ -108,7 +107,6 @@ rule update_table:
         db_root = config['run_db_root']
     script: 
         "../scripts/db_collect.R"
-
 
 rule create_mux_plots:
     input:

@@ -1,5 +1,4 @@
 #!/bin/env Rscript
-
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(rjson))
@@ -45,6 +44,7 @@ for (f in subf) {
       paste0(folder, "/runs/", f, "/", f, ".report.md"),
       skip = 4,
       n_max = 39,
+      skip_empty_rows = TRUE
       ) %>% 
       str_remove_all(regex("[\\\" ,]")) %>%
       str_split(":", n = 2, simplify = T) %>%
@@ -62,6 +62,7 @@ for (f in subf) {
           ))%>%
       tibble::as_tibble()
   
+  #print(report)
   # Extract data
   dt_rep <- report %>%
     spread(key = "V1", value = "V2") %>%
@@ -120,6 +121,7 @@ for (f in subf) {
 
   # Add to main table
   dt <- add_row(dt, tibble_row(bind_cols(dt_rep, qc_data)))
+
 }
 
 print(dt)

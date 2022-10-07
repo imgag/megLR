@@ -73,7 +73,6 @@ def get_summary_files(wc):
 
     if config['fastq_prefer_rebasecalled']:
         folders_rebasecalled = [s for t in [glob(x+"/**/fastq_rebasecalled", recursive = True) for x in folders] for s in t]
-        print(str(bool(folders_rebasecalled)))
         if folders_rebasecalled:
             folders = folders_rebasecalled
             files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders_rebasecalled] for s in t]
