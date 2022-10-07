@@ -13,14 +13,96 @@ docker run \
                 nanozoo/megalodon:2.5.0--508a789 \
                 megalodon \
                 ${FAST5DIR} \
-                --guppy-config dna_r9.4.1_450bps_hac.cfg \
+                --guppy-config dna_r9.4.1_450bps_hac_prom.cfg \
                 --guppy-server-path /opt/ont/guppy/bin/guppy_basecall_server \
-                --remora-modified-bases dna_r9.4.1_e8 fast 0.0.0 5hmc_5mc CG 0 \
+                --remora-modified-bases dna_r9.4.1_e8 hac 0.0.0 5hmc_5mc CG 0 \
                 --reference "/mnt/input_ref/$(basename ${REF})" \
                 --output-directory "/mnt/out/megalodon_result" \
                 --processes 8 \
                 --devices 0 1\
                 --overwrite \
-                --outputs basecalls mappings mod_mappings variants
+                --outputs basecalls mappings mod_mappings
+
+# On the promethion
+
+megalodon \
+    ../22046LRa001_02374/20220627_1217_2G_PAK13669_e71a19d5/fast5_pass \
+    --guppy-server-path /opt/ont/guppy/bin/guppy_basecall_server \
+    --guppy-config dna_r9.4.1_450bps_hac_prom.cfg \
+    --remora-modified-bases dna_r9.4.1_e8 hac 0.0.0 5hmc_5mc CG 0 \
+    --reference "/data/ref/GRCh38.fa" \
+    --processes 80 \
+    --devices 0,1 \
+    --output-directory 22046LRa001_02374_megalodon \
+    --overwrite \
+    --outputs basecalls mappings mod_mappings
+
+megalodon \
+    ../22046LRa001L2_02402/20220711_1106_3E_PAK16343_e571f9f7/fast5_pass \
+    --guppy-server-path /opt/ont/guppy/bin/guppy_basecall_server \
+    --guppy-config dna_r9.4.1_450bps_hac_prom.cfg \
+    --remora-modified-bases dna_r9.4.1_e8 hac 0.0.0 5hmc_5mc CG 0 \
+    --reference "/data/ref/GRCh38.fa" \
+    --processes 80 \
+    --devices 0,1 \
+    --output-directory 22046LRa001L2_02402_megalodon \
+    --overwrite \
+    --outputs basecalls mappings mod_mappings
 
 
+megalodon \
+    ../22046LRa001L2_02402/20220711_1106_3E_PAK16343_e571f9f7/fast5_pass \
+    --guppy-server-path /opt/ont/guppy/bin/guppy_basecall_server \
+    --guppy-config dna_r9.4.1_450bps_hac_prom.cfg \
+    --remora-modified-bases dna_r9.4.1_e8 hac 0.0.0 5hmc_5mc CG 0 \
+    --reference "/data/ref/GRCh38.fa" \
+    --processes 80 \
+    --devices 0,1 \
+    --output-directory 22046LRa001L2_02402_megalodon \
+    --overwrite \
+    --outputs basecalls mappings mod_mappings
+
+megalodon \
+    ../22046LRa001L2_02402/20220711_1106_3E_PAK16343_e571f9f7/fast5_pass \
+    --guppy-server-path /opt/ont/guppy/bin/guppy_basecall_server \
+    --guppy-config dna_r9.4.1_450bps_hac_prom.cfg \
+    --remora-modified-bases dna_r9.4.1_e8 hac 0.0.0 5hmc_5mc CG 0 \
+    --reference "/data/ref/GRCh38.fa" \
+    --processes 80 \
+    --devices 0,1 \
+    --sort-mappings \
+    --output-directory 22046LRa001L2_02402_var_megalodon \
+    --overwrite \
+    --outputs mod_mappings variants per_read_variants per_read_mods mods
+
+    #TODO Sort + Index
+
+Or add --sort-mappings
+samtools sort -@ 4 -m 4G mappings.bam > mappings.sorted.bam
+
+#Bonito:
+
+bonito basecaller \
+    dna_r9.4.1_e8.1_hac@v3.3 \
+    . \
+    --modified-bases 5mC \
+    --recursive \
+    --reference /data/ref/GRCh38.mmi \
+    > 22046LRa001.mod.bam
+
+
+# Methylartist
+Full chromosome arm:
+
+methylartist region \
+    -i chr19:1-58617616 \
+    -b 22046LRa001.mod.bam \
+    -p 10 \
+    -g Homo_sapiens.GRCh38.97.chr.sorted.gtf.gz \
+    -n CG \
+    -r /mnt/share/data/GRCh38/gene_lists/Homo_sapiens.GRCh38.102.chr.gtf \
+    --skip_align_plot \
+    --panelratios 1,0,1,4 \
+    --height 4.5 \
+    --genepalette viridis \
+    --samplepalette viridis

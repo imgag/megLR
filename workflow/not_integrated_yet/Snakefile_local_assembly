@@ -35,7 +35,7 @@ rule extract_read_ids:
 
 rule extract_reads:
     input:
-        fastq = "Sample_{sample}/{sample}.bam",
+        fastq = "Sample_{sample}/{sample}.fastq.gz",
         read_ids = "Sample_{sample}/local_assembly/{target}.read_ids.txt"
     output:
         fastq = "Sample_{sample}/local_assembly/{target}.fastq"

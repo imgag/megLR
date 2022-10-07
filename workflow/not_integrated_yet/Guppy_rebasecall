@@ -1,0 +1,9 @@
+guppy_basecaller \
+    --input_path . \
+    --save_path fastq_rebasecalled \
+    --config dna_r9.4.1_450bps_hac_prom.cfg \
+    --device auto \
+    --min_qscore 7 \
+    --chunk_size 1000 \
+    --gpu_runners_per_device 2 \
+    --recursive
