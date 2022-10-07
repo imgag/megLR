@@ -6,12 +6,25 @@ def get_input_folders(wc):
         Allows multiple runs per sample (restarted, repeated)
         Demultiplexed samples on a single flowcell with barcode information
         Includes folder with failed reads when specified in config
+
+        New option: Ifq folder contains a subfolder called "fastq_rebasecalled", 
+        reads will be taken only from this folder. Option can be turned off in config option
+        'fastq_prefer_rebasecalled' 
     """
     folders = map_samples_folder[wc.sample].copy()
-    [folders.append('/fastq_pass/'.join(x)) for x in map_samples_barcode[wc.sample]]
-    if config['use_failed_reads']:
-       folders.append(['/fastq_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
-    if config['verbose']: print("Input Folders:" + str(folders))
+    if config['verbose']: print("Input Folders:" + str(folders), end = '')
+    
+    if map_samples_barcode:
+        [folders.append('/fastq_pass/'.join(x)) for x in map_samples_barcode[wc.sample]]
+        if config['use_failed_reads']:
+            folders.append(['/fastq_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
+    
+    if config['fastq_prefer_rebasecalled']:
+        folders_rebasecalled = [s for t in [glob(x+"/**/fastq_rebasecalled", recursive = True) for x in folders] for s in t]
+        if folders_rebasecalled:
+            folders = folders_rebasecalled
+
+    if config['verbose']: print(" | Updated to:" + str(folders))
     return{'folders': folders}
 
 def get_input_folders_fast5(wc):
@@ -57,6 +70,13 @@ def get_summary_files(wc):
     if map_samples_barcode:
         folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
         files += [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
+
+    if config['fastq_prefer_rebasecalled']:
+        folders_rebasecalled = [s for t in [glob(x+"/**/fastq_rebasecalled", recursive = True) for x in folders] for s in t]
+        print(str(bool(folders_rebasecalled)))
+        if folders_rebasecalled:
+            folders = folders_rebasecalled
+            files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders_rebasecalled] for s in t]
     
     return{'summary_files': files}
 
@@ -85,8 +105,9 @@ def get_db_mux(wc):
     Replace with empty dummy files if not available
     """
 
-    mux = [x for y in [glob(r + "/**/other_reports/mux_scan_data*.csv") for r in map_runs_folder[wc.run]] for x in y]
-
+    mux = [x for y in [glob(r + "/**/mux_scan_data*.csv") for r in map_runs_folder[wc.run]] for x in y]
+    mux += [x for y in [glob(r + "/**/other_reports/pore_scan_data*.csv") for r in map_runs_folder[wc.run]] for x in y]
+    
     if not mux:
         if config['verbose']: print("Warning: No mux stats (.csv) found for run(s) " + wc.run)
         mux = str(os.path.join(workflow.basedir, "../resources/dummyfiles/mux.csv"))

@@ -72,6 +72,9 @@ bonito:
 # Should modbases bam from bonito be used for variant calling?
 use_mod_bam: false
 
+# Take raw fastq onlt from folder with name `fastq_rebasecalled` if existing
+fastq_prefer_rebasecalled: true
+
 sv:
   sniffles: true
   cutesv: true
@@ -112,7 +115,6 @@ assembler: "flye"
 local_assembly_regions:
 
 # chrX:1234567-1237890
-
 
 #______ QC PARAMETERS ____________________________________________________________#
 
