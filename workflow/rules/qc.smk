@@ -310,9 +310,10 @@ rule gffcompare:
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
+    'fastq' : expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples),
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
-    'modbases' : expand("qqc/qualimap/{s}_modbases", s = ID_samples),
+    'modbases' : expand("qc/qualimap/{s}_modbases", s = ID_samples),
     'variant_calling':[],
     'structural_variant_calling' : [],
     'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +

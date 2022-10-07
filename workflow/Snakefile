@@ -107,6 +107,7 @@ include: "rules/qc_database.smk"
 
 out = {
     'modbases' : expand("Sample_{s}/{s}.mod.bam", s=ID_samples),
+    'fastq' : expand("Sample_{s}/{s}.fastq.gz", s = ID_samples),
     'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),

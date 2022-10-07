@@ -2,6 +2,7 @@
 
 steps:
 # - mapping
+# - fastq
 # - assembly
 # - structural_variant_calling
 # - variant_calling
