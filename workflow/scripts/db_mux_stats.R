@@ -4,6 +4,8 @@ library(data.table)
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(ggplot2))
 
+#TODO: Handle case when multiple mux files are given as input
+
 # Define default in/out files for testing if not run inside snakemake
 if (exists("snakemake")) {
   input_csv <- snakemake@input$csv
@@ -27,7 +29,7 @@ s <- dt[,.(
   unclassed = sum(unclassed),
   transition = sum(transition),
   zero = sum(zero)), 
-  by=.(channel,scan_number,seconds_since_start_of_run)]
+  by=.(channel,seconds_since_start_of_run)]
 
 
 get_x <- function(i) {

@@ -19,13 +19,18 @@ def get_input_folders(wc):
         if config['use_failed_reads']:
             folders.append(['/fastq_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
     
-    if config['fastq_prefer_rebasecalled']:
-        folders_rebasecalled = [s for t in [glob(x+"/**/fastq_rebasecalled", recursive = True) for x in folders] for s in t]
-        if folders_rebasecalled:
-            folders = folders_rebasecalled
+    folders_updated = list()
 
-    if config['verbose']: print(" | Updated to:" + str(folders))
-    return{'folders': folders}
+    if config['fastq_prefer_rebasecalled']:
+        for f in folders:
+            f_rebasecalled =  glob(f+"/**/fastq_rebasecalled", recursive = True)
+            if f_rebasecalled:
+                [folders_updated.append(f) for f in f_rebasecalled]
+            else:
+                folders_updated.append(f)
+    
+    if config['verbose']: print(" | Updated to:" + str(folders_updated))
+    return{'folders': folders_updated}
 
 def get_input_folders_fast5(wc):
     """
