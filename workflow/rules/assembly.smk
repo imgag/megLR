@@ -102,4 +102,34 @@ rule cp_flye:
         """
         cp {input} {output}
         """
+
+rule metaflye:
+    input:
+        "Sample_{sample}/{sample}.fastq.gz"
+    output:
+        "assembly/{sample}_metaflye/assembly.fasta"
+    conda:
+        "../env/flye.yml"
+    log:
+        "logs/{sample}_metaflye.log"
+    threads:
+        config['max_threads']
+    shell:
+        """
+        flye --nano-raw {input} --meta --threads {threads} -o assembly/{wildcards.sample}_metaflye > {log} 2>&1
+        """
+
+rule cp_metaflye:
+    input:
+        "assembly/{sample}_metaflye/assembly.fasta"
+    output:
+        "Sample_{sample}/{sample}.asm.metaflye.fasta"
+    threads:
+        1
+    shell:
+        """
+        cp {input} {output}
+        """
+
+
         

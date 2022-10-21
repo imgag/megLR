@@ -49,8 +49,9 @@ skip_name_check: false # Dont check run folder names for correct formatq
 
 assembly:
   methods: 
-#    - "wtdbg"
+#    - "wtdbg"a
     - "flye"
+#    - "metaflye"
   genome_size: "3G"
 
 transcript:
