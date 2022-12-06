@@ -103,6 +103,14 @@ include: "rules/dual_barcode.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
 
+localrules:
+    copy_barcode_stats,
+    copy_mux_stats,
+    copy_run_report,
+    copy_runqc,
+    create_mux_plots,
+    create_plots
+
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
 
 out = {
