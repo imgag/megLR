@@ -7,7 +7,8 @@ if (exists("snakemake")) {
   plot_scan <- snakemake@output$plot_scan
   plot_total <- snakemake@output$plot_total
 } else {
-  input_mux <- "test_qc_db/21103LRa019_02212.mux.csv"
+  # input_mux <- "test_qc_db/21103LRa019_02212.mux.csv"
+  input_mux <- "test_qc_db/QIGMI027AM_21061LRa017L1_02192.mux.csv"
   plot_scan <- "test_qc_db/plot_scan.png"
   plot_total <- "test_qc_db/plot_total.png"
 }
@@ -21,20 +22,20 @@ if (length(readLines(con)) < 100) {
     quit(save="no")
 }
 
-s <- data.table::fread(input_mux)
+s <- data.table::fread(input_mux, colClasses="")
 
 ss <- s[,.(
   mux_scan_assessment = names(sort(table(mux_scan_assessment),decreasing=TRUE))[1], 
-  total_good_samples = sum(total_good_samples), 
-  total_time_active = sum(total_time_active),
-  pore_median = sum(pore_median),
-  pore_sd = sum(pore_sd),
-  multiple = sum(multiple),
-  adapter = sum(adapter),
-  unclassed = sum(unclassed),
-  transition = sum(transition),
-  zero = sum(zero), 
-  unavailable = sum(unavailable)),
+  total_good_samples = sum(as.numeric(total_good_samples)), 
+  total_time_active = sum(as.numeric(total_time_active)),
+  pore_median = sum(as.numeric(pore_median)),
+  pore_sd = sum(as.numeric(pore_sd)),
+  multiple = sum(as.numeric(multiple)),
+  adapter = sum(as.numeric(adapter)),
+  unclassed = sum(as.numeric(unclassed)),
+  transition = sum(as.numeric(transition)),
+  zero = sum(as.numeric(zero)),
+  unavailable = sum(as.numeric(unavailable))),
   by=.(channel)]
 
 
@@ -45,14 +46,14 @@ get_x <- function(i) {
 }
 
 get_y <- function(i) {
-  i <- i-1
+  i <- i - 1
   y <- ((i %/% 10) %% 25 ) +1
 }  
 
-ss[,x := get_x(channel),]
-ss[,y := get_y(channel),]
-s[,x := get_x(channel),]
-s[,y := get_y(channel),]
+ss[,x := get_x(as.numeric(channel)),]
+ss[,y := get_y(as.numeric(channel)),]
+s[,x := get_x(as.numeric(channel)),]
+s[,y := get_y(as.numeric(channel)),]
 
 blue = '#8fc5e6' #unavailable
 green = '#00ff00' # green sequencing
