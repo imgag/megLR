@@ -82,7 +82,7 @@ def get_summary_files(wc):
             folders = folders_rebasecalled
             files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders_rebasecalled] for s in t]
     
-    return{'summary_files': files}
+    return {'summary_files': files}
 
 def get_db_report(wc):
     """
