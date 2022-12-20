@@ -11,6 +11,7 @@ steps:
 # - cDNA_flair
 # - modbases
 # - cnv
+# - local_assembly
   - qc
   - qc_db
 
@@ -111,16 +112,17 @@ sv_cutesv:
 assembler: "flye"
 # assembler: "wtdbg2"
 
-#_______ LOCAL ASSEMBLY PARAMETERS _______________________________________________#
-
-local_assembly_regions:
-
-# chrX:1234567-1237890
-
 #_______ CNVKIT __________________________________________________________________#
 # Params not optimized for Tumor samples yet!!!
 cnvkit:
-  reference: "/mnt/users/ahgrosc1/data/cnvkit_ref/"
+  reference_samples:
+    21073LRa080: /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa080/21073LRa080.bam
+    21073LRa086: /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa086/21073LRa086.bam
+    21073LRa076: /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa076/21073LRa076.bam
+    21073LRa101: /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa101/21073LRa101.bam
+  reference: ""
+  binsize: 50000
+  minbinsize: 100
   targets: "/mnt/users/ahgrosc1/data/WGS_grch38.bed"
   antitargets: "/mnt/users/ahgrosc1/data/cnvkit_ref/sv_blacklist.bed"
   segment_method: "cbs"
@@ -139,6 +141,12 @@ cnvkit:
     ymin: -5
     chromosome:
     - ''
+
+#______ LOCAL ASSEMBLY ___________________________________________________________#
+
+local_assembly:
+  regions:
+    - chrX:154143640-154295680
 
 #______ QC PARAMETERS ____________________________________________________________#
 

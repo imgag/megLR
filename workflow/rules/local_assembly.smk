@@ -1,15 +1,4 @@
 #____ EXTRACT READS FROM TARGET REGION ___________________________________________#
-local_assembly_regions =['chrX:154143640-154295680']
-
-ID_samples, = glob_wildcards('Sample_{sample}/')
-ID_samples = [sample for sample in ID_samples if '/' not in sample]
-
-print(ID_samples)
-
-rule all:
-    input: 
-        expand("Sample_{s}/local_assembly/{t}.fasta", s = ID_samples, t = local_assembly_regions)
-
 rule create_target_beds:
     output:
         "Sample_{sample}/local_assembly/{target}.bed"
@@ -71,3 +60,53 @@ rule raven_assmbly:
             {input.fastq} > {output.fa} 2>{log}
         """
 
+#____ SMASHPP PAIRWISE GENOME COMP ________________________________________________________#
+rule extract_ref_seq:
+    input:
+        ref = config['ref']
+    output:
+        "Sample_{sample}/local_assembly/{target}.ref.fasta"
+    shell:
+        """
+        samtools faidx {input.ref} {wildcards.target} > {output}
+        """
+
+rule smashpp:
+    input:
+        asm = "Sample_{sample}/local_assembly/{target}.fasta",
+        ref = config['ref']
+    output:
+        json = "{sample}.{target}.json"    
+    conda:
+        "../env/smashpp.yml"
+    log:
+        "logs/{sample}_{target}_smashpp.log"
+    threads:
+        4
+    shell:
+        """
+        smashpp \
+            --reference {input.ref} \
+            --target {input.asm} \
+            --verbose \
+            --format json \
+            --num-threads {threads} \
+            >{log} 2>&1
+        """
+
+rule smashpp_viz:
+    input:
+        json = rules.smashpp.output.json,
+    output:
+        "Sample_{sample}/local_assembly/{target}.synteny.svg"
+    conda:
+        "../env/smashpp.yml"
+    log:
+        "logs/{sample}_{target}_smashpp_viz.log"
+    shell:
+        """
+        smashpp viz\
+            --output {output} \
+            {input.json} \
+            >{log} 2>&1
+        """

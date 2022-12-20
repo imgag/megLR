@@ -101,6 +101,7 @@ include: "rules/cdna_stringtie.smk"
 include: "rules/cdna_flair.smk"
 include: "rules/dual_barcode.smk"
 include: "rules/cnv.smk"
+include: "rules/local_assembly.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
 
@@ -131,6 +132,7 @@ out = {
     'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
         expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
     'cnv': expand("cnvkit/{s}/{s}.scatter.png", s = ID_samples),
+    'local_assembly': expand("Sample_{s}/local_assembly/{t}.fasta", s = ID_samples, t = config['local_assembly']['regions']),
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.html", run = ID_runs),
@@ -165,6 +167,7 @@ if config['sv']['cutesv']:
 if config['sv']['dipdiff']:
     out['structural_variant_calling'] +=expand("Sample_{s}/{s}.sv_dipdiff.vcf.gz", s=ID_samples)
 
+# Include only results for selected analysis modules
 out_selected = [out[step] for step in config['steps']]
 
 rule all:

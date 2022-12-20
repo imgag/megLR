@@ -1,0 +1,7 @@
+name: smashpp
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - smashpp=20.04
