@@ -331,6 +331,7 @@ qc_out = {
     'dual_demux' : [],
     'de_analysis' : [],
     'cnv': [],
+    'local_assembly': [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
         expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
     'qc_db': []

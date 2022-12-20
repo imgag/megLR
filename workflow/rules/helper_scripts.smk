@@ -144,6 +144,18 @@ def aggregate_sample_pycoqc(wc):
     else:
         return(barcode_qcs)
 
+
+def get_cnvkit_bam(wc):
+    """
+    Get bamfile for cnvkit either from config file (reference) or project folder (sample)
+    """
+    if wc.sample in config['cnvkit']['reference_samples']:
+        bam = config['cnvkit']['reference_samples'][wc.sample]
+    else:
+        bam = "Sample_{s}/{s}.bam".format(s = wc.sample)
+    print(bam)
+    return{'bam': bam}
+
 def print_message():
     print('')
     print('  ██████╗ ███╗   ██╗████████╗  ████████╗ ██████╗  ██████╗ ██╗     ███████╗')
