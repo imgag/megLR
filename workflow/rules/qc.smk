@@ -330,6 +330,7 @@ qc_out = {
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'dual_demux' : [],
     'de_analysis' : [],
+    'cnv': [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
         expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
     'qc_db': []

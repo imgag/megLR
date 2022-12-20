@@ -10,6 +10,7 @@ steps:
 # - cDNA_stringtie
 # - cDNA_flair
 # - modbases
+# - cnv
   - qc
   - qc_db
 
@@ -110,12 +111,34 @@ sv_cutesv:
 assembler: "flye"
 # assembler: "wtdbg2"
 
-
 #_______ LOCAL ASSEMBLY PARAMETERS _______________________________________________#
 
 local_assembly_regions:
 
 # chrX:1234567-1237890
+
+#_______ CNVKIT __________________________________________________________________#
+# Params not optimized for Tumor samples yet!!!
+cnvkit:
+  reference: "/mnt/users/ahgrosc1/data/cnvkit_ref/"
+  targets: "/mnt/users/ahgrosc1/data/WGS_grch38.bed"
+  antitargets: "/mnt/users/ahgrosc1/data/cnvkit_ref/sv_blacklist.bed"
+  segment_method: "cbs"
+  # available methods: cbs, haar, hmm, hmm-tumor, hmm-germline, none
+
+  call:
+    center: "mode"
+    # available options: mean, median, mode. biweight
+    method: "clonal"
+    # available methods: threshold, clonal, none
+    ploidy: 2
+
+  scatter:
+    color: "red"
+    ymax: 5
+    ymin: -5
+    chromosome:
+    - ''
 
 #______ QC PARAMETERS ____________________________________________________________#
 

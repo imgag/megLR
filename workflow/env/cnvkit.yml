@@ -1,0 +1,12 @@
+name: cnvkit
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base=4.2.2
+  - cnvkit=0.9.9
+  - python=3.10.8
+  - matplotlib=3.6.2
+  - numpy=1.23.5
+  - poppler=22.12.0

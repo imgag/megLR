@@ -100,6 +100,7 @@ include: "rules/cdna_expression.smk"
 include: "rules/cdna_stringtie.smk"
 include: "rules/cdna_flair.smk"
 include: "rules/dual_barcode.smk"
+include: "rules/cnv.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
 
@@ -129,6 +130,7 @@ out = {
         expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
     'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
         expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
+    'cnv': expand("cnvkit/{s}/{s}.scatter.png", s = ID_samples),
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.html", run = ID_runs),

@@ -1,0 +1,142 @@
+# Analyze WGS (1 Ref, CBS segmentation, 2000 target-avg-size)
+cnvkit.py batch \
+    --normal /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa086/21073LRa086.bam \
+    --method wgs \
+    --annotate /mnt/users/ahgrosc1/data/gencode.v34.annotation.bed \
+    --targets /mnt/users/ahgrosc1/data/WGS_grch38.bed \
+    --fasta /mnt/storage2/GRCh38/share/data/genomes/GRCh38.fa \
+    --processes 8 \
+    --target-avg-size 50000 \
+    --output-dir cnv_kit_wgs \
+    Sample_21073LRa031/21073LRa031.bam \
+    Sample_21073LRa032/21073LRa032.bam 
+
+# Analyze WGS (0 Ref, HMM segmentation)
+cnvkit.py batch \
+    --normal /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa086/21073LRa086.bam \
+    --method wgs \
+    --annotate /mnt/users/ahgrosc1/data/gencode.v34.annotation.bed \
+    --targets /mnt/users/ahgrosc1/data/WGS_grch38.bed \
+    --fasta /mnt/storage2/GRCh38/share/data/genomes/GRCh38.fa \
+    --processes 20 \
+    --target-avg-size 2000 \
+    --output-dir cnv_kit_wgs \
+    --scatter \
+    --diagram \
+    Sample_21073LRa031/21073LRa031.bam \
+    Sample_21073LRa032/21073LRa032.bam 
+
+
+# Calculate Cov files
+## OnTarget (WGS grch38)
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa080/21073LRa080.bam WGS_grch38.bed -o cnvkit_ref/21073LRa080.targetcoverage.cnn &
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa086/21073LRa086.bam WGS_grch38.bed -o cnvkit_ref/21073LRa086.targetcoverage.cnn &
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa076/21073LRa076.bam WGS_grch38.bed -o cnvkit_ref/21073LRa076.targetcoverage.cnn &
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa101/21073LRa101.bam WGS_grch38.bed -o cnvkit_ref/21073LRa101.targetcoverage.cnn &
+##Offtarget (Difficult regions)
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa080/21073LRa080.bam cnvkit_ref/sv_blacklist.bed -o cnvkit_ref/21073LRa080.antitargetcoverage.cnn &
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa086/21073LRa086.bam cnvkit_ref/sv_blacklist.bed -o cnvkit_ref/21073LRa086.antitargetcoverage.cnn &
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa076/21073LRa076.bam cnvkit_ref/sv_blacklist.bed -o cnvkit_ref/21073LRa076.antitargetcoverage.cnn &
+cnvkit.py coverage /mnt/storage1/projects/research/21073N_SEQ418081722_mitopathy/Sample_21073LRa101/21073LRa101.bam cnvkit_ref/sv_blacklist.bed -o cnvkit_ref/21073LRa101.antitargetcoverage.cnn &
+
+
+## Create reference from 5 samples
+cnvkit.py reference  cnvkit_ref/*coverage.cnn \
+    --fasta /mnt/storage2/GRCh38/share/data/genomes/GRCh38.fa \
+    --targets /mnt/users/ahgrosc1/data/WGS_grch38.bed \
+    --output cnvkit_ref/all.cnvkit_ref \
+
+## Try out different segment algorithm on primary dataset
+
+cnvkit.py segment \
+    --method 'hmm-germline' \
+    --drop-low-coverage \
+    --drop-outliers 10 \
+    --processes 6 \
+    --output 21073LRa031.hmm.cns \
+    21073LRa031.cnr
+
+# Target avg size is a speed improvement
+# Normal can be 0 / 1 / n files. For 0 will use flat
+
+cnvkit.py scatter \
+    --segment 21073LRa031.cns \
+    --segment-color 'red' \
+    --output plot/21073LRa031.scatter.pdf \
+    21073LRa031.cnr
+
+cnvkit.py scatter \
+    --segment 21073LRa031.hmm.cns \
+    --segment-color 'red' \
+    --output plot/21073LRa031.scatter.hmm.pdf \
+    21073LRa031.cnr
+
+## Zoom in on chromosomes
+
+#031
+cnvkit.py scatter \
+    --segment 21073LRa031.cns \
+    --segment-color 'red' \
+    --chromosome chr13 \
+    --output plot/21073LRa031.chr13.scatter.pdf \
+    --y-max 5 \
+    --y-min -5 \
+    21073LRa031.cnr
+
+cnvkit.py scatter \
+    --segment 21073LRa031.cns \
+    --segment-color 'red' \
+    --chromosome chr21 \
+    --output plot/21073LRa031.chr21.scatter.pdf \
+    --y-max 5 \
+    --y-min -5 \
+    21073LRa031.cnr
+
+#032
+cnvkit.py scatter \
+    --segment 21073LRa032.cns \
+    --segment-color 'red' \
+    --chromosome chr13 \
+    --output plot/21073LRa032.chr13.scatter.pdf \
+    --y-max 5 \
+    --y-min -5 \
+    21073LRa032.cnr
+
+cnvkit.py scatter \
+    --segment 21073LRa032.cns \
+    --segment-color 'red' \
+    --chromosome chr21 \
+    --output plot/21073LRa032.chr21.scatter.pdf \
+    --y-max 5 \
+    --y-min -5 \
+    21073LRa032.cnr
+
+
+# DIAGRAM
+cnvkit.py diagram \
+    --segment 21073LRa031.cns \
+    --output plot/21073LRa031.cyto.pdf \
+    21073LRa031.cnr
+
+cnvkit.py diagram \
+    --segment 21073LRa032.cns \
+    --output plot/21073LRa032.cyto.pdf \
+    21073LRa032.cnr
+
+# Multi-sample heatmap
+cnvkit.py heatmap \
+    --segment 21073LRa031.cns 21073LRa032.cns\
+    --output plot/21073.heatmap.pdf \
+    21073LRa031.cnr 21073LRa032.cnr   
+
+
+
+cnvkit.py diagram
+cnvkit.py heatmap
+
+
+cnvkit.py scatter \
+    --segment 21073LRa031.cns \
+    --output plot/21073LRa031.scatter.pdf \
+    21073LRa031.cnr
+
