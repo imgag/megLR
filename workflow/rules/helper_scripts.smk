@@ -153,7 +153,7 @@ def get_cnvkit_bam(wc):
         bam = config['cnvkit']['reference_samples'][wc.sample]
     else:
         bam = "Sample_{s}/{s}.bam".format(s = wc.sample)
-    print(bam)
+    if config['verbose']: print(bam)
     return{'bam': bam}
 
 def print_message():

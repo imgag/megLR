@@ -14,6 +14,7 @@ rule create_targets:
         cnvkit.py target \
             {input.bed} \
             --avg-size {params.binsize} \
+            --split \
             --output {output.bed} \
             >{log} 2>&1
         """
