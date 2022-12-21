@@ -132,9 +132,14 @@ out = {
         expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
     'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
         expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
-    'cnv': expand("cnvkit/{s}/{s}.scatter.png", s = ID_samples) +
-         expand("cnvkit/{s}/{s}.call.txt", s = ID_samples)+
-         expand("cnvkit/{s}/{s}.sex.txt", s = ID_samples),
+    'cnv': [
+        expand("cnvkit/{s}/{s}.all.png", s = ID_samples),
+        expand("cnvkit/{s}/{s}.{r}.png",
+            s = ID_samples,
+            r = config['cnvkit']['scatter']['region']),
+        expand("cnvkit/{s}/{s}.call.txt", s = ID_samples),
+        expand("cnvkit/{s}/{s}.sex.txt", s = ID_samples)
+        ],
     'local_assembly': expand("Sample_{s}/local_assembly/{t}.fasta", s = ID_samples, t = config['local_assembly']['regions']),
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [

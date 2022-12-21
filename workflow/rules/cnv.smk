@@ -217,18 +217,19 @@ rule cnvkit_scatter:
         cns = rules.segment.output.cns,
         cnr = rules.fix_coverage.output.cnr
     output:
-        "cnvkit/{sample}/{sample}.scatter.pdf"
+        "cnvkit/{sample}/{sample}.{region}.pdf"
     conda:
         "../env/cnvkit.yml"
     log:
-        "logs/{sample}_cnvkit_scatter.log"
+        "logs/{sample}_cnvkit_scatter_{region}.log"
     params:
         col = config['cnvkit']['scatter']['color'],
         ymax = config['cnvkit']['scatter']['ymax'],
-        ymin = config['cnvkit']['scatter']['ymin']
+        ymin = config['cnvkit']['scatter']['ymin'],
+        region = lambda wc: "" if wc.region == "all" else "-c "+ wc.region
     shell:
         """
-        cnvkit.py scatter \
+        cnvkit.py scatter {params.region}\
             --segment {input.cns} \
             --segment-color {params.col} \
             --y-max {params.ymax} \
