@@ -132,10 +132,10 @@ rule fix_coverage:
     shell:
         """
         cnvkit.py fix \
+            --output {output.cnr} \
             {input.cnn_targets} \
             {input.cnn_antitargets} \
-            {params.ref} \
-            --output {output.cnr} \
+            {input.ref} \
             >{log} 2>&1
         """
 # Infer discrete copy number segments from given coverage table
@@ -166,8 +166,7 @@ rule cnvkit_call:
     input:
         cns = rules.segment.output.cns
     output:
-        call = "cnvkit/{sample}/{sample}.call.cns",
-        vcf = "cnvkit/{sample}/{sample}.cnv.vcf"
+        call = "cnvkit/{sample}/{sample}.call.txt"
     conda:
         "../env/cnvkit.yml"
     log:
@@ -183,16 +182,16 @@ rule cnvkit_call:
             --center {params.center} \
             --method {params.method} \
             --ploidy {params.ploidy} \
-            --processes {threads} \
             --output {output.call} \
-            --vcf {output.vcf} \
             >{log} 2>&1
         """
+# TODO: Annotate B-allele frequencies in existing SNP VCF
 
 # Plot scatterplot of all segments
 rule cnvkit_scatter:
     input:
-        cns = rules.segment.output.cns
+        cns = rules.segment.output.cns,
+        cnr = rules.fix_coverage.output.cnr
     output:
         "cnvkit/{sample}/{sample}.scatter.pdf"
     conda:
@@ -211,6 +210,7 @@ rule cnvkit_scatter:
             --y-max {params.ymax} \
             --y-min {params.ymin} \
             --output {output} \
+            {input.cnr} \
             >{log} 2>&1
         """
 
@@ -223,5 +223,6 @@ rule convert_pdf:
         "../env/cnvkit.yml"
     shell:
         """
-        pdftoppm -png {input} $(basename {input} .pdf)
+        pdftoppm -png {input} cnvkit/{wildcards.sample}/$(basename {input} .pdf)
+        mv cnvkit/{wildcards.sample}/{wildcards.sample}.{wildcards.plot}-1.png {output}
         """
