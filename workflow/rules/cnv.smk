@@ -19,9 +19,32 @@ rule create_targets:
             >{log} 2>&1
         """
 
+rule cnvkit_access:
+    input:
+        ref = config['ref']['genome'],
+        bed = config['cnvkit']['exclude_region']
+    output:
+        bed = "cnvkit/ref/access.bed"
+    conda:
+        "../env/cnvkit.yml"
+    log:
+        "logs/cnvkit_access.log"
+    params:
+        gapsize = config['cnvkit']['mingapsize'] 
+    shell:
+        """
+        cnvkit.py access \
+            {input.ref} \
+            --exclude {input.bed} \
+            --min-gap-size {params.gapsize} \
+            --output {output.bed} \
+            >{log} 2>&1
+        """    
+
 rule create_antitargets:
     input:
-        bed = config['cnvkit']['antitargets']
+        bed = rules.create_targets.output.bed,
+        access = rules.cnvkit_access.output.bed
     output:
         bed = "cnvkit/ref/antitargets.bed"
     conda:
@@ -35,6 +58,7 @@ rule create_antitargets:
         """
         cnvkit.py antitarget \
             {input.bed} \
+            --access {input.access} \
             --avg-size {params.binsize} \
             --min-size {params.minbinsize} \
             --output {output.bed} \
@@ -201,7 +225,7 @@ rule cnvkit_scatter:
     params:
         col = config['cnvkit']['scatter']['color'],
         ymax = config['cnvkit']['scatter']['ymax'],
-        ymin = config['cnvkit']['scatter']['ymin'],
+        ymin = config['cnvkit']['scatter']['ymin']
     shell:
         """
         cnvkit.py scatter \
@@ -213,6 +237,29 @@ rule cnvkit_scatter:
             {input.cnr} \
             >{log} 2>&1
         """
+
+# Define sex of sample
+rule cnvkit_sex:
+    input:
+        ref = config['cnvkit']['reference'] if config['cnvkit']['reference'] else "cnvkit/ref/ref.cnn",
+        cns = rules.segment.output.cns,
+        cnr = rules.fix_coverage.output.cnr
+    output:
+        "cnvkit/{sample}/{sample}.sex.txt"
+    conda:
+        "../env/cnvkit.yml"
+    log:
+        "logs/{sample}_cnvkit_scatter.log"
+    shell:
+        """
+        cnvkit.py sex \
+            --output {output} \
+            {input.ref} \
+            {input.cnr} \
+            {input.cns} \
+            >{log} 2>&1
+        """
+
 
 rule convert_pdf:
     input:
