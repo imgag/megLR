@@ -68,7 +68,6 @@ sv:
 #_____ VARIANT CALLING PARAMETERS _______________________________________________#
 
 vc:
-  medaka: false 
   pepper: true
   clair3: false
   phased_output: true  # Generate phased reads 
@@ -77,10 +76,6 @@ vc:
 
 vc_clair3:
   model: "r941_prom_sup_g5014"
-
-vc_medaka:
-  model_initial: "r941_prom_snp_g303" #Depends on flowcell and guppy version
-  model_final: "r941_prom_high_g303" #Depends on flowcell and guppy version
 
 vc_pepper:
   model: "ont_r9_guppy5_sup"

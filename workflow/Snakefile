@@ -164,8 +164,6 @@ if config['vc']['pepper'] and config['vc']['haplotagged_bam']:
     out['variant_calling'] += expand("Sample_{s}/{s}.haplotagged.bam", s=ID_samples)
 if config['vc']['clair3']:
     out['variant_calling'] += expand("Sample_{s}/{s}.clair3.vcf.gz", s=ID_samples)
-if config['vc']['medaka']:
-    out['variant_calling'] += expand("Sample_{s}/{s}.medaka.vcf.gz", s=ID_samples)
 
 # Add SV calling outputs:
 if config['sv']['sniffles']:

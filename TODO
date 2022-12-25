@@ -57,3 +57,8 @@
 
 * [ ] Mamba support for environment creation
 * [ ] Update tool versions (when tests exist)
+
+* [ ] Amplicon (Dual Demux)
+  * [ ] Demuxed samples should be located on top level
+  * [ ] Change Variant Calling to Pepper_Margin_DV
+  
