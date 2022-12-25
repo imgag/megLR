@@ -77,13 +77,12 @@ rule all_multiqc:
     group:
         "qc_db"
     params:
-        multiqc = config['apps']['multiqc'],
         multiqc_config = srcdir('../../config/multiqc_config_db.yml'),
         multiqc_out = config['run_db_root'],
         multiqc_in = config['run_db_root']
     shell:
         """
-        {params.multiqc} \
+        multiqc \
             --config  {params.multiqc_config} \
             --force \
             --outdir {params.multiqc_out} \

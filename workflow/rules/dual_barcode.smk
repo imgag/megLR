@@ -132,45 +132,45 @@ rule bc_bam_qc:
             >{log} 2>&1
         """
 
-rule bc_var:
-    input:
-        bam = rules.bc_map.output.bam,
-        ref = config['ref']['genome']
-    output:
-        vcf = "Sample_{sample}/demux_analysis/{sample}_{bc}/round_1.vcf"
-    conda:
-        "../env/medaka.yml"
-    threads:
-        2
-    log:
-        "logs/{sample}_{bc}_medaka.log"
-    params:
-        model_snp = config['vc_medaka']['model_initial'],
-        roi = config['demux']['target_region_str']
-    shell:
-        """
-        export OMP_NUM_THREADS={threads}
-        medaka_variant -d \
-            -f {input.ref} \
-            -i {input.bam} \
-            -r {params.roi} \
-            -p  \
-            -o Sample_{wildcards.sample}/demux_analysis/{wildcards.sample}_{wildcards.bc}/ \
-            -t {threads} \
-            -s {params.model_snp} \
-            -S \
-            >{log} 2>&1
-        """
+# rule bc_var:
+#     input:
+#         bam = rules.bc_map.output.bam,
+#         ref = config['ref']['genome']
+#     output:
+#         vcf = "Sample_{sample}/demux_analysis/{sample}_{bc}/round_1.vcf"
+#     conda:
+#         "../env/medaka.yml"
+#     threads:
+#         2
+#     log:
+#         "logs/{sample}_{bc}_medaka.log"
+#     params:
+#         model_snp = config['vc_medaka']['model_initial'],
+#         roi = config['demux']['target_region_str']
+#     shell:
+#         """
+#         export OMP_NUM_THREADS={threads}
+#         medaka_variant -d \
+#             -f {input.ref} \
+#             -i {input.bam} \
+#             -r {params.roi} \
+#             -p  \
+#             -o Sample_{wildcards.sample}/demux_analysis/{wildcards.sample}_{wildcards.bc}/ \
+#             -t {threads} \
+#             -s {params.model_snp} \
+#             -S \
+#             >{log} 2>&1
+#         """
 
-rule vcf2tsv:
-    input:
-        rules.bc_var.output.vcf
-    output:
-        "Sample_{sample}/demux_analysis/{sample}_{bc}/round_1.tsv"
-    shell:
-        """
-        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%FILTER\t[%GT\t%GQ]\n' {input} > {output}
-        """
+# rule vcf2tsv:
+#     input:
+#         rules.bc_var.output.vcf
+#     output:
+#         "Sample_{sample}/demux_analysis/{sample}_{bc}/round_1.tsv"
+#     shell:
+#         """
+#         bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%FILTER\t[%GT\t%GQ]\n' {input} > {output}
+#         """
 
 def get_demuxed_samples(wildcards):
         pass_folder = checkpoints.mv_mult_files.get(sample=wildcards.sample).output.bc_pass

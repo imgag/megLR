@@ -33,7 +33,6 @@ rule run_multiqc:
     threads:
        1
     params:
-        multiqc = config['apps']['multiqc'],
         multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
@@ -235,20 +234,20 @@ rule quast:
             >{log} 2>&1
         """
 
-#____ VARIANT QC _____________________________________________________________#
-rule bcftools_stats:
-    input:
-        vcf = rules.combine_vcf.output
-    output:
-        "qc/variants/{sample}.stats"
-    log:
-        "logs/{sample}_bcftools.log"
-    conda:
-        "../env/bcftools.yml"
-    shell:
-        """
-        bcftools stats {input} > {output} 2> {log}
-        """
+# #____ VARIANT QC _____________________________________________________________#
+# rule bcftools_stats:
+#     input:
+#         vcf = rules.combine_vcf.output
+#     output:
+#         "qc/variants/{sample}.stats"
+#     log:
+#         "logs/{sample}_bcftools.log"
+#     conda:
+#         "../env/bcftools.yml"
+#     shell:
+#         """
+#         bcftools stats {input} > {output} 2> {log}
+#         """
 
 #_____ TRANSCRIPTOME ANNOTATION QC ____________________________________________#
 # Exons with ambigous strand informations are filtered out to avoid sqanti errors
@@ -332,14 +331,11 @@ qc_out = {
     'de_analysis' : [],
     'cnv': [],
     'local_assembly': [],
+    'repeat_expansion': [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
         expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
     'qc_db': []
 }
-
-# Additional output options
-if config['vc']['create_benchmark']:
-    qc_out['variant_calling'] +=  expand("qc/happy/{s}.summary.csv", s=ID_samples)
 
 #if map_samples_barcode: 
 #    qc_out += aggregate_sample_pycoqc
@@ -359,7 +355,6 @@ rule multiqc:
     threads:
         1
     params:
-        multiqc = config['apps']['multiqc'],
         multiqc_config = srcdir('../../config/multiqc_config.yml')
     shell:
         """
