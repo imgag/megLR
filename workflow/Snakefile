@@ -105,6 +105,7 @@ include: "rules/cnv.smk"
 include: "rules/local_assembly.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
+include: "rules/repeat_expansion.smk"
 
 localrules:
     copy_barcode_stats,
@@ -112,7 +113,8 @@ localrules:
     copy_run_report,
     copy_runqc,
     create_mux_plots,
-    create_plots
+    create_plots,
+    trvz
 
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
 
@@ -141,6 +143,7 @@ out = {
         expand("cnvkit/{s}/{s}.sex.txt", s = ID_samples)
         ],
     'local_assembly': expand("Sample_{s}/local_assembly/{t}.fasta", s = ID_samples, t = config['local_assembly']['regions']),
+    'repeat_expansion': expand("Sample_{s}/{s}.repeats.vcf.gz", s = ID_samples),
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.html", run = ID_runs),
