@@ -19,7 +19,6 @@ steps:
 
 ref:
   genome: "/mnt/storage1/share/data/genomes/GRCh38.fa"
-  #annotation: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.85.chr.gtf"
   annotation: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.gtf"
   annotation_bed: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.bed"
   cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
@@ -27,70 +26,53 @@ ref:
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
+# Filenames
 sample_file: "sample_run_table.tsv"
 project_config: "config.yml"
+
+# Prints samples, barcode and folder informations
+verbose: false 
+# Dont check run folder names for correct format
+skip_name_check: false 
+
+# GPU Settings (for Pepper-Margin-Deepvariant)
 use_gpu: true
 gpu_id:
   id: "GPU-2c38ecef-c1ce-d516-ebb9-2b381cf15f21"
   cuda: "cuda:0"
 
-use_failed_reads: false
-
+# Max threads per process
 max_threads: 40
 
+# Links to executables
 apps:
-  multiqc: "/mnt/users/ahgrosc1/tools/bin/multiqc"
-  stringtie: "/mnt/storage1/users/ahgrosc1/tools/stringtie/stringtie"
   sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
-  cdna_cupcake: "/mnt/storage1/users/ahgrosc1/tools/cDNA_Cupcake/" # Enter root folder
 
-verbose: false  # Prints samples, barcode and folder informations
-skip_name_check: false # Dont check run folder names for correct formatq
+#______ ANALYSIS PARAMETERS _____________________________________________________#
 
-#______ ANALYSIS PARAMETERS _______________________________________________________#
-
-assembly:
-  methods: 
-#    - "wtdbg"a
-    - "flye"
-#    - "metaflye"
-  genome_size: "3G"
-
-transcript:
-  # Minimap2 mapping options
-  minimap2_opts: ""
-  # Maximum secondary alignments
-  maximum_secondary: 100
-  # Secondary score ratio (-p for minimap2)
-  secondary_score_ratio: 1.0
+# Take raw fastq only from folder with name `fastq_rebasecalled` if existing
+fastq_prefer_rebasecalled: true
+use_failed_reads: false
 
 mapping:
   #Min mapping quality filter (Full_length splice)
   min_qual: 20
 
-bonito:
-  model: "dna_r9.4.1_e8_hac@v3.3"
-  modified_bases: "5mC"
-
-# Should modbases bam from bonito be used for variant calling?
-use_mod_bam: false
-
-# Take raw fastq onlt from folder with name `fastq_rebasecalled` if existing
-fastq_prefer_rebasecalled: true
+#_____ STRUCTURAL VARIANT CALLING PARAMETERS _____________________________________#
 
 sv:
   sniffles: true
   cutesv: true
   dipdiff: false
+
 #_____ VARIANT CALLING PARAMETERS _______________________________________________#
 
 vc:
   medaka: false 
   pepper: true
   clair3: false
-  phased_output: true     # Generate phased variant calling output (Supported in Pepper and Clair3)
+  phased_output: true  # Generate phased reads 
   haplotagged_bam: true
-  create_benchmark: false #TODO Check if this works
   keep_supplementary: false
 
 vc_clair3:
@@ -107,13 +89,28 @@ vc_pepper:
 sv_cutesv:
   enable_genotyping: true 
 
+#_____ BASE MODIFICATIONS _______________________________________________________#
+
+# Settings for bonito (mod)basecalling
+bonito:
+  model: "dna_r9.4.1_e8_hac@v3.3"
+  modified_bases: "5mC"
+
+# Should modbases bam from bonito be used for variant calling?
+use_mod_bam: false
+
 #______ ASSEMBLY PARAMETERS ______________________________________________________#
 
-assembler: "flye"
-# assembler: "wtdbg2"
+assembly:
+  methods: 
+    - "flye"
+#   - "wtdbg"
+#   - "metaflye"
+  genome_size: "3G"
 
 #_______ CNVKIT __________________________________________________________________#
-# Params not optimized for Tumor samples yet!!!
+
+# Params not optimized for Tumor samples yet.
 cnvkit:
   reference: ""
   reference_samples:
@@ -141,19 +138,12 @@ cnvkit:
     ymax: 5
     ymin: -5
     region:
-#_______ CNVKIT __________________________________________________________________#
-
-pav:
-  location: "/mnt/users/ahgrosc1/tools/pav"
-  config: ""
-  prefix: 'pav'
-
 
 #______ LOCAL ASSEMBLY ___________________________________________________________#
 
 local_assembly:
   regions:
-    - chrX:154143640-154295680
+    - ""
 
 #______ QC PARAMETERS ____________________________________________________________#
 
@@ -180,16 +170,20 @@ flair:
 
 #______ EXPRESSION PARAMETERS ___________________________________________________#
 
-expression:
-  level: "exon"
-  min_qual: 3
-  strandedness: 1 # 0:unstranded 1:stranded 2:reversely stranded
+transcript:
+  # Minimap2 mapping options
+  minimap2_opts: ""
   # Maximum secondary alignments
   maximum_secondary: 100
   # Secondary score ratio (-p for minimap2)
   secondary_score_ratio: 1.0
+
+expression:
+  level: "exon"
+  min_qual: 3
+  strandedness: 1 # 0:unstranded 1:stranded 2:reversely stranded
   # Salmon library type
-  salmon_libtype: "U"
+  salmon_libtype: "S"  # U = unspecific, S = strand-specific
 
 #______ DUAL BARCODING DEMULTIPLEX ______________________________________________#
 
@@ -197,5 +191,5 @@ demux:
   bc_index: 'bc_index_file.csv'
   bc_distance: 3
   minibar: '/mnt/users/ahgrosc1/tools/miniconda3/bin/python /mnt/users/ahgrosc1/tools/minibar/minibar.py'
-  target_region: 'testbla'
-  target_region_str: 'chr1:155232501-155241415'
+  target_region: ''
+  target_region_str: ''

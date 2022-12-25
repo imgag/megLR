@@ -1,5 +1,5 @@
-
 configfile: srcdir('../../config/de_analysis_config.yml')
+
 
 #_____ QUANTIFICATION (SALMON) ____________________________________________#
 
@@ -18,7 +18,7 @@ rule quant_salmon:
     threads:
         10
     params:
-        library = config['libtype'], # U = unspecific, S = strand-specific
+        library = config['expression']['salmon_libtype'],
         args = "--noErrorModel" if config['ignore_error'] else ""
     shell:
         """

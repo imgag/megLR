@@ -1,6 +1,6 @@
 #____ VARIANT CALLING WITH DEEPVARIANT _______________________________________________________#
 
-#  Inference is speed up massively using GPU support.
+#  Inference is sped up massively using GPU support.
 rule pepper_marging_deepvariant:
     input:
         bam = use_bam,

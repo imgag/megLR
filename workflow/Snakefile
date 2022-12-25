@@ -7,8 +7,9 @@
 import csv
 import os
 import pathlib
-from collections import defaultdict
 from glob import glob
+from collections import defaultdict
+# Needed by DGE:
 import pandas as pd
 from collections import OrderedDict
 
@@ -76,7 +77,7 @@ for folder in ID_folders:
             map_runs_folder[run].append(folder)
         else:
             print("Run name has incorrect name: ", run)
-            print("Forgot adding run suffix?")
+            print("Forgot adding run suffix? Override by config setting `skip_name_check`")
             exit(1)
 
 if config['verbose']:
@@ -102,7 +103,6 @@ include: "rules/cdna_flair.smk"
 include: "rules/dual_barcode.smk"
 include: "rules/cnv.smk"
 include: "rules/local_assembly.smk"
-#include: "rules/pav.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
 

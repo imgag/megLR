@@ -106,9 +106,3 @@ rule map_to_transcriptome:
             | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
         samtools index {output.bam}
         """
-
-# _____ POLISH MAPPING BY RUNNING 1 ROUND OF RACON ______________________#
-
-# racon -m 8 -x -6 -g -8 -w 500 ...
-# This is recommended before running Medaka
-
