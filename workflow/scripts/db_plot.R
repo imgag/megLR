@@ -18,7 +18,6 @@ if (exists("snakemake")) {
   out_timeline <- "plot_timeline.png"
 }
 
-
 # Setup plot theme
 my_palette <- function(...) {  
     # Colour Brewer Set1

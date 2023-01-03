@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+# TODO Find source/license for this script
 
 suppressMessages(library("DRIMSeq"))
 suppressMessages(library("GenomicFeatures"))

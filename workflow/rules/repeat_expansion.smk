@@ -20,7 +20,7 @@ rule trgt:
             >{log} 2>&1
         """
 
-rule copy_vcf:
+rule copy_expansion_vcf:
     input:
         rules.trgt.output.vcf 
     output:
@@ -38,6 +38,18 @@ rule index_spanning_reads:
     shell:
         """
         samtools index {input}
+        """
+
+rule find_expansions:
+    input:
+        rules.trgt.output.vcf
+    output:
+        "Sample_{sample}/{sample}.expanded_repeats.tsv"
+    conda:
+        "../env/R.yml"
+    script:
+        """
+        ../scripts/find_expanded_repeats.R
         """
 
 rule trvz:
