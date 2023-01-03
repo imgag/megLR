@@ -21,6 +21,7 @@ run_modules:
   - rseqc
   - qualimap
   - quast
+  - mosdepth
   - featureCounts
   - custom_content
   - pycoqc

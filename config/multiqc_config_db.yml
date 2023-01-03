@@ -21,9 +21,9 @@ skip_generalstats: false
 report_header_info:
  - Author: 'Caspar Gross'
  - Author Contact: 'caspar.gross@med.uni-tuebingen.de'
- - Project: 'Summary MultiQC for all Nanopore runs'
- - Project Description: 'TODO (not provided)'
- - Application Type: 'TODO RNAseq/WGS/...'
- - Library Preparation: 'TODO protocol name/processing system, please describe'
- - Sequencing Platform: 'TODO NovaSeq 6000'
+ - Project: 'Longread project'
+ - Project Description: 
+ - Application Type: 
+ - Library Preparation: 
+ - Sequencing Platform: 'ONT Nanopore'
  - Sequencing Setup: 
