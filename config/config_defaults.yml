@@ -150,13 +150,6 @@ local_assembly:
 
 
 
-#______ REPEAT EXPANSIONS ____________________________________________________________#
-
-repeat_expansion:
-  trgt: "path"
-  trvz: "path"
-  loci: "bed"
-
 #______ QC PARAMETERS ____________________________________________________________#
 
 gffcompare:
@@ -173,14 +166,14 @@ report_filetypes:
   - html
   - json
 
-#______ TRANSCRIPTOME ANALYSIS (FLAIR) PARAMETERS _________________________________#
+#______ FLAIR PARAMETERS _________________________________________________________#
 
 flair:
   manifest: "reads_manifest.tsv"
   trust_ends: yes   # Use this option if using long unfragmented reads, e.g. preprocessed with pychopper
   min_qual: 1
 
-#______ TRANSCRIPT EXPRESSION PARAMETERS __________________________________________#
+#______ EXPRESSION PARAMETERS ___________________________________________________#
 
 transcript:
   # Minimap2 mapping options

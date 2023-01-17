@@ -105,7 +105,6 @@ include: "rules/cnv.smk"
 include: "rules/local_assembly.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
-include: "rules/repeat_expansion.smk"
 
 localrules:
     copy_barcode_stats,
@@ -113,8 +112,7 @@ localrules:
     copy_run_report,
     copy_runqc,
     create_mux_plots,
-    create_plots,
-    trvz
+    create_plots
 
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
 
