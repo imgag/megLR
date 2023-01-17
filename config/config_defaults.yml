@@ -116,7 +116,7 @@ cnvkit:
   binsize: 15000
   minbinsize: 100
   mingapsize: 5000
-  targets: "/mnt/users/ahgrosc1/data/WGS_grch38.bed"
+  include_region: "/mnt/users/ahgrosc1/data/WGS_grch38.bed"
   exclude_region: "/mnt/users/ahgrosc1/data/cnvkit_ref/sv_blacklist.bed"
   segment_method: "cbs"
   # available methods: cbs, haar, hmm, hmm-tumor, hmm-germline, none

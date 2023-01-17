@@ -1,6 +1,6 @@
 rule create_targets:
     input:
-        bed = config['cnvkit']['targets']
+        bed = config['cnvkit']['include_region']
     output:
         bed = "cnvkit/ref/targets.bed"
     conda:
