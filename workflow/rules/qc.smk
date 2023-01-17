@@ -115,6 +115,7 @@ rule qualimap:
 
     shell:
         """
+        unset DISPLAY
         qualimap bamqc \
             -bam {input} \
             --paint-chromosome-limits \
@@ -138,6 +139,7 @@ rule qualimap_mod:
         "../env/qualimap.yml"
     shell:
         """
+        unset DISPLAY
         qualimap bamqc \
             -bam {input} \
             --paint-chromosome-limits \
@@ -164,6 +166,7 @@ rule rna_qualimap:
         "../env/qualimap.yml"
     shell:
         """
+        unset DISPLAY
         qualimap rnaseq \
             -bam {input} \
             -gtf {params.gtf} \
