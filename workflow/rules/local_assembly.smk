@@ -14,7 +14,7 @@ rule extract_read_ids:
         bam = "Sample_{sample}/{sample}.bam",
         region = "local_assembly/{target}.bed"
     output:
-        "local_assembly/Sample_{sample}/{target,[A-Za-z0-9]+}.read_ids.txt"
+        "local_assembly/Sample_{sample}/{target,[^.]+}.read_ids.txt" #Regex: Does not contain dot
     conda:
         "../env/samtools.yml"
     shell:
