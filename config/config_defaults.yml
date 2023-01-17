@@ -136,9 +136,19 @@ cnvkit:
 
 #______ LOCAL ASSEMBLY ___________________________________________________________#
 
+# Default: 
 local_assembly:
+  # Default: No local assembly regions defined
   regions:
     - ""
+  # Default: All reads are used, no haplotype filtering
+  haplotypes: 
+    - ""
+  # - 1
+  # - 2
+  # Separates local assembly with the selected haplotypes
+
+
 
 #______ REPEAT EXPANSIONS ____________________________________________________________#
 

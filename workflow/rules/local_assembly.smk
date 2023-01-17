@@ -14,12 +14,30 @@ rule extract_read_ids:
         bam = "Sample_{sample}/{sample}.bam",
         region = "local_assembly/{target}.bed"
     output:
-        "local_assembly/Sample_{sample}/{target}.read_ids.txt"
+        "local_assembly/Sample_{sample}/{target,[A-Za-z0-9]+}.read_ids.txt"
     conda:
         "../env/samtools.yml"
     shell:
         """
         samtools view {input.bam} --region-file {input.region} | cut -f 1 | sort | uniq > {output}
+        """
+
+rule extract_phased_read_ids:
+    input:
+        bam = "Sample_{sample}/{sample}.haplotagged.bam",
+        region = "local_assembly/{target}.bed"
+    output:
+        "local_assembly/Sample_{sample}/{target}.hp{phase}.read_ids.txt"
+    conda:
+        "../env/samtools.yml"
+    shell:
+        """
+        samtools view {input.bam} \
+            --region-file {input.region} \
+            --tag HP:{wildcards.phase} \
+            | cut -f 1 \
+            | sort \
+            | uniq > {output}
         """
 
 rule extract_reads:
