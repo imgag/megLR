@@ -61,4 +61,9 @@
 * [ ] Amplicon (Dual Demux)
   * [ ] Demuxed samples should be located on top level
   * [ ] Change Variant Calling to Pepper_Margin_DV
+
+* [ ] Error Messages:
+  * [ ] No target region given for CNVKit
+  * [ ] No ref given for CNVKit
+  
   

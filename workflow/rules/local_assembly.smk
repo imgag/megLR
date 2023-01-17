@@ -1,7 +1,7 @@
 #____ EXTRACT READS FROM TARGET REGION ___________________________________________#
 rule create_target_beds:
     output:
-        "Sample_{sample}/local_assembly/{target}.bed"
+        "local_assembly/{target}.bed"
     params:
         t = lambda wildcards: wildcards['target']
     run:
@@ -12,9 +12,9 @@ rule create_target_beds:
 rule extract_read_ids:
     input:
         bam = "Sample_{sample}/{sample}.bam",
-        region = "Sample_{sample}/local_assembly/{target}.bed"
+        region = "local_assembly/{target}.bed"
     output:
-        "Sample_{sample}/local_assembly/{target}.read_ids.txt"
+        "local_assembly/Sample_{sample}/{target}.read_ids.txt"
     conda:
         "../env/samtools.yml"
     shell:
@@ -25,9 +25,9 @@ rule extract_read_ids:
 rule extract_reads:
     input:
         fastq = "Sample_{sample}/{sample}.fastq.gz",
-        read_ids = "Sample_{sample}/local_assembly/{target}.read_ids.txt"
+        read_ids = "local_assembly/Sample_{sample}/{target}.read_ids.txt"
     output:
-        fastq = "Sample_{sample}/local_assembly/{target}.fastq"
+        fastq = "local_assembly/Sample_{sample}/{target}.fastq"
     conda:
         "../env/seqtk.yml"
     shell:
@@ -39,10 +39,10 @@ rule extract_reads:
 
 rule raven_assmbly:
     input:
-        fastq = "Sample_{sample}/local_assembly/{target}.fastq"
+        fastq = "local_assembly/Sample_{sample}/{target}.fastq"
     output:
-        fa = "Sample_{sample}/local_assembly/{target}.fasta",
-        gfa = "Sample_{sample}/local_assembly/{target}.gfa"
+        fa = "local_assembly/Sample_{sample}/{target}.fasta",
+        gfa = "local_assembly/Sample_{sample}/{target}.gfa"
     conda:
         "../env/raven.yml"
     log:
@@ -63,9 +63,9 @@ rule raven_assmbly:
 #____ SMASHPP PAIRWISE GENOME COMP ________________________________________________________#
 rule extract_ref_seq:
     input:
-        ref = config['ref']
+        ref = config['ref']['genome']
     output:
-        "Sample_{sample}/local_assembly/{target}.ref.fasta"
+        "local_assembly/{target}.ref.fasta"
     shell:
         """
         samtools faidx {input.ref} {wildcards.target} > {output}
@@ -73,10 +73,10 @@ rule extract_ref_seq:
 
 rule smashpp:
     input:
-        asm = "Sample_{sample}/local_assembly/{target}.fasta",
-        ref = config['ref']
+        asm = "local_assembly/Sample_{sample}/{target}.fasta",
+        ref = "local_assembly/{target}.ref.fasta"
     output:
-        json = "{sample}.{target}.json"    
+        json = "Sample_{sample}/local_assembly/{sample}.{target}.json"    
     conda:
         "../env/smashpp.yml"
     log:
@@ -98,7 +98,7 @@ rule smashpp_viz:
     input:
         json = rules.smashpp.output.json,
     output:
-        "Sample_{sample}/local_assembly/{target}.synteny.svg"
+        "local_assembly/Sample_{sample}/{target}.synteny.svg"
     conda:
         "../env/smashpp.yml"
     log:
@@ -110,3 +110,6 @@ rule smashpp_viz:
             {input.json} \
             >{log} 2>&1
         """
+
+
+#____ MINIMAP2 PAIRWISE GENOME ALN ________________________________________________________#

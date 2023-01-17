@@ -142,7 +142,8 @@ out = {
         expand("cnvkit/{s}/{s}.call.txt", s = ID_samples),
         expand("cnvkit/{s}/{s}.sex.txt", s = ID_samples)
         ],
-    'local_assembly': expand("Sample_{s}/local_assembly/{t}.fasta", s = ID_samples, t = config['local_assembly']['regions']),
+    'local_assembly': expand("local_assembly/Sample_{s}/{t}.fasta", s = ID_samples, t = config['local_assembly']['regions']) +
+         expand("local_assembly/Sample_{s}/{t}.synteny.svg", s = ID_samples, t = config['local_assembly']['regions']),
     'repeat_expansion': expand("Sample_{s}/{s}.repeats.vcf.gz", s = ID_samples),
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [
