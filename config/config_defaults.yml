@@ -140,7 +140,7 @@ cnvkit:
 local_assembly:
   # Default: No local assembly regions defined
   regions:
-    - ""
+    - ""    # Allowed formats: chr1_1233-12314 (windows compatible) or chr1:123154-234235 (unix only)
   # Default: All reads are used, no haplotype filtering
   haplotypes: 
     - ""

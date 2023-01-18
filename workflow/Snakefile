@@ -141,11 +141,11 @@ out = {
         expand("cnvkit/{s}/{s}.sex.txt", s = ID_samples)
         ],
     'local_assembly': 
-        expand("local_assembly/Sample_{s}/{t}{hp}.fasta",
+        expand("local_assembly/Sample_{s}/{t}{hp}.asm.fasta",
             s = ID_samples,
             t = config['local_assembly']['regions'],
             hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']]) +
-        expand("local_assembly/Sample_{s}/{t}{hp}.synteny.svg",
+        expand("local_assembly/Sample_{s}/{t}{hp}.aln_ref.bam",
             s = ID_samples,
             t = config['local_assembly']['regions'],
             hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']]),

@@ -6,7 +6,8 @@ rule create_target_beds:
         t = lambda wildcards: wildcards['target']
     run:
         with open(output[0], "w") as out:
-            bed_line = params['t'].replace(':', '\t').replace('-','\t')
+            bed_line = params['t'].replace(':', '\t').replace('-','\t').replace('_', '\t')
+            bed_line = bed_line.replace('.hp1', '').replace('.hp2', '')
             out.write(bed_line)
     
 rule extract_read_ids:
@@ -59,8 +60,8 @@ rule raven_assmbly:
     input:
         fastq = "local_assembly/Sample_{sample}/{target}.fastq"
     output:
-        fa = "local_assembly/Sample_{sample}/{target}.fasta",
-        gfa = "local_assembly/Sample_{sample}/{target}.gfa"
+        fa = "local_assembly/Sample_{sample}/{target}.asm.fasta",
+        gfa = "local_assembly/Sample_{sample}/{target}.asm.gfa"
     conda:
         "../env/raven.yml"
     log:
@@ -85,14 +86,14 @@ rule extract_ref_seq:
     output:
         "local_assembly/{target}.ref.fasta"
     shell:
-        """
+        """    
         samtools faidx {input.ref} {wildcards.target} > {output}
         """
 
 rule smashpp:
     input:
-        asm = "local_assembly/Sample_{sample}/{target}.fasta",
-        ref = "local_assembly/{target}.ref.fasta"
+        asm = "local_assembly/Sample_{sample}/{target}.asm.fasta",
+        ref = lambda wc: "local_assembly/"+ wc.target.replace('.hp1',"").replace('.hp2',"") +".ref.fasta"
     output:
         json = "Sample_{sample}/local_assembly/{sample}.{target}.json"    
     conda:
@@ -104,8 +105,8 @@ rule smashpp:
     shell:
         """
         smashpp \
-            --reference {input.ref} \
-            --target {input.asm} \
+            -reference {input.ref} \
+            -t {input.asm} \
             --verbose \
             --format json \
             --num-threads {threads} \
@@ -129,5 +130,21 @@ rule smashpp_viz:
             >{log} 2>&1
         """
 
-
 #____ MINIMAP2 PAIRWISE GENOME ALN ________________________________________________________#
+
+rule local_assembly_pairwise_minimap2:
+    input:
+        asm = "local_assembly/Sample_{sample}/{target}.asm.fasta",
+        ref = config['ref']['genome']
+    output:
+        bam = "local_assembly/Sample_{sample}/{target}.aln_ref.bam"
+    conda:
+        "../env/minimap2.yml"
+    log:
+        "logs/{sample}_{target}_minimap2.log"
+    shell:
+        """
+        minimap2 -ax asm5 {input.ref} {input.asm} \
+            | samtools sort -O BAM - > {output.bam}
+        samtools index {output}
+        """
