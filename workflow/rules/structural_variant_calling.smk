@@ -104,7 +104,7 @@ rule map_to_assembly:
     config['max_threads']
   shell:
      """
-     minimap2 -ax map-ont -t {threads} {input.fa} {input.fq} | samtools sort -@ 4 -m 4G > {output.bam}
+     minimap2 -ax map-ont --eqx -t {threads} {input.fa} {input.fq} | samtools sort -@ 4 -m 4G > {output.bam}
      samtools index -@ 4 {output.bam}
      """
 

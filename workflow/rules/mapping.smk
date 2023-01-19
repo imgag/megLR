@@ -17,7 +17,7 @@ rule map_genome_all:
         sample = "{sample}",
     shell:
         """
-        minimap2 --MD -ax map-ont -t {threads} \
+        minimap2 --MD -ax map-ont --eqx -t {threads} \
             -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
             {input.genome} {input.fq} 2> {log} \
             | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
@@ -42,7 +42,7 @@ rule map_genome_full_length:
         ref = config['ref']['genome']
     shell:
         """
-        minimap2 --MD -ax map-ont -t {threads} \
+        minimap2 --MD -ax map-ont --eqx -t {threads} \
             -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
             {input.genome} {input.fq} 2> {log} \
             | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
@@ -71,7 +71,7 @@ rule map_genome_splice:
         min_mq = config['mapping']['min_qual']
     shell:
         """
-        minimap2 -ax splice -t {threads} \
+        minimap2 -ax splice --eqx -t {threads} \
             -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}" \
             {input.genome} {input.fq} 2> {log} \
              | samtools view -q {params.min_mq} -F 2304 -Sb \
@@ -99,7 +99,7 @@ rule map_to_transcriptome:
         psec = config['transcript']["secondary_score_ratio"]
     shell:
         """
-        minimap2 --MD -ax map-ont -t {threads} \
+        minimap2 --MD -ax map-ont --eqx -t {threads} \
             -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}" \
             -p {params.psec} -N {params.msec} {params.opts} \
             {input.trs} {input.fq} 2> {log} \

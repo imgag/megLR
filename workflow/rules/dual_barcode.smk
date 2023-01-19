@@ -98,7 +98,7 @@ rule bc_map:
         8
     shell:
         """
-         minimap2 --MD -ax map-ont -t 4 \
+         minimap2 --MD -ax map-ont --eqx -t 4 \
             -R "@RG\\tID:{wildcards.bc}\\tSM:{wildcards.bc}" \
             {input.genome} {input.fq} 2> {log} \
             | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1

@@ -144,7 +144,7 @@ rule local_assembly_pairwise_minimap2:
         "logs/{sample}_{target}_minimap2.log"
     shell:
         """
-        minimap2 -ax asm5 {input.ref} {input.asm} \
+        minimap2 -ax asm5 --eqx {input.ref} {input.asm} \
             | samtools sort -O BAM - > {output.bam}
         samtools index {output}
         """
