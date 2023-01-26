@@ -97,9 +97,9 @@ include: "rules/mapping.smk"
 include: "rules/assembly.smk"
 include: "rules/variant_calling.smk"
 include: "rules/structural_variant_calling.smk"
-include: "rules/cdna_expression.smk"
-include: "rules/cdna_stringtie.smk"
-include: "rules/cdna_flair.smk"
+include: "rules/cdna.smk"
+include: "rules/transcriptome.smk"
+include: "rules/expression.smk"
 include: "rules/dual_barcode.smk"
 include: "rules/cnv.smk"
 include: "rules/local_assembly.smk"
@@ -122,14 +122,13 @@ out = {
     'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
          s=ID_samples, asm=config['assembly']['methods']),
-    'variant_calling': [],
-    'structural_variant_calling': [],
-    'cDNA_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
-    'de_analysis' : ["de_analysis/dtu_plots.pdf"],
-    'cDNA_stringtie' : expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples) +
-        expand("qc/sqanti/{s}_stringtie/{s}_stringtie_classification.txt", s = ID_samples),
-    'cDNA_flair': expand("Sample_{s}/{s}.flair.gtf", s=ID_samples) +
-        expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
+    'variant_calling': [],                                                     # Added later
+    'structural_variant_calling': [],                                          # Added later
+    'cdna' : expand("Sample_{s}/{s}.spliced.{d}.bam", 
+        s = ID_samples, d = ".dedup" if config['cdna']['with_umi'] else ""),
+    'transcriptome': [],                                                       # Added later          
+    'gene_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
+    'differential_transcript_usage' : ["de_analysis/dtu_plots.pdf"],
     'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
         expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
     'cnv': [
@@ -185,6 +184,14 @@ if config['sv']['cutesv']:
     out['structural_variant_calling'] +=expand("Sample_{s}/{s}.sv_cutesv.vcf.gz", s=ID_samples),
 if config['sv']['dipdiff']:
     out['structural_variant_calling'] +=expand("Sample_{s}/{s}.sv_dipdiff.vcf.gz", s=ID_samples)
+
+# Add transcriptome analysis outputs:
+if 'stringtie' in config['transcriptome']['methods']:
+    out['transcriptome'] += expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples)
+    out['transcriptome'] += expand("qc/sqanti/{s}_stringtie/{s}_stringtie_classification.txt", s = ID_samples),
+if 'flair' in config['transcriptome']['methods']:
+    out['transcriptome'] += expand("Sample_{s}/{s}.flair.gtf", s=ID_samples)
+    out['transcriptome'] += expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
 
 # Include only results for selected analysis modules
 out_selected = [out[step] for step in config['steps']]

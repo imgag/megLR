@@ -318,17 +318,14 @@ qc_out = {
     'modbases' : expand("qc/qualimap/{s}_modbases", s = ID_samples),
     'variant_calling':[],
     'structural_variant_calling' : [],
-    'cDNA_stringtie' : expand("qc/gffcompare/{s}_stringtie/{s}_stringtie.stats", s = ID_samples) +
-        expand("qc/pychopper/{s}_stats.txt", s = ID_samples), 
-    'cDNA_flair': 
+    'cdna' : 
+        expand("qc/pychopper/{s}_stats.txt", s = ID_samples) + 
         expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) +    
-        expand("qc/gffcompare/{s}_flair/{s}_flair.stats", s = ID_samples),
-    'cDNA_expression' : 
-        #expand("qc/qualimap/{s}_rna/rnaseq_qc_results.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) + 
-        expand("qc/pychopper/{s}_stats.txt", s = ID_samples) +
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) +
+        expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples),
+    'transcriptome' : expand("qc/gffcompare/{s}_{t}/{s}_{t}.stats", 
+        s = ID_samples, t = config['transcriptome']['methods']),
+    'gene_expression' : 
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'dual_demux' : [],
     'de_analysis' : [],

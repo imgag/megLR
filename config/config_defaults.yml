@@ -10,9 +10,10 @@ steps:
 # - assembly
 # - structural_variant_calling
 # - variant_calling
-# - cDNA_expression
-# - cDNA_stringtie
-# - cDNA_flair
+# - cdna
+# - transcriptome
+# - gene_expression
+# - differential_transcript_usage
 # - modbases
 # - cnv
 # - local_assembly
@@ -113,6 +114,21 @@ cdna:
   with_umi: false
   primer_kit: "PCS109"
 
+#_______ Transcriptome Analysis __________________________________________________________________#
+
+transcriptome:
+  methods:
+    - "stringtie"
+    - "flye"
+
+flair:
+  manifest: "reads_manifest.tsv"
+  trust_ends: yes   # Use this option if using long unfragmented reads, e.g. preprocessed with pychopper
+  min_qual: 1
+
+gffcompare:
+  options: "-R -Q" # Ignore transcript found only in ref oder only in query
+
 #_______ CNVKIT __________________________________________________________________#
 
 # Params not optimized for Tumor samples yet.
@@ -160,9 +176,6 @@ local_assembly:
 
 #______ QC PARAMETERS ____________________________________________________________#
 
-gffcompare:
-  options: "-R -Q" # Ignore transcript found only in ref oder only in query
-
 qualimap:
   target: false
 
@@ -174,14 +187,7 @@ report_filetypes:
   - html
   - json
 
-#______ FLAIR PARAMETERS _________________________________________________________#
-
-flair:
-  manifest: "reads_manifest.tsv"
-  trust_ends: yes   # Use this option if using long unfragmented reads, e.g. preprocessed with pychopper
-  min_qual: 1
-
-#______ EXPRESSION PARAMETERS ___________________________________________________#
+#______ GENE/TRANSCRIPT EXPRESSION SETTINGS _________________________________________#
 
 transcript:
   # Minimap2 mapping options

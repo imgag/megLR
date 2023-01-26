@@ -27,7 +27,7 @@ rule map_genome_all:
 rule map_genome_full_length:
     input:
         genome = config['ref']['genome'],
-        fq = rules.pychopper.output.fq
+        fq = "Sample_{sample}/{sample}.full_length.fastq"
     output: 
         bam = "Sample_{sample}/{sample}.flts.bam",
         bai= "Sample_{sample}/{sample}.flts.bam.bai"
@@ -57,7 +57,7 @@ rule map_genome_full_length:
 rule map_genome_splice:
     input:
         genome = config['ref']['genome'],
-        fq = rules.pychopper.output.fq
+        fq = "Sample_{sample}/{sample}.full_length.fastq"
     output:
         bam = "Sample_{sample}/{sample}.spliced.bam",
         bai= "Sample_{sample}/{sample}.spliced.bai"
@@ -79,37 +79,12 @@ rule map_genome_splice:
         samtools index {output}
         """
 
-rule deduplicate_umitools:
-    input:
-        bam = "Sample_{sample}/{sample}.spliced.bam"
-    output:
-        bam = "Sample_{sample}/{sample}.spliced.dedup.bam",
-        bai= "Sample_{sample}/{sample}.spliced.dedup.bai",
-        stats= "qc/umitools_dedup/{sample}_stats_per_umi_per.tsv"
-    log:
-        "logs/{sample}_dedup_umitools.log"
-    conda:
-        "../env/umitools.yml"
-    threads:
-        1
-    shell:
-        """
-        umitools \
-            --stdin {input.bam} \
-            --stout {output.bam} \
-            --output-stats Sample_{wildcards.sample}/dedup_stats/{wildcards.sample} \
-            --log {log} \
-            --error {log} \
-
-        samtools index {output.bam}
-        """
-
 #_____ MAPPING TO TRANSCRIPTOME __________________________________________#
 
 rule map_to_transcriptome:
     input:
         trs = config['ref']['cDNA'],
-        fq = rules.pychopper.output.fq
+        fq = "Sample_{sample}/{sample}.full_length.fastq"
     output:
         bam = "Sample_{sample}/{sample}.transcripts.bam"
     log:
