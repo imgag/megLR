@@ -85,13 +85,16 @@ rule extract_ref_seq:
         ref = config['ref']['genome']
     output:
         "local_assembly/{target}.ref.fasta"
+    params:
+        region = lambda wc: wc.target.replace('_',':')
     shell:
         """    
-        samtools faidx {input.ref} {wildcards.target} > {output}
+        samtools faidx {input.ref} {params.region} > {output}
         """
 
-rule smashpp:
+rule syri:
     input:
+        sam = "local_assembly/Sample_{sample}/{target}.aln_region.sam",
         asm = "local_assembly/Sample_{sample}/{target}.asm.fasta",
         ref = lambda wc: "local_assembly/"+ wc.target.replace('.hp1',"").replace('.hp2',"") +".ref.fasta"
     output:
@@ -115,7 +118,7 @@ rule smashpp:
 
 rule smashpp_viz:
     input:
-        json = rules.smashpp.output.json,
+        json="Sample_{sample}/local_assembly/{sample}.{target}.json"    
     output:
         "local_assembly/Sample_{sample}/{target}.synteny.svg"
     conda:
@@ -132,7 +135,7 @@ rule smashpp_viz:
 
 #____ MINIMAP2 PAIRWISE GENOME ALN ________________________________________________________#
 
-rule local_assembly_pairwise_minimap2:
+rule local_assembly_mapping_genome:
     input:
         asm = "local_assembly/Sample_{sample}/{target}.asm.fasta",
         ref = config['ref']['genome']
@@ -147,4 +150,19 @@ rule local_assembly_pairwise_minimap2:
         minimap2 -ax asm5 --eqx {input.ref} {input.asm} \
             | samtools sort -O BAM - > {output.bam}
         samtools index {output}
+        """
+
+rule local_assembly_mapping_region:
+    input:
+        asm = "local_assembly/Sample_{sample}/{target}.asm.fasta",
+        ref = lambda wc: "local_assembly/"+ wc.target.replace('.hp1',"").replace('.hp2',"") +".ref.fasta"
+    output:
+        sam = "local_assembly/Sample_{sample}/{target}.aln_region.sam"
+    conda:
+        "../env/minimap2.yml"
+    log:
+        "logs/{sample}_{target}_minimap2.log"
+    shell:
+        """
+        minimap2 -ax asm5 --eqx {input.ref} {input.asm} > {output.sam}
         """

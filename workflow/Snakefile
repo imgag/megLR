@@ -148,6 +148,10 @@ out = {
         expand("local_assembly/Sample_{s}/{t}{hp}.aln_ref.bam",
             s = ID_samples,
             t = config['local_assembly']['regions'],
+            hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']])+
+        expand("local_assembly/Sample_{s}/{t}{hp}.aln_region.sam",
+            s = ID_samples,
+            t = config['local_assembly']['regions'],
             hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']]),
     'repeat_expansion': expand("Sample_{s}/{s}.repeats.vcf.gz", s = ID_samples),
     'qc' : ['qc/multiqc_report.html'],
