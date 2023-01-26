@@ -1,6 +1,5 @@
 configfile: srcdir('../../config/de_analysis_config.yml')
 
-
 #_____ QUANTIFICATION (SALMON) ____________________________________________#
 
 # Use Transcriptome alignment as input
@@ -119,8 +118,7 @@ rule plot_dtu_res:
 
 rule quant_genes:
     input:
-        bam = "Sample_{sample}/{sample}.spliced.bam",
-        ann = config['ref']['annotation']
+        bam = get_cdna_bam
     output:
         counts = "Sample_{sample}/{sample}.counts.tsv",
         stats = "Sample_{sample}/{sample}.counts.tsv.summary"
@@ -133,7 +131,8 @@ rule quant_genes:
     params:
         level = config['expression']['level'],
         min_qual = config['expression']['min_qual'],
-        strandedness = config['expression']['strandedness']
+        strandedness = config['expression']['strandedness'],
+        ann = config['ref']['annotation']
     shell:
         """
         featureCounts \
@@ -141,7 +140,7 @@ rule quant_genes:
             -Q {params.min_qual} \
             -s {params.strandedness} \
             -L {input.bam} \
-            -a {input.ann} \
+            -a {params.ann} \
             -o {output.counts} \
             > {log} 2>&1
         """

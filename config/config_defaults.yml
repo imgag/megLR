@@ -1,3 +1,7 @@
+# Conventions: 
+# - All options are lowercase
+# - Words separated by underscores
+
 #_______ ANALYSIS STEPS _________________________________________________________#
 
 steps:
@@ -103,6 +107,12 @@ assembly:
 #   - "metaflye"
   genome_size: "3G"
 
+#_______ CDNA Analysis __________________________________________________________________#
+
+cdna:
+  with_umi: false
+  primer_kit: "PCS109"
+
 #_______ CNVKIT __________________________________________________________________#
 
 # Params not optimized for Tumor samples yet.
@@ -147,8 +157,6 @@ local_assembly:
   # - 1
   # - 2
   # Separates local assembly with the selected haplotypes
-
-
 
 #______ QC PARAMETERS ____________________________________________________________#
 

@@ -343,6 +343,9 @@ qc_out = {
 #if map_samples_barcode: 
 #    qc_out += aggregate_sample_pycoqc
 
+if config['cdna']['with_umi']:
+    qc_out += {'cDNA_expression' : expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples)}
+
 qc_out_selected = [qc_out[step] for step in config['steps']]
 
 rule multiqc:

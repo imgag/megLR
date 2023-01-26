@@ -156,6 +156,15 @@ def get_cnvkit_bam(wc):
     if config['verbose']: print(bam)
     return{'bam': bam}
 
+def get_cdna_bam(wc):
+    """
+    Return deduplicated or non-deduplicated cDNA BAM, depending on config options
+    """
+    if config['cdna']['with_umi']:
+        return("Sample_{}/{}.spliced.dedup.bam".format(wc.sample))
+    else:
+        return("Sample_{}/{}.spliced.bam".format(wc.sample))
+
 def print_message():
     print('')
     print('  ██████╗ ███╗   ██╗████████╗  ████████╗ ██████╗  ██████╗ ██╗     ███████╗')

@@ -1,6 +1,6 @@
 rule bamtobed12:
     input:
-        bam = rules.map_genome_splice.output.bam
+        bam = get_cdna_bam
     output:
         bed = "Sample_{sample}/{sample}.spliced.bed12"
     conda:

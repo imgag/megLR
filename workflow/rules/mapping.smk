@@ -60,7 +60,7 @@ rule map_genome_splice:
         fq = rules.pychopper.output.fq
     output:
         bam = "Sample_{sample}/{sample}.spliced.bam",
-        bai= "Sample_{sample}/{sample}.spliced.bam.bai"
+        bai= "Sample_{sample}/{sample}.spliced.bai"
     log:
         "logs/{sample}_minimap2_splice.log"
     conda:
@@ -77,6 +77,31 @@ rule map_genome_splice:
              | samtools view -q {params.min_mq} -F 2304 -Sb \
              | samtools sort -@ 4 -m 4G  - -o {output.bam} >{log} 2>&1
         samtools index {output}
+        """
+
+rule deduplicate_umitools:
+    input:
+        bam = "Sample_{sample}/{sample}.spliced.bam"
+    output:
+        bam = "Sample_{sample}/{sample}.spliced.dedup.bam",
+        bai= "Sample_{sample}/{sample}.spliced.dedup.bai",
+        stats= "qc/umitools_dedup/{sample}_stats_per_umi_per.tsv"
+    log:
+        "logs/{sample}_dedup_umitools.log"
+    conda:
+        "../env/umitools.yml"
+    threads:
+        1
+    shell:
+        """
+        umitools \
+            --stdin {input.bam} \
+            --stout {output.bam} \
+            --output-stats Sample_{wildcards.sample}/dedup_stats/{wildcards.sample} \
+            --log {log} \
+            --error {log} \
+
+        samtools index {output.bam}
         """
 
 #_____ MAPPING TO TRANSCRIPTOME __________________________________________#
