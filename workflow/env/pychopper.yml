@@ -1,9 +1,10 @@
 name: pychopper
 channels:
+  - epi2melabs
   - bioconda
   - conda-forge
   - defaults
 dependencies:
-  - pychopper=2.4.0
+  - epi2melabs::pychopper=2.7.2
   - hmmer=3.3
   - pigz=2.4

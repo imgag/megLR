@@ -50,6 +50,9 @@ rule pychopper:
         "../env/pychopper.yml"
     threads:
         24
+    params:
+        detect_umi = "-U" if config['cdna']['with_umi'] else "",
+        kit = config['cdna']['primer_kit']
     shell:
         """
         fq=$(mktemp)
@@ -60,7 +63,8 @@ rule pychopper:
             -S {output.stats} \
             -u {output.unclass} \
             -w {output.rescued} \
-            $fq \
+            -k {params.kit} \
+            {params.detect_umi} $fq \
             {output.fq} \
             >> {log} 2>&1
         rm $fq
