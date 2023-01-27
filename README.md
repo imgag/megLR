@@ -41,5 +41,5 @@ For more config options look into the [input configuration](doc/data_input.md).
 Assuming you are in the working directory which contains a `config.yml` and a `sample_run_table.tsv` run the pipeline with:
 
 ```raw
-snakemake --use-conda -s /path_to_repo/ont_tools/workflow/Snakefile
+snakemake --use-conda -s /path_to_repo/megLR/workflow/Snakefile
 ```

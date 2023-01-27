@@ -51,9 +51,6 @@ rule map_genome_full_length:
 
 #_____ SPLICE AWARE MAPPING WITH MINIMAP2  ___________________________________#
 
-#TODO Adjust parameters;
-# https://github.com/lh3/minimap2#map-long-mrnacdna-reads
-
 rule map_genome_splice:
     input:
         genome = config['ref']['genome'],
