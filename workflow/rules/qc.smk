@@ -121,7 +121,7 @@ rule qualimap:
             --paint-chromosome-limits \
             -nt {threads} {params.target}\
             -outdir qc/qualimap/{wildcards.sample}_genome \
-            --java-mem-size=12G \
+            --java-mem-size=24G \
             >{log} 2>&1
         """
     
@@ -145,7 +145,7 @@ rule qualimap_mod:
             --paint-chromosome-limits \
             -nt {threads} \
             -outdir qc/qualimap/{wildcards.sample}_modbases \
-            --java-mem-size=12G \
+            --java-mem-size=24G \
             >{log} 2>&1
         """
 
@@ -171,7 +171,7 @@ rule rna_qualimap:
             -bam {input} \
             -gtf {params.gtf} \
             -outdir qc/qualimap/{wildcards.sample}_rna \
-            --java-mem-size=12G \
+            --java-mem-size=24G \
             >{log} 2>&1
         """
 
