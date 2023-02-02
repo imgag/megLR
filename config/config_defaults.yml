@@ -35,33 +35,29 @@ ref:
 sample_file: "sample_run_table.tsv"
 project_config: "config.yml"
 
-# Prints samples, barcode and folder informations
-verbose: false 
-# Dont check run folder names for correct format
-skip_name_check: false 
+verbose: false                      # Prints samples, barcode and folder informations
+skip_name_check: false              # Dont check run folder names for correct format
 
-# GPU Settings (for Pepper-Margin-Deepvariant)
+# GPU Settings (for Pepper-Margin-Deepvariant and Basecalling)
 use_gpu: true
 gpu_id:
   id: "GPU-2c38ecef-c1ce-d516-ebb9-2b381cf15f21"
   cuda: "cuda:0"
 
-# Max threads per process
-max_threads: 40
+max_threads: 40                     # Max threads for individual jobs
 
 # Links to executables
 apps:
   sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
 
-#______ ANALYSIS PARAMETERS _____________________________________________________#
+#______ ANALYSIS PARAMETERS ______________________________________________________#
 
-# Take raw fastq only from folder with name `fastq_rebasecalled` if existing
-fastq_prefer_rebasecalled: true
-use_failed_reads: false
+fastq_prefer_rebasecalled: true     # If exists, take only fastq in folder `fastq_rebasecalled`
+use_failed_reads: false             # Include `failed_reads` with Q<7
 
 mapping:
-  #Min mapping quality filter (Full_length splice)
-  min_qual: 20
+  min_qual: 20                      # Min mapping quality filter (Full_length splice)
+
 
 #_____ STRUCTURAL VARIANT CALLING PARAMETERS _____________________________________#
 
@@ -70,34 +66,32 @@ sv:
   cutesv: true
   dipdiff: false
 
-#_____ VARIANT CALLING PARAMETERS _______________________________________________#
+#_____ VARIANT CALLING PARAMETERS ________________________________________________#
 
 vc:
   pepper: true
   clair3: false
-  phased_output: true  # Generate phased reads 
-  haplotagged_bam: true
+  phased_output: true               # Generate bamfile phased reads (Clair3)
+  haplotagged_bam: true             # Generate bamfile phased reads (Pepper-M-DV)
   keep_supplementary: false
 
 vc_clair3:
-  model: "r941_prom_sup_g5014"
+  model: "r941_prom_sup_g5014"      # https://github.com/HKU-BAL/Clair3#pre-trained-models
 
 vc_pepper:
-  model: "ont_r9_guppy5_sup"
-  target_region: false    # Restrict variant calling / phasing to target region
+  model: "ont_r9_guppy5_sup"        # Model
+  target_region: false              # Restrict variant calling / phasing to target region (chr1:1234-12345)
 
 sv_cutesv:
   enable_genotyping: true 
 
-#_____ BASE MODIFICATIONS _______________________________________________________#
+#_____ BASE MODIFICATIONS ________________________________________________________#
 
-# Settings for bonito (mod)basecalling
 bonito:
-  model: "dna_r9.4.1_e8_hac@v3.3"
+  model: "dna_r9.4.1_e8_hac@v3.3"   # bonito download --models --show
   modified_bases: "5mC"
 
-# Should modbases bam from bonito be used for variant calling?
-use_mod_bam: false
+use_mod_bam: false                  # use modbases bam for variant calling?
 
 #______ ASSEMBLY PARAMETERS ______________________________________________________#
 
@@ -108,13 +102,13 @@ assembly:
 #   - "metaflye"
   genome_size: "3G"
 
-#_______ CDNA Analysis __________________________________________________________________#
+#_______ CDNA ANALYSIS ___________________________________________________________#
 
 cdna:
   with_umi: false
   primer_kit: "PCS109"
 
-#_______ Transcriptome Analysis __________________________________________________________________#
+#_______ TRANSCRIPTOME ANALYSIS __________________________________________________#
 
 transcriptome:
   methods:
@@ -123,15 +117,15 @@ transcriptome:
 
 flair:
   manifest: "reads_manifest.tsv"
-  trust_ends: yes   # Use this option if using long unfragmented reads, e.g. preprocessed with pychopper
+  trust_ends: yes                   # Use if preprocessed with pychopper
   min_qual: 1
 
 gffcompare:
-  options: "-R -Q" # Ignore transcript found only in ref oder only in query
+  options: "-R -Q"                  # Ignore transcript found only in ref oder only in query
 
 #_______ CNVKIT __________________________________________________________________#
-
 # Params not optimized for Tumor samples yet.
+
 cnvkit:
   reference: ""
   reference_samples:
@@ -144,42 +138,35 @@ cnvkit:
   mingapsize: 5000
   include_region: "/mnt/users/ahgrosc1/data/WGS_grch38.bed"
   exclude_region: "/mnt/users/ahgrosc1/data/cnvkit_ref/sv_blacklist.bed"
-  segment_method: "cbs"
-  # available methods: cbs, haar, hmm, hmm-tumor, hmm-germline, none
+  segment_method: "cbs"           # methods: cbs, haar, hmm, hmm-tumor, hmm-germline, none
 
   call:
-    center: "mode"
-    # available options: mean, median, mode. biweight
-    method: "clonal"
-    # available methods: threshold, clonal, none
+    center: "mode"                # options: mean, median, mode. biweight
+    method: "clonal"              # methods: threshold, clonal, none
     ploidy: 2
 
   scatter:
     color: "red"
     ymax: 5
     ymin: -5
-    region:
+    region:                       # Plot zoom on target regions
 
 #______ LOCAL ASSEMBLY ___________________________________________________________#
 
-# Default: 
 local_assembly:
-  # Default: No local assembly regions defined
-  regions:
-    - ""    # Allowed formats: chr1_1233-12314 (windows compatible) or chr1:123154-234235 (unix only)
-  # Default: All reads are used, no haplotype filtering
-  haplotypes: 
-    - ""
+  regions:                        # Default: No local assembly regions defined
+    - ""                          # Allowed formats: chr1_1233-12314 (win compatible) or chr1:123154-234235 (unix)
+  haplotypes:                     # Separates local assembly with the selected haplotypes
+    - ""                          # Default: All reads are used, no haplotype filtering
   # - 1
   # - 2
-  # Separates local assembly with the selected haplotypes
 
 #______ QC PARAMETERS ____________________________________________________________#
 
 qualimap:
   target: false
 
-#______ RUN QC DATABASE ___________________________________________________________#
+#______ RUN QC DATABASE __________________________________________________________#
 
 run_db_root: "/mnt/share/data/ont_run_qc"
 report_filetypes:
@@ -187,24 +174,20 @@ report_filetypes:
   - html
   - json
 
-#______ GENE/TRANSCRIPT EXPRESSION SETTINGS _________________________________________#
+#______ GENE/TRANSCRIPT EXPRESSION SETTINGS ______________________________________#
 
 transcript:
-  # Minimap2 mapping options
-  minimap2_opts: ""
-  # Maximum secondary alignments
-  maximum_secondary: 100
-  # Secondary score ratio (-p for minimap2)
-  secondary_score_ratio: 1.0
+  minimap2_opts: ""               # Minimap2 mapping options
+  maximum_secondary: 100          # Maximum secondary alignments
+  secondary_score_ratio: 1.0      # Same as -p  option in minimap2
 
 expression:
   level: "exon"
   min_qual: 3
-  strandedness: 1 # 0:unstranded 1:stranded 2:reversely stranded
-  # Salmon library type
-  salmon_libtype: "S"  # U = unspecific, S = strand-specific
+  strandedness: 1                 # 0:unstranded 1:stranded 2:reversely stranded
+  salmon_libtype: "S"             # U = unspecific, S = strand-specific
 
-#______ DUAL BARCODING DEMULTIPLEX ______________________________________________#
+#______ DUAL BARCODING DEMULTIPLEX _______________________________________________#
 
 demux:
   bc_index: 'bc_index_file.csv'
