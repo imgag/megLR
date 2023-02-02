@@ -92,7 +92,7 @@ if config['verbose']:
 #_____ INCLUDE MODULES ________________________________________________________#
 
 include: "rules/fetch_reads.smk"
-include: "rules/bonito.smk"
+include: "rules/basecalling.smk"
 include: "rules/mapping.smk"
 include: "rules/assembly.smk"
 include: "rules/variant_calling.smk"

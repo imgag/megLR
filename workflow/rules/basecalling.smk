@@ -1,10 +1,10 @@
-#_____ BASECALLING METHYLATION MAPPING ____________________________________________#
+#_____ BASECALLING METHYLATION MAPPING (BONITO) __________________________________________#
 
 rule bonito:
     input:
         unpack(get_input_folders_fast5)
     output:
-        "bonito_basecalled/{sample}/basecalls_with_mods.bam"
+        "bonito_basecalled/{sample}.mod.bonito.bam"
     conda:
         "../env/bonito.yml"
     log:
@@ -32,7 +32,7 @@ rule bonito:
 
 rule process_bonito_bam:
     input:
-        "bonito_basecalled/{sample}/basecalls_with_mods.bam"
+        "bonito_basecalled/{sample}.mod.bonito.bam"
     output:
         "Sample_{sample}/{sample}.mod.bam"
     conda:
@@ -45,3 +45,6 @@ rule process_bonito_bam:
         samtools sort -@ 4 -m 4G {input} > {output}
         samtools index {output}
         """
+
+#______ BASECALLING WITH GUPPY _________________________________________________________#
+
