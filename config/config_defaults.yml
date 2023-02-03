@@ -49,6 +49,7 @@ max_threads: 40                     # Max threads for individual jobs
 # Links to executables
 apps:
   sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
+  guppy: "/mnt/users/ahgrosc1/tools/guppy/ont-guppy_6.4.6/"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
@@ -58,6 +59,22 @@ use_failed_reads: false             # Include `failed_reads` with Q<7
 mapping:
   min_qual: 20                      # Min mapping quality filter (Full_length splice)
 
+#_____ BASECALLING _______________________________________________________________#
+
+bonito:
+  model: "dna_r9.4.1_e8_hac@v3.3"   # bonito download --models --show
+  modified_bases: "5mC"
+
+guppy:
+  model: "dna_r9.4.1_450bps_hac_prom"      # View available with guppy_basecaller --print_workflows
+  make_bam: false                          # Create bam file with alignments during basecalling
+  min_qscore: 7
+
+
+#    --config dna_r9.4.1_450bps_modbases_5mc_hac.cfg \
+
+
+use_mod_bam: false                  # use modbases bam for variant calling?
 
 #_____ STRUCTURAL VARIANT CALLING PARAMETERS _____________________________________#
 
@@ -84,14 +101,6 @@ vc_pepper:
 
 sv_cutesv:
   enable_genotyping: true 
-
-#_____ BASE MODIFICATIONS ________________________________________________________#
-
-bonito:
-  model: "dna_r9.4.1_e8_hac@v3.3"   # bonito download --models --show
-  modified_bases: "5mC"
-
-use_mod_bam: false                  # use modbases bam for variant calling?
 
 #______ ASSEMBLY PARAMETERS ______________________________________________________#
 
