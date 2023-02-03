@@ -17,6 +17,7 @@ change_fastq () {
     sed -i "s/$old_sample/$new_sample/g" $tmp
     sed -i "s/$old_project/$new_project/g" $tmp
     gzip -c $tmp > $1
+    rm $tmp
 }
 
 export old_sample
