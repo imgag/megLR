@@ -12,12 +12,13 @@ rule bonito:
     params:
         model = config['bonito']['model'],
         modbases = config['bonito']['modified_bases'],
-        ref = config['ref']['genome'],
-        gpu = config['gpu_id']['cuda']
+        ref = config['ref']['genome']
     threads:
         8
     shell:
         """
+        export CUDA_LAUNCH_BLOCKING=1
+        
         bonito basecaller \
             {params.model} \
             {input} \
@@ -25,7 +26,7 @@ rule bonito:
             --recursive \
             --reference {params.ref} \
             --alignment-threads {threads} \
-            --device '{params.gpu}' \
+            --device "cuda:$GPU_ACTIVE" \
             > {output} 2> {log}
          """
 
