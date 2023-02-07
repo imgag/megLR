@@ -181,6 +181,7 @@ report_filetypes:
   - md
   - html
   - json
+disable_sampleqc: false
 
 #______ GENE/TRANSCRIPT EXPRESSION SETTINGS ______________________________________#
 

@@ -332,10 +332,12 @@ qc_out = {
     'cnv': [],
     'local_assembly': [],
     'repeat_expansion': [],
-    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html",
-        expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)],
+    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
     'qc_db': []
 }
+
+if not config['disable_sampleqc']:
+    qc_out['qc'] += expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)
 
 #if map_samples_barcode: 
 #    qc_out += aggregate_sample_pycoqc
