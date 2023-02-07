@@ -20,12 +20,22 @@ rule pepper_marging_deepvariant:
         if config['use_gpu']:
             shell(
                 """
+                GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
+                if [ -z $GPU_OCCUPIED ] 
+                then
+                    GPU_ACTIVE="0"
+                else 
+                    GPU_ACTIVE=$(nvidia-smi --query-gpu=index,gpu_uuid --format=csv,noheader \
+                        | grep -v $GPU_OCCUPIED \
+                        | cut -f1 -d\,)
+                fi
                 docker run \
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -e CUDA_LAUNCH_BLOCKING=1
                 --user $(id -u):$(id -g) \
-                --gpus device={params.gpu_id} \
+                --gpus device="cuda:$GPU_ACTIVE" \
                 kishwars/pepper_deepvariant:r0.8-gpu \
                 run_pepper_margin_deepvariant call_variant \
                 --bam "/mnt/input_bam/$(basename {input.bam})" \

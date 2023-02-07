@@ -17,6 +17,15 @@ rule bonito:
         8
     shell:
         """
+        GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
+        if [ -z $GPU_OCCUPIED ] 
+        then
+            GPU_ACTIVE="0"
+        else 
+            GPU_ACTIVE=$(nvidia-smi --query-gpu=index,gpu_uuid --format=csv,noheader \
+                | grep -v $GPU_OCCUPIED \
+                | cut -f1 -d\,)
+        fi
         export CUDA_LAUNCH_BLOCKING=1
         
         bonito basecaller \
@@ -73,6 +82,16 @@ rule guppy_basecalling_with_mapping:
         gpu = config['gpu_id']['cuda']
     shell:
         """
+        GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
+        if [ -z $GPU_OCCUPIED ] 
+        then
+            GPU_ACTIVE="0"
+        else 
+            GPU_ACTIVE=$(nvidia-smi --query-gpu=index,gpu_uuid --format=csv,noheader \
+                | grep -v $GPU_OCCUPIED \
+                | cut -f1 -d\,)
+        fi
+        export CUDA_LAUNCH_BLOCKING=1
         {params.guppy}  \
             --input_file_list {input}\
             --config {params.model} \
@@ -83,7 +102,7 @@ rule guppy_basecalling_with_mapping:
             --num_alignment_threads 4 \
             --min_qscore {params.qscore} \
             --save_path {output} \
-            --device {params.gpu} \
+            --device "cuda:$GPU_ACTIVE" \
         """
 
 rule guppy_basecalling:
