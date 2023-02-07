@@ -47,13 +47,15 @@ rule run_multiqc:
 
 #_____ SAMPLE READ QC  _________________________________________________________#
 
+
 checkpoint split_summary_perbarcode:
     input:
-        lambda wildcards: [i for x in [glob(x + "/sequencing_summary*") for x in ID_barcode_folders] for i in x]
+        lambda wc: glob(str(map_runs_folder[wc.folder]) + "/sequencing_summary*")
+        #lambda wc: print(wc)
     output:
-        directory("qc/pycoqc/split_barcodes")
+        directory("qc/pycoqc/split_barcodes_{folder}")
     log:
-        "logs/pycoqc_split.log"
+        "logs/pycoqc_split_{folder}.log"
     conda:
         "../env/pycoqc.yml"
     shell:
@@ -71,14 +73,14 @@ rule rename_split_summary_files:
         lookup_split_summary_file
     output:
         "Sample_{sample}/sequencing_summary_bc_{sample}.txt"
-    params:
-        ssfile = lookup_split_summary_file
+    wildcard_constraints:
+        folder = "^\w+$"
     shell:
         "cp {input} {output}"
 
 rule sample_pycoqc:
     input:
-        unpack(get_summary_files),
+        unpack(get_summary_files_sample),
     output:
         html = "qc/pycoqc/per_sample/{sample}.pycoQC.html",
         json = "qc/pycoqc/per_sample/{sample}.pycoQC.json"

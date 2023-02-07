@@ -59,12 +59,22 @@ def lookup_split_summary_file(wc):
     """
     Looks up which split barcode file belongs to the sample in the wildcard.
     """
+    
     bc=[unpack(x)[1] for x in map_samples_barcode[wc.sample]][0]
-    f=[unpack(x)[0] for x in map_samples_barcode[wc.sample]][0]
-    split_folder = "qc/pycoqc/split_barcodes/sequencing_summary_"+bc+".txt" 
-    return split_folder
+    #print("BC: " + bc)
+    folder=[unpack(x)[0] for x in map_samples_barcode[wc.sample]][0]
+    #print("Folder: " + folder)
+    run=[r for f, r in map_runs_folder.items() if folder in f]
+    for r, f in map_runs_folder.items():
+        print(r + str(f))
+    print("Map Runs:", map_runs_folder)
+    split_output_folder = checkpoints.split_summary_perbarcode.get(folder=folder).output
+    split_summary_file = os.path.join(split_output_folder, "sequencing_summary_"+bc+".txt") 
+    #print("Requested split barcode folders: " + split_folder)
+    #print("Created split summary file: " + split_summary_file)
+    return split_summary_file
 
-def get_summary_files(wc):
+def get_summary_files_sample(wc):
     """
     Get all summary files that belong to a single sample.
     Requests summaries split by barcodes if necessary
@@ -74,8 +84,7 @@ def get_summary_files(wc):
 
     if map_samples_barcode:
         folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
-        files += [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
-
+        files = [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
     if config['fastq_prefer_rebasecalled']:
         folders_rebasecalled = [s for t in [glob(x+"/**/fastq_rebasecalled", recursive = True) for x in folders] for s in t]
         if folders_rebasecalled:
