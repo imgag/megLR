@@ -18,6 +18,9 @@
   * [ ] Snakemake test cases
   * [ ] Automate with GitHub
 
+* [ ] New Modules
+  * [ ] Modification analysis with https://github.com/EmanueleRaineri/cvlr
+  
 * [ ] Docker
   * [ ] Create dockerfile
   * [ ] Automate with GitHub/DockerHub
