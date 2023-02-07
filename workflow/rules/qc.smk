@@ -50,12 +50,11 @@ rule run_multiqc:
 
 checkpoint split_summary_perbarcode:
     input:
-        lambda wc: glob(str(map_runs_folder[wc.folder]) + "/sequencing_summary*")
-        #lambda wc: print(wc)
+        get_summary_files_to_split
     output:
-        directory("qc/pycoqc/split_barcodes_{folder}")
+        directory("qc/pycoqc/split_barcodes_{run}")
     log:
-        "logs/pycoqc_split_{folder}.log"
+        "logs/pycoqc_split_{run}.log"
     conda:
         "../env/pycoqc.yml"
     shell:
@@ -341,8 +340,6 @@ qc_out = {
 if not config['disable_sampleqc']:
     qc_out['qc'] += expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)
 
-#if map_samples_barcode: 
-#    qc_out += aggregate_sample_pycoqc
 
 if config['cdna']['with_umi']:
     qc_out += {'cDNA_expression' : expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples)}
@@ -351,7 +348,6 @@ qc_out_selected = [qc_out[step] for step in config['steps']]
 
 rule multiqc:
     input:
-        aggregate_sample_pycoqc,
         [y for x in qc_out_selected for y in x]
     output:
         "qc/multiqc_report.html"

@@ -61,17 +61,15 @@ def lookup_split_summary_file(wc):
     """
     
     bc=[unpack(x)[1] for x in map_samples_barcode[wc.sample]][0]
-    #print("BC: " + bc)
+    print("BC: " + bc)
     folder=[unpack(x)[0] for x in map_samples_barcode[wc.sample]][0]
-    #print("Folder: " + folder)
-    run=[r for f, r in map_runs_folder.items() if folder in f]
-    for r, f in map_runs_folder.items():
-        print(r + str(f))
+    print("Folder: " + folder)
+    for r, f in map_runs_folder.items():   
+        if f and f[0] == folder:
+            run1 = r
     print("Map Runs:", map_runs_folder)
-    split_output_folder = checkpoints.split_summary_perbarcode.get(folder=folder).output
-    split_summary_file = os.path.join(split_output_folder, "sequencing_summary_"+bc+".txt") 
-    #print("Requested split barcode folders: " + split_folder)
-    #print("Created split summary file: " + split_summary_file)
+    split_output_folder = checkpoints.split_summary_perbarcode.get(run = run1).output
+    split_summary_file = os.path.join(split_output_folder, "sequencing_summary_"+bc+".txt")
     return split_summary_file
 
 def get_summary_files_sample(wc):
@@ -79,26 +77,44 @@ def get_summary_files_sample(wc):
     Get all summary files that belong to a single sample.
     Requests summaries split by barcodes if necessary
     """
-    folders = map_samples_folder[wc.sample].copy()
-    files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders] for s in t]
-
+   
     if map_samples_barcode:
-        folders_barcode = ['Sample_' + wc.sample for x in map_samples_barcode[wc.sample]]
-        files = [x+"/sequencing_summary_bc_"+ wc.sample+".txt" for x in folders_barcode]
-    if config['fastq_prefer_rebasecalled']:
-        folders_rebasecalled = [s for t in [glob(x+"/**/fastq_rebasecalled", recursive = True) for x in folders] for s in t]
-        if folders_rebasecalled:
-            folders = folders_rebasecalled
-            files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders_rebasecalled] for s in t]
+        files = ["Sample_{s}/sequencing_summary_bc_{s}.txt".format(s = wc.sample)]
+   
+    else:
+        folders = map_samples_folder[wc.sample]
+        files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders] for s in t]
+        run=[r for f, r in map_runs_folder.items() if folder in f]
+
+        if config['fastq_prefer_rebasecalled']:
+            folders_rebasecalled = [s for t in [glob(x+"/**/fastq_rebasecalled", recursive = True) for x in folders] for s in t]
+            if folders_rebasecalled:
+                folders = folders_rebasecalled
+                files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders_rebasecalled] for s in t]
     
     return {'summary_files': files}
+
+
+def get_summary_files_to_split(wc):
+    """
+    Returns the summary statistic files to be split. Should return multiple files if same barcoded library was sequenced
+    on multiple flowcells
+    """
+
+    files = []
+    folders = []
+    for r, f in map_runs_folder.items():
+        if r == wc.run:
+            folders.append(f[0])
+    files = [s for t in [glob(x+"/**/sequencing_summary*", recursive = True) for x in folders] for s in t]
+    return files
+
 
 def get_db_report(wc):
     """
     Get Report .pdf and Report.md files
     Replace with empty dummy files if not available
     """
-
     reports = [x for y in [glob(r + "/**/report_*") for r in map_runs_folder[wc.run]] for x in y]
     md = [x for x in reports if x.endswith('.md')]
     reports = [x for x in reports if x not in md]
@@ -141,17 +157,6 @@ def get_db_barcode(wc):
     
     return(bc)
 
-def aggregate_sample_pycoqc(wc):
-    """
-    Function that validates the checkpoint and checks for generated sample_pycoqcs
-    that can be used in the multiqc report
-    """
-    barcode_qcs = []
-    if ID_barcode_folders:
-        barcode_qcs += [checkpoints.split_summary_perbarcode.get(folder=x).output[0] for x in ID_samples]
-        return(barcode_qcs)
-    else:
-        return(barcode_qcs)
 
 
 def get_cnvkit_bam(wc):
