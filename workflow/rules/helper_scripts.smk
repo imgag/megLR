@@ -69,7 +69,7 @@ def lookup_split_summary_file(wc):
             run1 = r
     print("Map Runs:", map_runs_folder)
     split_output_folder = checkpoints.split_summary_perbarcode.get(run = run1).output
-    split_summary_file = os.path.join(split_output_folder, "sequencing_summary_"+bc+".txt")
+    split_summary_file = os.path.join(str(split_output_folder[0]), "sequencing_summary_"+bc+".txt")
     return split_summary_file
 
 def get_summary_files_sample(wc):
