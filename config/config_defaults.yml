@@ -53,7 +53,7 @@ apps:
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
-fastq_prefer_rebasecalled: true     # If exists, take only fastq in folder `fastq_rebasecalled`
+fastq_prefer_rebasecalled: false     # If exists, take only fastq in folder `fastq_rebasecalled`
 use_failed_reads: false             # Include `failed_reads` with Q<7
 
 mapping:

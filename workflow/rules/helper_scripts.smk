@@ -12,25 +12,26 @@ def get_input_folders(wc):
         'fastq_prefer_rebasecalled' 
     """
     folders = map_samples_folder[wc.sample].copy()
-    if config['verbose']: print("Input Folders:" + str(folders), end = '')
-    
+        
     if map_samples_barcode:
-        [folders.append('/fastq_pass/'.join(x)) for x in map_samples_barcode[wc.sample]]
-        if config['use_failed_reads']:
-            folders.append(['/fastq_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
+        for f in map_samples_barcode[wc.sample]:          
+            f_full = glob('/**/fastq*/'.join(f), recursive = True)[0]
+            folders.append(f_full)
     
-    folders_updated = list()
-
     if config['fastq_prefer_rebasecalled']:
+        folders_updated = list()
         for f in folders:
             f_rebasecalled =  glob(f+"/**/fastq_rebasecalled", recursive = True)
+            print("F rebasecallef", f_rebasecalled)
             if f_rebasecalled:
                 [folders_updated.append(f) for f in f_rebasecalled]
             else:
                 folders_updated.append(f)
-    
-    if config['verbose']: print(" | Updated to:" + str(folders_updated))
-    return{'folders': folders_updated}
+        if config['verbose']: print(" | Updated to:" + str(folders_updated))
+        return{'folders': folders_updated}
+
+    if config['verbose']: print("Input Folders:" + str(folders))
+    return{'folders': folders}    
 
 def get_input_folders_fast5(wc):
     """
@@ -61,13 +62,13 @@ def lookup_split_summary_file(wc):
     """
     
     bc=[unpack(x)[1] for x in map_samples_barcode[wc.sample]][0]
-    print("BC: " + bc)
+    if config['verbose']: print("BC: " + bc)
     folder=[unpack(x)[0] for x in map_samples_barcode[wc.sample]][0]
-    print("Folder: " + folder)
+    if config['verbose']: print("Folder: " + folder)
     for r, f in map_runs_folder.items():   
         if f and f[0] == folder:
             run1 = r
-    print("Map Runs:", map_runs_folder)
+    if config['verbose']: print("Map Runs:", map_runs_folder)
     split_output_folder = checkpoints.split_summary_perbarcode.get(run = run1).output
     split_summary_file = os.path.join(str(split_output_folder[0]), "sequencing_summary_"+bc+".txt")
     return split_summary_file

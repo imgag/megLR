@@ -124,7 +124,7 @@ out = {
          s=ID_samples, asm=config['assembly']['methods']),
     'variant_calling': [],                                                     # Added later
     'structural_variant_calling': [],                                          # Added later
-    'cdna' : expand("Sample_{s}/{s}.spliced.{d}.bam", 
+    'cdna' : expand("Sample_{s}/{s}.spliced{d}.bam", 
         s = ID_samples, d = ".dedup" if config['cdna']['with_umi'] else ""),
     'transcriptome': [],                                                       # Added later          
     'gene_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
