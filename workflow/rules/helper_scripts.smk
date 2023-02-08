@@ -15,8 +15,8 @@ def get_input_folders(wc):
         
     if map_samples_barcode:
         for f in map_samples_barcode[wc.sample]:          
-            f_full = glob('/**/fastq*/'.join(f), recursive = True)[0]
-            folders.append(f_full)
+            f_full = glob('/**/fastq*/'.join(f), recursive = True)
+            [folders.append(x) for x in f_full]
     
     if config['fastq_prefer_rebasecalled']:
         folders_updated = list()
