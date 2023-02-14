@@ -24,10 +24,10 @@ steps:
 
 ref:
   genome: "/mnt/storage1/share/data/genomes/GRCh38.fa"
-  annotation: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.gtf"
-  annotation_bed: "/mnt/storage1/users/ahgrosc1/data/gencode.v34.annotation.bed"
-  cDNA: "/mnt/SRV018/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
-  target_region: "/mnt/storage1/users/ahgrosc1/data/WGS_grch38.bed"
+  annotation: "/mnt/storage3/users/ahgrosc1/data/gencode.v34.annotation.gtf"
+  annotation_bed: "/mnt/storage3/users/ahgrosc1/data/gencode.v34.annotation.bed"
+  cDNA: "/mnt/storage3/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
+  target_region: "/mnt/storage3/users/ahgrosc1/data/WGS_grch38.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
@@ -48,8 +48,8 @@ max_threads: 40                     # Max threads for individual jobs
 
 # Links to executables
 apps:
-  sqanti: "python /mnt/storage1/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
-  guppy: "/mnt/users/ahgrosc1/tools/guppy/ont-guppy_6.4.6/bin/guppy_basecaller"
+  sqanti: "python /mnt/storage3/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
+  guppy: "/mnt/storage3/ahgrosc1/tools/guppy/ont-guppy_6.4.6/bin/guppy_basecaller"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
@@ -144,8 +144,8 @@ cnvkit:
   binsize: 15000
   minbinsize: 100
   mingapsize: 5000
-  include_region: "/mnt/users/ahgrosc1/data/WGS_grch38.bed"
-  exclude_region: "/mnt/users/ahgrosc1/data/cnvkit_ref/GRCh38/sv_blacklist.bed"
+  include_region: "/mnt/storage3/users/ahgrosc1/data/WGS_grch38.bed"
+  exclude_region: "/mnt/storage3/users/ahgrosc1/data/cnvkit_ref/GRCh38/sv_blacklist.bed"
   segment_method: "cbs"           # methods: cbs, haar, hmm, hmm-tumor, hmm-germline, none
 
   call:
@@ -157,7 +157,7 @@ cnvkit:
     color: "red"
     ymax: 5
     ymin: -5
-    region:                       # Plot zoom on target regions
+    region: "all"                 # Plot zoom on target regions Allowed formats: chr1_1233-12314 (win compatible) or chr1:123154-234235 (unix)
 
 #______ LOCAL ASSEMBLY ___________________________________________________________#
 
@@ -201,6 +201,6 @@ expression:
 demux:
   bc_index: 'bc_index_file.csv'
   bc_distance: 3
-  minibar: '/mnt/users/ahgrosc1/tools/miniconda3/bin/python /mnt/users/ahgrosc1/tools/minibar/minibar.py'
+  minibar: '/mnt/storage3/users/ahgrosc1/tools/miniconda3/bin/python /mnt/storage3/susers/ahgrosc1/tools/minibar/minibar.py'
   target_region: ''
   target_region_str: ''
