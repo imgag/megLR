@@ -92,7 +92,7 @@ vc:
   keep_supplementary: false
 
 vc_clair3:
-  model: "r941_prom_sup_g5014"      # https://github.com/HKU-BAL/Clair3#pre-trained-models
+  model: "r941_prom_hac_g360+g422"      # https://github.com/HKU-BAL/Clair3#pre-trained-models
 
 vc_pepper:
   model: "ont_r9_guppy5_sup"        # Model
