@@ -74,6 +74,8 @@ rule all_multiqc:
         config['run_db_root'] + "/ont_runs_multiqc.html"
     log:
         "logs/multiqc_all_ont.log"
+    conda:
+        "../env/multiqc.yml"
     group:
         "qc_db"
     params:
