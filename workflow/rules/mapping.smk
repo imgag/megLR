@@ -57,7 +57,7 @@ rule map_genome_splice:
         fq = "Sample_{sample}/{sample}.full_length.fastq"
     output:
         bam = "Sample_{sample}/{sample}.spliced.bam",
-        bai= "Sample_{sample}/{sample}.spliced.bai"
+        bai= "Sample_{sample}/{sample}.spliced.bam.bai"
     log:
         "logs/{sample}_minimap2_splice.log"
     conda:
@@ -68,12 +68,10 @@ rule map_genome_splice:
         min_mq = config['mapping']['min_qual']
     shell:
         """
-        minimap2 -ax splice --eqx -t {threads} \
-            -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}" \
+        minimap2 -ayYL2 -x splice --eqx -t {threads} \
             {input.genome} {input.fq} 2> {log} \
-             | samtools view -q {params.min_mq} -F 2304 -Sb \
-             | samtools sort -@ 4 -m 4G  - -o {output.bam} >{log} 2>&1
-        samtools index {output}
+            | samtools sort -@ 4 -m 4G  - -o {output.bam} >{log} 2>&1
+        samtools index {output.bam}
         """
 
 #_____ MAPPING TO TRANSCRIPTOME __________________________________________#

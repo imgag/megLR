@@ -16,13 +16,13 @@ rule pychopper:
     threads:
         24
     params:
-        detect_umi = "-U" if config['cdna']['with_umi'] else "",
+        detect_umi = "-U -y" if config['cdna']['with_umi'] else "",
         kit = config['cdna']['primer_kit']
     shell:
         """
         fq=$(mktemp)
         unpigz -d -c {input} > $fq 2> {log}
-        cdna_classifier.py \
+        pychopper \
             -r {output.report} \
             -t {threads} \
             -S {output.stats} \
@@ -47,15 +47,17 @@ rule deduplicate_umitools:
     log:
         "logs/{sample}_dedup_umitools.log"
     conda:
-        "../env/umitools.yml"
+        "../env/umi_tools.yml"
     threads:
         1
     shell:
         """
-        umitools \
+        umi_tools dedup \
             --stdin {input.bam} \
-            --stout {output.bam} \
-            --output-stats Sample_{wildcards.sample}/dedup_stats/{wildcards.sample} \
+            --stdout {output.bam} \
+            --output-stats qc/dedup_stats/{wildcards.sample} \
+            --extract-umi-method tag \
+            --umi-tag RX \
             --log {log} \
             --error {log} \
 

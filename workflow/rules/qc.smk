@@ -333,6 +333,7 @@ qc_out = {
     'cnv': [],
     'local_assembly': [],
     'repeat_expansion': [],
+    'cDNA_expression': [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
     'qc_db': []
 }
@@ -342,7 +343,7 @@ if not config['disable_sampleqc']:
 
 
 if config['cdna']['with_umi']:
-    qc_out += {'cDNA_expression' : expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples)}
+    qc_out['cDNA_expression'] += expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples)
 
 qc_out_selected = [qc_out[step] for step in config['steps']]
 
