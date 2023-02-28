@@ -125,7 +125,7 @@ out = {
     'variant_calling': [],                                                     # Added later
     'structural_variant_calling': [],                                          # Added later
     'cdna' : expand("Sample_{s}/{s}.spliced{d}.bam", 
-        s = ID_samples, d = ".dedup" if config['cdna']['with_umi'] else ""),
+        s = ID_samples, d = ".dedup" if config['cdna']['deduplicate'] else ""),
     'transcriptome': [],                                                       # Added later          
     'gene_expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
     'differential_transcript_usage' : ["de_analysis/dtu_plots.pdf"],

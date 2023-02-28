@@ -322,8 +322,7 @@ qc_out = {
     'cdna' : 
         expand("qc/pychopper/{s}_stats.txt", s = ID_samples) + 
         expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples) +
-        expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples),
+        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples),
     'transcriptome' : expand("qc/gffcompare/{s}_{t}/{s}_{t}.stats", 
         s = ID_samples, t = config['transcriptome']['methods']),
     'gene_expression' : 

@@ -115,6 +115,7 @@ assembly:
 cdna:
   with_umi: false
   primer_kit: "PCS109"
+  deduplicate: false
 
 #_______ TRANSCRIPTOME ANALYSIS __________________________________________________#
 

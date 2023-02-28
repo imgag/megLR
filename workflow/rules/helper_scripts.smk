@@ -175,7 +175,7 @@ def get_cdna_bam(wc):
     """
     Return deduplicated or non-deduplicated cDNA BAM, depending on config options
     """
-    if config['cdna']['with_umi']:
+    if config['cdna']['deduplicate']:
         return("Sample_{}/{}.spliced.dedup.bam".format(wc.sample))
     else:
         return("Sample_{}/{}.spliced.bam".format(wc.sample))
