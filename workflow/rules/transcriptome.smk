@@ -33,8 +33,7 @@ rule stringtie:
         """
 
 #_____ FLAIR ISOFORM ANALYSIS ______________________________________________#
-# We run Stringtie in stranded mode since the bam file after
-# Pychopper contains correct strand informations
+
 rule bamtobed12:
     input:
         bam = get_cdna_bam

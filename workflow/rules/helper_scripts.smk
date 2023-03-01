@@ -158,8 +158,6 @@ def get_db_barcode(wc):
     
     return(bc)
 
-
-
 def get_cnvkit_bam(wc):
     """
     Get bamfile for cnvkit either from config file (reference) or project folder (sample)
@@ -176,9 +174,13 @@ def get_cdna_bam(wc):
     Return deduplicated or non-deduplicated cDNA BAM, depending on config options
     """
     if config['cdna']['deduplicate']:
-        return("Sample_{}/{}.spliced.dedup.bam".format(wc.sample))
+        return("Sample_{s}/{s}.spliced.dedup.bam".format(s = wc.sample))
     else:
-        return("Sample_{}/{}.spliced.bam".format(wc.sample))
+        return("Sample_{s}/{s}.spliced.bam".format(s = wc.sample))
+
+def get_n_reads(wildcards, input):
+    print(wildcards)
+    print(input)
 
 def print_message():
     print("                 _    ___ ")

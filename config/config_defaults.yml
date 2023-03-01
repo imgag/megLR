@@ -109,6 +109,8 @@ assembly:
 #   - "wtdbg"
 #   - "metaflye"
   genome_size: "3G"
+  max_target_coverage: 150
+
 
 #_______ CDNA ANALYSIS ___________________________________________________________#
 
@@ -122,7 +124,6 @@ cdna:
 transcriptome:
   methods:
     - "stringtie"
-    - "flye"
 
 flair:
   manifest: "reads_manifest.tsv"
