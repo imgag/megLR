@@ -6,3 +6,5 @@ logo_ncct.png
 .gitignore
 test
 test_qc_db
+workflow/rules/assembly.smk
+workflow/scripts/__pycache__

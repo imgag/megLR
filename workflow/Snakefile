@@ -12,6 +12,7 @@ from collections import defaultdict
 # Needed by DGE:
 import pandas as pd
 from collections import OrderedDict
+from scripts.bytes_to_human import human2bytes, bytes2human
 
 include: "rules/helper_scripts.smk"
 

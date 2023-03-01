@@ -178,10 +178,40 @@ def get_cdna_bam(wc):
     else:
         return("Sample_{s}/{s}.spliced.bam".format(s = wc.sample))
 
-def get_n_reads(wildcards, input):
-    print(wildcards)
-    print(input)
+def get_assembly_input(wc):
+    """
+    Determine input file for the assembly: If estimated coverage (taken from pycoqc) is higher
+    then max coverage config option, this function returns the subsampled fastq file.
+    """
+    if config['assembly']['max_target_coverage']:    
+        with open("qc/pycoqc/per_sample/{sample}.pycoQC.json".format(sample = wc.sample), 'r') as f:
+            data = json.load(f)
 
+        n_bases = data['Pass Reads']['basecall']['bases_number']
+        genome_size = config['assembly']['genome_size'].upper()
+        genome_size_int = human2bytes(genome_size)
+        estimated_cov = n_bases/genome_size_int
+        assembly_cov = config['assembly']['max_target_coverage']
+        
+        if config['verbose']:
+            print("Estimated cov: {}".format(estimated_cov))
+            print("Max assembly cov: {}".format(assembly_cov))
+
+        if estimated_cov > assembly_cov:
+            return {
+                'fq' : "assembly/{sample}_subsampled.fastq.gz".format(sample = wc.sample),
+                'qc' : "qc/pycoqc/per_sample/{sample}.pycoQC.json".format(sample = wc.sample)}
+        else:
+            return {
+                'fq' : "Sample_{sample}/{sample}.fastq.gz".format(sample = wc.sample),
+                'qc' : "qc/pycoqc/per_sample/{sample}.pycoQC.json".format(sample = wc.sample)}
+    else:
+        return{'fq' : "Sample_{sample}/{sample}.fastq.gz".format(sample = wc.sample)}
+
+def get_n_reads_for_max_cov(wc):
+    with open("qc/pycoqc/per_sample/{sample}.pycoQC.json".format(sample = wc.sample), 'r') as f:
+            data = json.load(f)
+    
 def print_message():
     print("                 _    ___ ")
     print("  _ __  ___ __ _| |  | _ \\")

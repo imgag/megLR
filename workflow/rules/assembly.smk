@@ -2,7 +2,7 @@
 
 rule wtdbg2:
     input:
-        "Sample_{sample}/{sample}.fastq.gz"
+        unpack(get_assembly_input)
     output:
         "assembly/{sample}_wtdbg/wtdbg.ctg.lay.gz"
     conda:
@@ -75,7 +75,7 @@ rule wtdbg2_polishing:
 
 rule flye:
     input:
-        "Sample_{sample}/{sample}.fastq.gz"
+        unpack(get_assembly_input)
     output:
         "assembly/{sample}_flye/assembly.fasta"
     conda:
@@ -131,5 +131,26 @@ rule cp_metaflye:
         cp {input} {output}
         """
 
+#____ HIGHCOV GENOME ASSEMBLY ________________________________________________________#
 
-        
+rule filtlong:
+    input:
+        fq = "Sample_{sample}/{sample}.fastq.gz",
+        qc = "qc/pycoqc/per_sample/{sample}.pycoQC.json"
+    output:
+        "assembly/{sample}_subsampled.fastq.gz"
+    conda:
+        "../env/filtlong.yml"
+    log:
+        "logs/{sample}_filtlong.log"
+    threads:
+        1
+    params:
+        n_bases = human2bytes(config['assembly']['genome_size'].upper())*config['assembly']['max_target_coverage']
+    shell:
+        """
+        filtlong \
+            --target_bases {params.n_bases} \
+            --length_weight 2 \
+            {input.fq} | gzip -c > {output} 2>{log}
+        """
