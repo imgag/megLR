@@ -6,8 +6,8 @@ rule stringtie:
     input:
         bam = get_cdna_bam  
     output:
-        gtf = "Sample_{sample}/{sample}.stringtie.gtf",
-        abundance = "Sample_{sample}/{sample}.stringtie.abundance.tsv"
+        gtf = "Sample_{sample}/stringtie/{sample}.stringtie.gtf",
+        abundance = "Sample_{sample}/stringtie/{sample}.stringtie.abundance.tsv"
     log:
         "logs/{sample}_stringtie.log"
     threads:
@@ -30,6 +30,18 @@ rule stringtie:
         -o {output.gtf} \
         {input.bam} \
         >{log} 2>&1
+        """
+
+rule copy_stringtie:
+    input:
+        "Sample_{sample}/stringtie/{sample}.stringtie.gtf"
+    output:
+        "Sample_{sample}/{sample}.stringtie.gtf"
+    threads:
+        1
+    shell:
+        """
+        cp {input} {output}
         """
 
 #_____ FLAIR ISOFORM ANALYSIS ______________________________________________#

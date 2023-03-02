@@ -278,8 +278,8 @@ rule sqanti:
         {params.sqanti} \
             -d qc/sqanti/{wildcards.sample}_{wildcards.tool} \
             -o {wildcards.sample}_{wildcards.tool} \
-            --gtf $tmp \
-            {input.anno_ref} {input.genome} \
+            --repotr both \
+            $tmp {input.anno_ref} {input.genome} \
             >{log} 2>&1
         """
 
