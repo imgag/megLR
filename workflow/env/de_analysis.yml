@@ -1,7 +1,7 @@
 channels:
-  - bioconda
   - conda-forge
-  - r
+  - bioconda
+  - defaults
 dependencies:
   - bioconductor-genomicfeatures
   - bioconductor-drimseq

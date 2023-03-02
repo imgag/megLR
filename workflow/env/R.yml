@@ -1,13 +1,14 @@
 name: R
 channels:
-  - r
+  - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - r-base
-  - r-tidyverse
+  - r-base=4.2.2
+  - r-tidyverse=1.3.2
   - r-data.table
   - r-ggplot2
   - r-openxlsx
   - r-rjson
   - r-rcpp
+  - r-tibble
