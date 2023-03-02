@@ -48,8 +48,8 @@ max_threads: 40                     # Max threads for individual jobs
 
 # Links to executables
 apps:
-  sqanti: "python /mnt/storage3/users/ahgrosc1/tools/SQANTI3/sqanti3_qc.py"
-  guppy: "/mnt/storage3/ahgrosc1/tools/guppy/ont-guppy_6.4.6/bin/guppy_basecaller"
+  sqanti: "python /mnt/storage3/users/ahgrosc1/tools/sqanti3/SQANTI3-5.1.1/sqanti3_qc.py"
+  guppy: "/mnt/storage3/users/ahgrosc1/tools/guppy/ont-guppy_6.4.6/bin/guppy_basecaller"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
@@ -70,6 +70,7 @@ guppy:
   model: "dna_r9.4.1_450bps_modbases_5mc_cg_hac_prom.cfg"      # View available with guppy_basecaller --print_workflows
   min_qscore: 7
 
+map_during_basecalling: true
 # Currently only HSISDM in Cigar String available, no X/=
 # For both mapping in bonito an guppy
 

@@ -21,7 +21,7 @@ rule wtdbg2:
             -x nanopore     \
             -g {params.g}   \
             -t {threads}    \
-            -i {input}      \
+            -i {input.fq}      \
             -fo $outf/wtdbg \
             > {log} 2>&1
         """
@@ -88,7 +88,7 @@ rule flye:
         config['max_threads']
     shell:
         """
-        flye --nano-raw {input} --genome-size {params.g} --threads {threads} -o assembly/{wildcards.sample}_flye > {log} 2>&1
+        flye --nano-raw {input.fq} --genome-size {params.g} --threads {threads} -o assembly/{wildcards.sample}_flye > {log} 2>&1
         """
 
 rule cp_flye:
