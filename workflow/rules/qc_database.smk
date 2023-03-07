@@ -21,26 +21,28 @@ rule copy_run_report:
     input:
         unpack(get_db_report)
     output:
-        md = config['run_db_root'] + "/runs/{run}/{run}.report.md"
+        config['run_db_root'] + "/runs/{run}/{run}.report.md"
     log:
         "logs/multiqc_copy_report_{run}.log"
     group:
         "qc_db"
     shell:
         """
-        cat {input.md} > {output.md} 2> {log}
+        [ -z "{input.md}" ] \
+            && echo "Not found: Report for {wildcards.run}" \
+            || cat {input.md} > {output} 2> {log}
         
         for path in {input.reports}
         do
             root="${{path%.*}}"
             ext="${{path#"$root"}}"
-            cp ${{path}} $(dirname {output.md})/{wildcards.run}.report${{ext}}
+            cp ${{path}} $(dirname {output})/{wildcards.run}.report${{ext}}
         done
         """
 
 rule copy_barcode_stats:
     input:
-        ancient(get_db_barcode)
+        get_db_barcode
     output:
         tsv = config['run_db_root'] + "/runs/{run}/{run}.barcodes.tsv"
     log:
@@ -49,14 +51,16 @@ rule copy_barcode_stats:
         "qc_db"
     shell:
         """
-        cat  {input} > {output.tsv} 2>{log}       
+        [ -z "{input}" ] \
+            && echo "Not found: barcodes for {wildcards.run}" \
+            || cat  {input} > {output.tsv} 2>{log}       
         """
 
 rule copy_mux_stats:
     input:
-        csv = ancient(get_db_mux)
+        get_db_mux
     output:
-        mux = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
+        csv = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
     log:
         "logs/{run}_copy_mux_stats.log"
     conda:
@@ -111,7 +115,7 @@ rule update_table:
 
 rule create_mux_plots:
     input:
-        csv = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
+        csv = ancient(config['run_db_root'] + "/runs/{run}/{run}.mux.csv")
     output:
         plot_scan = config['run_db_root'] + "/runs/{run}/{run}.pore_yield.png",
         plot_total = config['run_db_root'] + "/runs/{run}/{run}.pore_status.png"

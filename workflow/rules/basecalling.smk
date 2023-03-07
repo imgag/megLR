@@ -59,7 +59,7 @@ rule guppy_basecalling_mod:
     params:
         guppy = config['apps']['guppy'],
         model = config['guppy']['model'],
-        ref = config['ref']['genome'],
+        ref = "--align_ref {}".format(config['ref']['genome']) if config['map_during_basecalling'] else "",
         min_qscore = config['guppy']['min_qscore']
     shell:
         """
@@ -89,7 +89,10 @@ rule guppy_basecalling_mod:
             --device "cuda:$GPU_ACTIVE" \
             >{log} 2>&1
         
-        if $GPU_ACTIVE="0"; then rm /var/lock/gpu0
+        if [$GPU_ACTIVE=="0"]
+        then 
+            rm /var/lock/gpu0
+        fi
         """
     
 rule guppy_merge_bams:
@@ -103,6 +106,11 @@ rule guppy_merge_bams:
         """
         find {input} -name '.bam' | exec - samtools merge {output} {{}}+
         """
+
+#_____ BASECALLING METHYLATION MAPPING (DORADO) __________________________________________#
+
+
+
 
 #______ PROCESS BASECALLED MOD _____________________________________________________#
 

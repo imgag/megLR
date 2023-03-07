@@ -4,7 +4,7 @@ library(data.table)
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(ggplot2))
 
-#TODO: Handle case when multiple mux files are given as input
+#Todo: Handle case when multiple mux files are given as input
 
 # Define default in/out files for testing if not run inside snakemake
 if (exists("snakemake")) {
@@ -13,6 +13,11 @@ if (exists("snakemake")) {
 } else {
   input_csv <- "test_qc_db/mux_scan_data_PAM61196_992887db.csv"
   out_mux <- "test_qc_db/out_mux.csv"
+}
+
+if (is.null(input_csv)) {
+  print("No correct MUX file found. Exit")
+  quit()
 }
 
 dt <- data.table::fread(input_csv)

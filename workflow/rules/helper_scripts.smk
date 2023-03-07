@@ -113,20 +113,14 @@ def get_summary_files_to_split(wc):
 
 def get_db_report(wc):
     """
-    Get Report .pdf and Report.md files
-    Replace with empty dummy files if not available
+    Get Report files. Markdown is required, others optional
     """
     reports = [x for y in [glob(r + "/**/report_*") for r in map_runs_folder[wc.run]] for x in y]
     md = [x for x in reports if x.endswith('.md')]
-    reports = [x for x in reports if x not in md]
-
+    
     #print(md)
     #print(reports)
 
-    if not md:
-        if config['verbose']: print("Warning: No markdown report found for run(s) " + wc.run)
-        md = str(os.path.join(workflow.basedir, "../resources/dummyfiles/report.md"))
-    
     return{'md': md, 'reports': reports}
     
 def get_db_mux(wc):
@@ -134,28 +128,20 @@ def get_db_mux(wc):
     Get mux stats file
     Replace with empty dummy files if not available
     """
-
     mux = [x for y in [glob(r + "/**/mux_scan_data*.csv") for r in map_runs_folder[wc.run]] for x in y]
     mux += [x for y in [glob(r + "/**/other_reports/pore_scan_data*.csv") for r in map_runs_folder[wc.run]] for x in y]
-    
     if not mux:
         if config['verbose']: print("Warning: No mux stats (.csv) found for run(s) " + wc.run)
-        mux = str(os.path.join(workflow.basedir, "../resources/dummyfiles/mux.csv"))
+        mux = ancient(str(os.path.join(workflow.basedir, "../resources/dummyfiles/mux.csv")))
     
     return(mux)
 
 def get_db_barcode(wc):
     """
     Get barcode tsv file
-    Replace with empty dummy files if not available
     """
 
     bc = [x for y in [glob(r + "/**/barcode_alignment*.tsv") for r in map_runs_folder[wc.run]] for x in y]
-
-    if not bc:
-        if config['verbose']: print("Warning: No barcode file (.csv) found for run(s) " + wc.run)
-        bc = str(os.path.join(workflow.basedir, "../resources/dummyfiles/barcodes.tsv"))
-    
     return(bc)
 
 def get_cnvkit_bam(wc):
