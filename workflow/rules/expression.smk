@@ -144,3 +144,43 @@ rule quant_genes:
             -o {output.counts} \
             > {log} 2>&1
         """
+    
+rule flairQuantify:
+    input:
+        fa = rules.flairCollapse.output.fasta,
+        manifest = config['flair']['manifest']
+    output:
+        mat = "Sample_{sample}/flair/{sample}.counts_matrix.tsv"
+    conda:
+        "../env/flair.yml"
+    threads:
+        20
+    log:
+        "logs/{sample}_flair_quantify.log"
+    params:
+        trust_ends = "--trust_ends" if config['flair']['trust_ends'] else "",
+        qual = config['flair']['min_qual']
+    shell:
+        """ 
+        flair.py quantify \
+            --quality {params.qual} \
+            {params.trust_ends} \
+            --output {output} \
+            --tpm \
+            --reads_manifest {input.manifest} \
+            --isoforms {input.fa} \
+            >{log} 2>&1
+        """
+
+rule merge_stringtie_counts:
+    input:
+        abund = "Sample_{sample}/stringtie/{sample}.stringtie.abundance.tsv",
+        classif = "qc/sqanti/{sample}_stringtie/{sample}_stringtie_classification.txt"
+    output:
+        tsv = "Sample_{sample}/{sample}.stringtie.annotated_expression.tsv"
+    conda:
+        "../env/R.yml"
+    log:
+        "logs/{sample}_stringtie_annotation.log"
+    script:
+        "../scripts/annotate_stringtie_abundance.R"

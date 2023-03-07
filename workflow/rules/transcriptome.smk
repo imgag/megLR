@@ -128,33 +128,6 @@ rule flairCollapse:
         cp {output.gtf} {output.gtf_main}
         """
 
-rule flairQuantify:
-    input:
-        fa = rules.flairCollapse.output.fasta,
-        manifest = config['flair']['manifest']
-    output:
-        mat = "Sample_{sample}/flair/{sample}.counts_matrix.tsv"
-    conda:
-        "../env/flair.yml"
-    threads:
-        20
-    log:
-        "logs/{sample}_flair_quantify.log"
-    params:
-        trust_ends = "--trust_ends" if config['flair']['trust_ends'] else "",
-        qual = config['flair']['min_qual']
-    shell:
-        """ 
-        flair.py quantify \
-            --quality {params.qual} \
-            {params.trust_ends} \
-            --output {output} \
-            --tpm \
-            --reads_manifest {input.manifest} \
-            --isoforms {input.fa} \
-            >{log} 2>&1
-        """
-
 # Other unimplemented rules:
 #rule flairDiffExp:
 #rule flairDiffSpice:

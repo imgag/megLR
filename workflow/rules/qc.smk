@@ -325,14 +325,13 @@ qc_out = {
         expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples),
     'transcriptome' : expand("qc/gffcompare/{s}_{t}/{s}_{t}.stats", 
         s = ID_samples, t = config['transcriptome']['methods']),
-    'gene_expression' : 
+    'expression' : 
         expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
     'dual_demux' : [],
     'de_analysis' : [],
     'cnv': [],
     'local_assembly': [],
     'repeat_expansion': [],
-    'cDNA_expression': [],
     'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
     'qc_db': []
 }
@@ -342,7 +341,7 @@ if not config['disable_sampleqc']:
 
 
 if config['cdna']['with_umi']:
-    qc_out['cDNA_expression'] += expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples)
+    qc_out['cdna'] += expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples)
 
 qc_out_selected = [qc_out[step] for step in config['steps']]
 
