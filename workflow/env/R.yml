@@ -12,3 +12,4 @@ dependencies:
   - r-rjson
   - r-rcpp
   - r-tibble
+  - r-annotables
