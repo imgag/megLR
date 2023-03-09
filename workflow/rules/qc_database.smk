@@ -58,9 +58,9 @@ rule copy_barcode_stats:
 
 rule copy_mux_stats:
     input:
-        get_db_mux
+        unpack(get_db_mux)
     output:
-        csv = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
+        mux = config['run_db_root'] + "/runs/{run}/{run}.mux.csv"
     log:
         "logs/{run}_copy_mux_stats.log"
     conda:

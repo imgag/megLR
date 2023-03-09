@@ -134,7 +134,7 @@ def get_db_mux(wc):
         if config['verbose']: print("Warning: No mux stats (.csv) found for run(s) " + wc.run)
         mux = ancient(str(os.path.join(workflow.basedir, "../resources/dummyfiles/mux.csv")))
     
-    return(mux)
+    return{"csv" : mux}
 
 def get_db_barcode(wc):
     """
