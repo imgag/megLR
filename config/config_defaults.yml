@@ -110,7 +110,8 @@ assembly:
 #   - "wtdbg"
 #   - "metaflye"
   genome_size: "3G"
-  max_target_coverage: 150
+  max_target_coverage: false        # Subsample reads (not needed for current flye)
+  max_flye_cov: 70                  # for SUP reads and R10. Old data: --nano-raw
 
 
 #_______ CDNA ANALYSIS ___________________________________________________________#
@@ -199,7 +200,7 @@ expression:
   level: "exon"
   min_qual: 3
   strandedness: 1                 # 0:unstranded 1:stranded 2:reversely stranded
-  salmon_libtype: "S"             # U = unspecific, S = strand-specific
+  salmon_libtype: "SR"             # U = unspecific, S = strand-specific
 
 #______ DUAL BARCODING DEMULTIPLEX _______________________________________________#
 

@@ -83,12 +83,18 @@ rule flye:
     log:
         "logs/{sample}_flye.log"
     params:
-        g=config['assembly']['genome_size']
+        g=config['assembly']['genome_size'],
+        cov = "--asm-coverage "+str(config['assembly']['max_flye_cov']) if config['assembly']['max_flye_cov'] else ""
     threads:
         config['max_threads']
     shell:
         """
-        flye --nano-raw {input.fq} --genome-size {params.g} --threads {threads} -o assembly/{wildcards.sample}_flye > {log} 2>&1
+        flye \
+            --nano-hq {input.fq} \
+            --genome-size {params.g} \
+            --threads {threads} \
+            -o assembly/{wildcards.sample}_flye \
+            {params.cov} > {log} 2>&1
         """
 
 rule cp_flye:
