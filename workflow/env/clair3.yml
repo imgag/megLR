@@ -4,4 +4,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - clair3==0.1.12
+  - clair3==1.0.0
