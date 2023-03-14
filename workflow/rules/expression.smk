@@ -8,12 +8,12 @@ rule quant_salmon:
         bam = rules.map_to_transcriptome.output.bam,
         trs = config['ref']['cDNA']
     output:
-        counts = "Sample_{sample}/counts/quant.sf",
-        stats = "Sample_{sample}/counts/aux_info/meta_info.json"
+        counts = "isoform_counts/{sample}_{method}_counts/quant.sf",
+        stats = "isoform_counts/{sample}_{method}_counts/aux_info/meta_info.json"
     conda:
         "../env/de_analysis.yml"
     log: 
-        "logs/{sample}_salmon.log"
+        "logs/{sample}_{method}_salmon.log"
     threads:
         10
     params:
@@ -26,16 +26,16 @@ rule quant_salmon:
             --libType {params.library} \
             --targets {input.trs} \
             --alignments {input.bam} \
-            --output Sample_{wildcards.sample}/counts \
+            --output isoform_counts/{wildcards.sample}_{wildcards.method}_counts \
             > {log} 2>&1 
         """
 
 # Merge Salmon counts
 rule merge_counts:
     input:
-        count_tsvs = expand("Sample_{sample}/counts/quant.sf", sample=ID_samples)
+        count_tsvs = expand("isoform_counts/{s}_{{method}}_counts/quant.sf", s=ID_samples)
     output:
-        tsv ="de_analysis/all_counts.tsv"
+        tsv ="isoform_counts/merged_counts_{method}.tsv"
     conda:
         "../env/de_analysis.yml"
     params:

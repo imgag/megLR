@@ -125,6 +125,7 @@ cdna:
 transcriptome:
   methods:
     - "stringtie"
+#   - "flair"
 
 flair:
   manifest: "reads_manifest.tsv"
@@ -189,6 +190,7 @@ disable_sampleqc: false
 #______ GENE/TRANSCRIPT EXPRESSION SETTINGS ______________________________________#
 
 transcript:
+  map_to_custom_annot: true       # Use novel annot from Stringtie/Flair for Mapping
   minimap2_opts: ""               # Minimap2 mapping options
   maximum_secondary: 100          # Maximum secondary alignments
   secondary_score_ratio: 1.0      # Same as -p  option in minimap2

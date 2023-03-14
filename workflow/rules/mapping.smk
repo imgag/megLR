@@ -78,12 +78,12 @@ rule map_genome_splice:
 
 rule map_to_transcriptome:
     input:
-        trs = config['ref']['cDNA'],
+        trs = lambda wc: "Sample_{s}/{s}.{m}.gtf".format(s = wc.sample, m = wc.method) if config['transcript']['map_to_custom_annot'] else config['ref']['cDNA'],
         fq = "Sample_{sample}/{sample}.full_length.fastq"
     output:
-        bam = "Sample_{sample}/{sample}.transcripts.bam"
+        bam = "Sample_{sample}/{sample}.transcripts.{method}.bam"
     log:
-        "logs/{sample}_minimap_transcripts.log"
+        "logs/{sample}_minimap_transcripts_{method}.log"
     conda:
         "../env/minimap2.yml"
     threads:
