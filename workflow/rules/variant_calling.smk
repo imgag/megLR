@@ -1,4 +1,84 @@
 #____ VARIANT CALLING WITH DEEPVARIANT _______________________________________________________#
+# Works only for R10 Flowcells !
+# Todo implement downstream phasing using longphase
+
+rule deepvariant:
+    input:
+        bam = use_bam,
+        ref = config['ref']['genome']
+    output:
+        vcf = "variant_calling/{sample}_deepvariant/{sample}.dv.vcf.gz",
+        gvcf =  "variant_calling/{sample}_deepvariant/{sample}.dv.gvcf.gz"
+    log:
+        "logs/{sample}_deepvariant.log"
+    params:
+        version = "1.5.0",
+        model = "--" + config['vc_pepper']['model'],
+        gpu_id = config['gpu_id']['id'],
+    threads: 20
+    run:
+        if config['use_gpu']:
+            shell(
+                """
+                GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
+                if [ -z $GPU_OCCUPIED ] 
+                then
+                    GPU_ACTIVE="0"
+                else 
+                    GPU_ACTIVE=$(nvidia-smi --query-gpu=index,gpu_uuid --format=csv,noheader \
+                        | grep -v $GPU_OCCUPIED \
+                        | cut -f1 -d\,)
+                fi
+                docker run \
+                -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
+                -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
+                -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -e CUDA_LAUNCH_BLOCKING=1
+                --user $(id -u):$(id -g) \
+                --gpus device="cuda:$GPU_ACTIVE" \
+                google/deepvariant:{params.version} \
+                /opt/deepvariant/bin/run_deepvariant \
+                --model_type="ONT_R104" \
+                --ref="/mnt/input_ref/$(basename {input.ref})" \
+                --reads="/mnt/input_bam/$(basename {input.bam})" \
+                --output_vcf "{output.vcf}" \
+                --output_gvcf "{output.gvcf}" \
+                --num_shards=8 \
+                >{log} 2>&1
+                """
+            )
+        else:
+            shell(
+                """
+                docker run \
+                -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
+                -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
+                -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                --user $(id -u):$(id -g) \
+                google/deepvariant:{params.version} \
+                /opt/deepvariant/bin/run_deepvariant \
+                --model_type="ONT_R104" \
+                --ref="/mnt/input_ref/$(basename {input.ref})" \
+                --reads="/mnt/input_bam/$(basename {input.bam})" \
+                --output_vcf "{output.vcf}" \
+                --output_gvcf "{output.gvcf}" \
+                --num_shards=8 \
+                >{log} 2>&1
+                """
+            )
+
+rule copy_vcf_deepvariant:
+    input:
+        vcf = "variant_calling/{sample}_deepvariant/{sample}.dv.vcf.gz"
+    output:
+        vcf = "Sample_{sample}/{sample}.dv.vcf.gz"
+    log:
+        "logs/{sample}_copy_vcf_deepvariant.log"
+    shell:
+        """
+        cp {input.vcf} {output.vcf} >{log} 2>&1
+        """
+#____ VARIANT CALLING WITH PEPPER_MARGIN_DEEPVARIANT _________________________________________#
 
 #  Inference is sped up massively using GPU support.
 rule pepper_marging_deepvariant:
@@ -138,19 +218,9 @@ rule copy_vcf_clair:
         vcf = "Sample_{sample}/{sample}.clair3.vcf.gz"
     log:
         "logs/{sample}_copy_vcf_clair3.log"
-    run:
-        if config['vc']['phased_output']:
-            shell(
-                """
-                tabix 
-                cp {input.vcf} {output.vcf} >{log} 2>&1
-                cp {input.vcf}.tbi {output.vcf}.tbi >{log} 2>&1
-                cp variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz > {log} 2>&1
-                cp variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz.tbi Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz.tbi > {log} 2>&1
-                """)
-        else: 
-            shell(
-                """
-                cp {input.vcf} {output.vcf} >{log} 2>&1
-                cp {input.vcf} {output.vcf} >{log} 2>&1
-                """)
+    shell:
+        """
+        cp {input.vcf} {output.vcf} >{log} 2>&1
+        vcf_phased="variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz"
+        [ -f $vcf_phased ] cp $vcf_phased Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz > {log} 2>&1
+        """
