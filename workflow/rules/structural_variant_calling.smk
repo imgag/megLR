@@ -33,7 +33,7 @@ rule process_sniffles_sv:
   conda:
     "../env/ngs-bits.yml"
   params:
-    coregenome="/mnt/projects/external/promethion/reference_genomes/WGS_grch38.bed"
+    coregenome=config['ref']['core_genome']
   shell:
     """
     VcfFilter -in {input} -out variant_calling/{wildcards.sample}/{wildcards.sample}.sniffles.filtered.vcf -reg {params.coregenome} > {log} 2>&1
@@ -79,7 +79,7 @@ rule process_cutesv_vcf:
   conda:
     "../env/ngs-bits.yml"
   params:
-    coregenome="/mnt/projects/external/promethion/reference_genomes/WGS_grch38.bed"
+    coregenome=config['ref']['core_genome']
   shell:
     """
     VcfFilter -in {input} -out variant_calling/{wildcards.sample}/{wildcards.sample}.cutesv.filtered.vcf -reg {params.coregenome}

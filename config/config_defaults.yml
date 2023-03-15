@@ -28,6 +28,7 @@ ref:
   annotation_bed: "/mnt/storage3/users/ahgrosc1/data/gencode.v34.annotation.bed"
   cDNA: "/mnt/storage3/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
   target_region: "/mnt/storage3/users/ahgrosc1/data/WGS_grch38.bed"
+  core_genome: "/mnt/storage3/users/ahgrosc1/data/WGS_grch38.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
@@ -88,6 +89,7 @@ sv:
 vc:
   pepper: true
   clair3: false
+  deepvariant: false
   phased_output: true               # Generate bamfile phased reads (Clair3)
   haplotagged_bam: true             # Generate bamfile phased reads (Pepper-M-DV)
   keep_supplementary: false
