@@ -13,7 +13,6 @@ rule deepvariant:
         "logs/{sample}_deepvariant.log"
     params:
         version = "1.5.0",
-        model = "--" + config['vc_pepper']['model'],
         gpu_id = config['gpu_id']['id'],
     threads: 20
     run:
@@ -33,16 +32,16 @@ rule deepvariant:
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
-                -e CUDA_LAUNCH_BLOCKING=1
+                -e CUDA_LAUNCH_BLOCKING=1 \
                 --user $(id -u):$(id -g) \
-                --gpus device="cuda:$GPU_ACTIVE" \
-                google/deepvariant:{params.version} \
+                --gpus device="$GPU_ACTIVE" \
+                google/deepvariant:{params.version}-gpu \
                 /opt/deepvariant/bin/run_deepvariant \
                 --model_type="ONT_R104" \
                 --ref="/mnt/input_ref/$(basename {input.ref})" \
                 --reads="/mnt/input_bam/$(basename {input.bam})" \
-                --output_vcf "{output.vcf}" \
-                --output_gvcf "{output.gvcf}" \
+                --output_vcf="{output.vcf}" \
+                --output_gvcf="{output.gvcf}" \
                 --num_shards=8 \
                 >{log} 2>&1
                 """
@@ -60,8 +59,8 @@ rule deepvariant:
                 --model_type="ONT_R104" \
                 --ref="/mnt/input_ref/$(basename {input.ref})" \
                 --reads="/mnt/input_bam/$(basename {input.bam})" \
-                --output_vcf "{output.vcf}" \
-                --output_gvcf "{output.gvcf}" \
+                --output_vcf="{output.vcf}" \
+                --output_gvcf="{output.gvcf}" \
                 --num_shards=8 \
                 >{log} 2>&1
                 """
