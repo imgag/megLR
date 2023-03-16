@@ -44,6 +44,23 @@ rule copy_stringtie:
         cp {input} {output}
         """
 
+rule create_stringtie_transcriptome:
+    input:
+        gtf = "Sample_{sample}/stringtie/{sample}.stringtie.gtf",
+        ref = config['ref']['genome']
+    output:
+        "Sample_{sample}/{sample}.stringtie.fasta"
+    log:
+        "logs/{sample}_create_stringtie_transcriptome.log"
+    threads:
+        1
+    conda:
+        "../env/gffread.yml"
+    shell:
+        """
+        gffread -w {output} -g {input.ref} {input.gtf} > {log} 2>&1
+        """
+
 #_____ FLAIR ISOFORM ANALYSIS ______________________________________________#
 
 rule bamtobed12:
@@ -103,7 +120,6 @@ rule flairCollapse:
         annot = config['ref']['annotation']
     output:
         gtf = "Sample_{sample}/flair/{sample}.isoforms.gtf",
-        gtf_main = "Sample_{sample}/{sample}.flair.gtf",
         fasta = "Sample_{sample}/flair/{sample}.isoforms.fa",
     conda:
         "../env/flair.yml"
@@ -125,7 +141,19 @@ rule flairCollapse:
             --generate_map \
             --output Sample_{wildcards.sample}/flair/{wildcards.sample} \
             >{log} 2>&1
-        cp {output.gtf} {output.gtf_main}
+        """
+
+rule copy_flair_results:
+    input:
+        gtf = "Sample_{sample}/flair/{sample}.isoforms.gtf",
+        fa = "Sample_{sample}/flair/{sample}.isoforms.fa"
+    output:
+        gtf = "Sample_{sample}/{sample}.flair.gtf",
+        fa = "Sample_{sample}/{sample}.flair.fasta"
+    shell:
+        """
+        cp {input.gtf} {output.gtf}
+        cp {input.fa} {output.fa}
         """
 
 # Other unimplemented rules:
