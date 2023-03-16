@@ -6,7 +6,7 @@ configfile: srcdir('../../config/de_analysis_config.yml')
 rule quant_salmon:
     input:
         bam = rules.map_to_transcriptome.output.bam,
-        trs = lambda wc: "Sample_{s}/{s}.{m}.gtf".format(s = wc.sample, m = wc.method) if config['transcript']['map_to_custom_annot'] else config['ref']['cDNA'],
+        trs = lambda wc: "Sample_{s}/{s}.{m}.fasta".format(s = wc.sample, m = wc.method) if config['transcript']['map_to_custom_annot'] else config['ref']['cDNA'],
     output:
         counts = "isoform_counts/{sample}_{method}_counts/quant.sf",
         stats = "isoform_counts/{sample}_{method}_counts/aux_info/meta_info.json"
