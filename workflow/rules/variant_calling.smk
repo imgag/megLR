@@ -203,7 +203,7 @@ rule clair3_variants:
             --ref_fn={input.ref} \
             --threads={threads} \
             --platform={params.platform} \
-            --model_path="${{CONDA_PREFIX}}/bin/models/{params.model}" \
+            --model_path={params.model} \
             --output=$(dirname {output}) \
             --sample_name={wildcards.sample} \
             >{log} 2>&1        
@@ -226,11 +226,11 @@ rule copy_vcf_clair:
 rule longphase_phase:
     input:
         vcf_snp = "Sample_{sample}/{sample}.{vc}.vcf.gz",
-        vcf_sv = "Sample_{sample}/{sample}.{v}.vcf.gz".format(v =config['phasing']['sv_vcf']),
+        vcf_sv = "Sample_{{sample}}/{{sample}}.{sv}.vcf.gz".format(sv = config['phasing']['sv_vcf']),
         bam = "Sample_{sample}/{sample}.bam",
         ref = config['ref']['genome']
     output:
-        "Sample_{sample}.{vc}.phased.vcf"
+        "Sample_{sample}/{sample}.{vc}.phased.vcf.gz"
     threads:
         4
     log:
@@ -248,18 +248,21 @@ rule longphase_phase:
         --threads {threads} \
         --out_prefix {wildcards.sample}.phased.{wildcards.vc} \
         > {log} 2>&1
+
+        bgzip {wildcards.sample}.phased.{wildcards.vc}.vcf
+        tabix {output}
         """
 
 rule longphase_haplotag:
     input:
-        vcf_snp = "Sample_{sample}/{sample}.%s.vcf.gz" % config['phasing']['haplotagging_input']),
+        vcf_snp = "Sample_{{sample}}/{{sample}}.{vc}.vcf.gz".format(vc = config['phasing']['haplotagging_input']),
         bam = "Sample_{sample}/{sample}.bam",
     output:
-        "Sample_{sample}.haplotagged.bam"
-    log:
-        "logs/{sample}_longphase_phase.log"
+        "Sample_{sample}/{sample}.haplotagged.bam"
     threads:
         4
+    log:
+        "logs/{sample}_longphase_haplotagging.log"
     params:
         longphase = config['apps']['longphase']
     shell:
