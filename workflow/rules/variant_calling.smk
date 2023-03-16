@@ -166,7 +166,7 @@ rule copy_vcf_pepper:
                 cp {input.vcf} {output.vcf}
                 """)
 
-rule output_haplotagged_bam:
+rule pepper_haplotagged_bam:
     input:
         vcf = "variant_calling/{sample}_pepper/PEPPER_MARGIN_DEEPVARIANT_FINAL_OUTPUT.vcf.gz"
     output:
@@ -192,7 +192,6 @@ rule clair3_variants:
     params:
         platform = "ont",
         model = config['vc_clair3']['model'],
-        phased_output = "--enable_phasing" if config['vc']['phased_output'] else ""
     threads:
         20
     log:
@@ -206,7 +205,7 @@ rule clair3_variants:
             --platform={params.platform} \
             --model_path="${{CONDA_PREFIX}}/bin/models/{params.model}" \
             --output=$(dirname {output}) \
-            --sample_name={wildcards.sample}  {params.phased_output} \
+            --sample_name={wildcards.sample} \
             >{log} 2>&1        
         """
 
@@ -220,6 +219,57 @@ rule copy_vcf_clair:
     shell:
         """
         cp {input.vcf} {output.vcf} >{log} 2>&1
-        vcf_phased="variant_calling/{wildcards.sample}_clair3/phased_merge_output.vcf.gz"
-        [ -f $vcf_phased ] cp $vcf_phased Sample_{wildcards.sample}/{wildcards.sample}.clair3.phased.vcf.gz > {log} 2>&1
         """
+
+#____ PHASING USING LONGPHASE ______________________________________________________#
+
+rule longphase_phase:
+    input:
+        vcf_snp = "Sample_{sample}/{sample}.{vc}.vcf.gz",
+        vcf_sv = "Sample_{sample}/{sample}.{v}.vcf.gz".format(v =config['phasing']['sv_vcf']),
+        bam = "Sample_{sample}/{sample}.bam",
+        ref = config['ref']['genome']
+    output:
+        "Sample_{sample}.{vc}.phased.vcf"
+    threads:
+        4
+    log:
+        "logs/{sample}_longphase_phase_{vc}.log"
+    params:
+        longphase = config['apps']['longphase']
+    shell:
+        """
+        {params.longphase} phase
+        --snp_file {input.vcf_snp} \
+        --sv_file {input.vcf_sv} \
+        --bam-file {input.bam} \
+        --ont \
+        --reference {input.ref} \
+        --threads {threads} \
+        --out_prefix {wildcards.sample}.phased.{wildcards.vc} \
+        > {log} 2>&1
+        """
+
+rule longphase_haplotag:
+    input:
+        vcf_snp = "Sample_{sample}/{sample}.%s.vcf.gz" % config['phasing']['haplotagging_input']),
+        bam = "Sample_{sample}/{sample}.bam",
+    output:
+        "Sample_{sample}.haplotagged.bam"
+    log:
+        "logs/{sample}_longphase_phase.log"
+    threads:
+        4
+    params:
+        longphase = config['apps']['longphase']
+    shell:
+        """
+        {params.longphase} haplotag
+        --snp_file {input.vcf_snp} \
+        --bam-file {input.bam} \
+        --threads {threads} \
+        --out_prefix {wildcards.sample}.haplotagged \
+        > {log} 2>&1
+        """
+
+        

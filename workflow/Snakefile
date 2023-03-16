@@ -173,12 +173,25 @@ out = {
 # Add Variant calling outputs:
 if config['vc']['pepper']:
     out['variant_calling'] += expand("Sample_{s}/{s}.pepper_margin_dv.vcf.gz", s=ID_samples)
-if config['vc']['pepper'] and config['vc']['haplotagged_bam']:
-    out['variant_calling'] += expand("Sample_{s}/{s}.haplotagged.bam", s=ID_samples)
 if config['vc']['clair3']:
     out['variant_calling'] += expand("Sample_{s}/{s}.clair3.vcf.gz", s=ID_samples)
 if config['vc']['deepvariant']:
     out['variant_calling'] += expand("Sample_{s}/{s}.dv.vcf.gz", s=ID_samples)
+
+# Output phased VCF if required:
+if config['vc']['phased_output']: 
+    if config['vc']['clair3']:
+        out['variant_calling'] += expand("Sample_{s}/{s}.clair3.phased.vcf", s=ID_samples)
+    if config['vc']['deepvariant']:
+        out['variant_calling'] += expand("Sample_{s}/{s}.dv.phased.vcf", s=ID_samples)
+
+# Create haplotagged bam if required
+if config['vc']['haplotagged_bam']:
+    out['variant_calling'] += expand("Sample_{s}/{s}.haplotagged.bam", s=ID_samples)
+    if config['phasing']['haplotagging_input'] == "pepper":
+        ruleorder: pepper_haplotagged_bam > longphase_haplotag
+    else:
+        ruleorder: longphase_haplotag > pepper_haplotagged_bam
 
 # Add SV calling outputs:
 if config['sv']['sniffles']:

@@ -18,6 +18,7 @@ rule sv_sniffles:
       --input {input} \
       --vcf {output.vcf} \
       --snf {output.snf} \
+      --output-rnames \
       --threads {threads} > {log} 2>&1
     """ 
 
@@ -57,12 +58,13 @@ rule sv_cutesv:
     "logs/{sample}_cutesv.log"
   params:
     ref = config['ref']['genome'],
-    genotyping = "--genotype" if config['sv_cutesv']['enable_genotyping'] else ""
   shell:
     """
     cuteSV \
       --threads {threads} \
       --sample {wildcards.sample} \
+      --report_readid \
+      --genotype \
       {input} {params.ref} {params.genotyping} {output.vcf} $(dirname {output.vcf}) \
       > {log} 2>&1
     """ 

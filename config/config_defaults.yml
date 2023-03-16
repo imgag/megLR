@@ -51,6 +51,7 @@ max_threads: 40                     # Max threads for individual jobs
 apps:
   sqanti: "python /mnt/storage3/users/ahgrosc1/tools/sqanti3/SQANTI3-5.1.1/sqanti3_qc.py"
   guppy: "/mnt/storage3/users/ahgrosc1/tools/guppy/ont-guppy_6.4.6/bin/guppy_basecaller"
+  longphase: "/mnt/storage3/users/ahgrosc1/tools/longphase/longphase_linux-x64"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
@@ -95,14 +96,16 @@ vc:
   keep_supplementary: false
 
 vc_clair3:
-  model: "r941_prom_hac_g360+g422"      # https://github.com/HKU-BAL/Clair3#pre-trained-models
+  model: "${{CONDA_PREFIX}}/bin/models/r941_prom_hac_g360+g422"      # https://github.com/HKU-BAL/Clair3#pre-trained-models
+# model: "/mnt/storage3/users/ahgrosc1/tools/rerio/clair3_models/r1041_e82_400bps_hac_g632"
 
 vc_pepper:
   model: "ont_r9_guppy5_sup"        # Model
   target_region: false              # Restrict variant calling / phasing to target region (chr1:1234-12345)
 
-sv_cutesv:
-  enable_genotyping: true 
+phasing:
+  sv_vcf: "sv_sniffles"             # Which SV vcf should be used for Co-phasing (sv_sniffles, sv_cutesv, sv_dipdiff)
+  haplotagging_input: "clair3"            # Which SNP set should be used for haplotagging the BAM file? (default: clair3)
 
 #______ ASSEMBLY PARAMETERS ______________________________________________________#
 
