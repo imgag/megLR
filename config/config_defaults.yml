@@ -96,7 +96,7 @@ vc:
   keep_supplementary: false
 
 vc_clair3:
-  model: "${{CONDA_PREFIX}}/bin/models/r941_prom_hac_g360+g422"      # https://github.com/HKU-BAL/Clair3#pre-trained-models
+  model: "$CONDA_PREFIX/bin/models/r941_prom_hac_g360+g422"      # https://github.com/HKU-BAL/Clair3#pre-trained-models
 # model: "/mnt/storage3/users/ahgrosc1/tools/rerio/clair3_models/r1041_e82_400bps_hac_g632"
 
 vc_pepper:
@@ -186,7 +186,7 @@ qualimap:
 
 #______ RUN QC DATABASE __________________________________________________________#
 
-run_db_root: "/mnt/share/data/ont_run_qc"
+run_db_root: "/mnt/storage1/share/data/ont_run_qc"
 report_filetypes:
   - md
   - html
