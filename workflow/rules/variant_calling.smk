@@ -32,6 +32,7 @@ rule deepvariant:
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -v "/tmp":"/tmp" \
                 -e CUDA_LAUNCH_BLOCKING=1 \
                 --user $(id -u):$(id -g) \
                 --gpus device="$GPU_ACTIVE" \
@@ -53,6 +54,7 @@ rule deepvariant:
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -v "/tmp":"/tmp" \
                 --user $(id -u):$(id -g) \
                 google/deepvariant:{params.version} \
                 /opt/deepvariant/bin/run_deepvariant \
@@ -112,6 +114,7 @@ rule pepper_marging_deepvariant:
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -v "/tmp":"/tmp" \
                 -e CUDA_LAUNCH_BLOCKING=1
                 --user $(id -u):$(id -g) \
                 --gpus device="cuda:$GPU_ACTIVE" \
@@ -133,6 +136,7 @@ rule pepper_marging_deepvariant:
                 -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
                 -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
                 -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -v "/tmp":"/tmp" \
                 --user $(id -u):$(id -g) \
                 kishwars/pepper_deepvariant:r0.8 \
                 run_pepper_margin_deepvariant call_variant \
