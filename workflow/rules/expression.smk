@@ -224,6 +224,7 @@ rule flairQuantify:
             --tpm \
             --reads_manifest {input.manifest} \
             --isoforms {input.fa} \
+            --threads {threads} \
             >{log} 2>&1
         """
 
