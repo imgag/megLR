@@ -181,9 +181,9 @@ if config['vc']['deepvariant']:
 # Output phased VCF if required:
 if config['vc']['phased_output']: 
     if config['vc']['clair3']:
-        out['variant_calling'] += expand("Sample_{s}/{s}.clair3.phased.vcf.gz", s=ID_samples)
+        out['variant_calling'] += expand("Sample_{s}/{s}.phased.clair3.vcf.gz", s=ID_samples)
     if config['vc']['deepvariant']:
-        out['variant_calling'] += expand("Sample_{s}/{s}.dv.phased.vcf.gz", s=ID_samples)
+        out['variant_calling'] += expand("Sample_{s}/{s}.phased.dv.vcf.gz", s=ID_samples)
 
 ruleorder: longphase_haplotag > pepper_haplotagged_bam
 # Create haplotagged bam if required

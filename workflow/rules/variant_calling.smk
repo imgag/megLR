@@ -41,8 +41,8 @@ rule deepvariant:
                 --model_type="ONT_R104" \
                 --ref="/mnt/input_ref/$(basename {input.ref})" \
                 --reads="/mnt/input_bam/$(basename {input.bam})" \
-                --output_vcf="{output.vcf}" \
-                --output_gvcf="{output.gvcf}" \
+                --output_vcf="/mnt/output/$(basename {output.vcf})" \
+                --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
                 --num_shards=8 \
                 >{log} 2>&1
                 """
@@ -61,8 +61,8 @@ rule deepvariant:
                 --model_type="ONT_R104" \
                 --ref="/mnt/input_ref/$(basename {input.ref})" \
                 --reads="/mnt/input_bam/$(basename {input.bam})" \
-                --output_vcf="{output.vcf}" \
-                --output_gvcf="{output.gvcf}" \
+                --output_vcf="/mnt/output/$(basename {output.vcf})" \
+                --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
                 --num_shards=8 \
                 >{log} 2>&1
                 """
@@ -234,7 +234,8 @@ rule longphase_phase:
         bam = "Sample_{sample}/{sample}.bam",
         ref = config['ref']['genome']
     output:
-        "Sample_{sample}/{sample}.{vc}.phased.vcf.gz"
+        vcf = "Sample_{sample}/{sample}.phased.{vc}.vcf.gz",
+        vcf_sv = "Sample_{sample}/{sample}.phased.{vc}_SV.vcf.gz"
     threads:
         4
     log:
@@ -243,18 +244,20 @@ rule longphase_phase:
         longphase = config['apps']['longphase']
     shell:
         """
-        {params.longphase} phase
-        --snp_file {input.vcf_snp} \
-        --sv_file {input.vcf_sv} \
+        {params.longphase} phase \
+        --snp-file {input.vcf_snp} \
+        --sv-file {input.vcf_sv} \
         --bam-file {input.bam} \
         --ont \
         --reference {input.ref} \
         --threads {threads} \
-        --out_prefix {wildcards.sample}.phased.{wildcards.vc} \
+        --out-prefix Sample_{wildcards.sample}/{wildcards.sample}.phased.{wildcards.vc} \
         > {log} 2>&1
 
-        bgzip {wildcards.sample}.phased.{wildcards.vc}.vcf
-        tabix {output}
+        bgzip Sample_{wildcards.sample}/{wildcards.sample}.phased.{wildcards.vc}.vcf
+        bgzip Sample_{wildcards.sample}/{wildcards.sample}.phased.{wildcards.vc}_SV.vcf
+        tabix {output.vcf}
+        tabix {output.vcf_sv}
         """
 
 rule longphase_haplotag:
@@ -271,12 +274,14 @@ rule longphase_haplotag:
         longphase = config['apps']['longphase']
     shell:
         """
-        {params.longphase} haplotag
-        --snp_file {input.vcf_snp} \
+        {params.longphase} haplotag \
+        --snp-file {input.vcf_snp} \
         --bam-file {input.bam} \
         --threads {threads} \
-        --out_prefix {wildcards.sample}.haplotagged \
+        --out-prefix Sample_{wildcards.sample}/{wildcards.sample}.haplotagged \
         > {log} 2>&1
+
+        samtools index {output}
         """
 
         
