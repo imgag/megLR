@@ -37,7 +37,7 @@ if __name__ == '__main__':
         df = df[df.Count > 0]
         df = df[["Reference", "Count"]]
         df = df.sort_values(by=["Count"], ascending=False)
-        name_search = re.search('Sample_(\w*)/', path.dirname(x))       
+        name_search = re.search('(?<=isoform_counts\/)(.*)(?=_counts)', path.dirname(x))       
         if name_search:
             name =  name_search.group(1)
         df = df.rename(columns={'Count': name})

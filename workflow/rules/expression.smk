@@ -1,12 +1,67 @@
 configfile: srcdir('../../config/de_analysis_config.yml')
 
+rule stringtie_merge:
+    input:
+        gtf =  expand("Sample_{sample}/stringtie/{sample}.stringtie.gtf", sample=ID_samples)
+    output:
+        gtf = "isoform_counts/all_samples_stringtie.isoforms.gtf"
+    log:
+        "logs/stringtie_merge.log"
+    threads:
+        2
+    conda:
+        "../env/stringtie.yml"
+    params:
+        annot = config['ref']['annotation']
+    # Stringtie Merge Parameters:
+    # -m : minimum transcript length (default: 50)
+    # -c : minimum coverage (default: 0)
+    # -F : minimum fpkm (default:  0)
+    # -T : minimum tpm (default: 0)
+    # -f : minimum isoform fraction (default: 0.01)
+    # -i : keep merged transcripts with retained introns (default: false)
+    # -G : Reference guided (requires input .GTF)
+    shell:
+        """
+        stringtie --merge \
+        -G {params.annot} \
+        -o {output.gtf} \
+        {input.gtf} \
+        >{log} 2>&1
+        """
+
+rule create_stringtie_merged_transcriptome:
+    input:
+        gtf = "isoform_counts/all_samples_stringtie.isoforms.gtf",
+        ref = config['ref']['genome']
+    output:
+        "isoform_counts/all_samples_stringtie.isoforms.fasta"
+    log:
+        "logs/convert_stringtie_transcriptome.log"
+    threads:
+        1
+    conda:
+        "../env/gffread.yml"
+    params:
+        rename_tab = srcdir("../resources/chr_rename_table.tsv")
+    shell:
+        """
+        gffread \
+            -w {output} \
+            -g {input.ref} \
+            -m {params.rename_tab} \
+            {input.gtf} \
+            >{log} 2>&1
+        """
+
+
 #_____ QUANTIFICATION (SALMON) ____________________________________________#
 
 # Use Transcriptome alignment as input
 rule quant_salmon:
     input:
         bam = rules.map_to_transcriptome.output.bam,
-        trs = lambda wc: "Sample_{s}/{s}.{m}.fasta".format(s = wc.sample, m = wc.method) if config['transcript']['map_to_custom_annot'] else config['ref']['cDNA'],
+        trs = get_fasta_annotation_for_transcriptome_alignment
     output:
         counts = "isoform_counts/{sample}_{method}_counts/quant.sf",
         stats = "isoform_counts/{sample}_{method}_counts/aux_info/meta_info.json"
@@ -33,9 +88,9 @@ rule quant_salmon:
 # Merge Salmon counts
 rule merge_counts:
     input:
-        count_tsvs = expand("isoform_counts/{s}_{{method}}_counts/quant.sf", s=ID_samples)
+        count_tsvs = expand("isoform_counts/{s}_stringtie-consensus_counts/quant.sf", s=ID_samples)
     output:
-        tsv ="isoform_counts/merged_counts_{method}.tsv"
+        tsv ="isoform_counts/merged_counts_stringtie.tsv"
     conda:
         "../env/de_analysis.yml"
     params:

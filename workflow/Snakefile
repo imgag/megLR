@@ -205,12 +205,12 @@ if 'stringtie' in config['transcriptome']['methods']:
     out['transcriptome'] += expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples)
     out['transcriptome'] += expand("qc/sqanti/{s}_stringtie/{s}_stringtie_classification.txt", s = ID_samples),
     out['expression'] += expand("Sample_{s}/{s}.stringtie.annotated_expression.tsv", s = ID_samples),
-    out['expression'] += expand("isoform_counts/merged_counts_stringtie.tsv")
+    if config['transcriptome']['consensus_transcriptome']:
+        out['expression'] += expand("isoform_counts/merged_counts_stringtie.tsv")
 if 'flair' in config['transcriptome']['methods']:
     out['transcriptome'] += expand("Sample_{s}/{s}.flair.gtf", s=ID_samples),
     out['transcriptome'] += expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
     out['expression'] += expand("Sample_{s}/flair/{s}.counts_matrix.tsv", s = ID_samples),
-    out['expression'] += expand("isoform_counts/merged_counts_flair.tsv")
 # Include only results for selected analysis modules
 out_selected = [out[step] for step in config['steps']]
 
