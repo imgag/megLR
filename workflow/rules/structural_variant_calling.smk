@@ -65,7 +65,7 @@ rule sv_cutesv:
       --sample {wildcards.sample} \
       --report_readid \
       --genotype \
-      {input} {params.ref} {params.genotyping} {output.vcf} $(dirname {output.vcf}) \
+      {input} {params.ref} {output.vcf} $(dirname {output.vcf}) \
       > {log} 2>&1
     """ 
 
