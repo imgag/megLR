@@ -109,6 +109,53 @@ rule guppy_merge_bams:
 
 #_____ BASECALLING METHYLATION MAPPING (DORADO) __________________________________________#
 
+rule dorado_basecalling_mod:
+    input:
+        unpack(get_input_folders_fast5)
+    output:
+        directory("basecalling_dorado/{sample}/")
+    log:
+        "logs/{sample}_dorado.log"
+    threads:
+        8
+    params:
+        dorado = config['apps']['guppy'],
+        model = config['guppy']['model'],
+        ref = "--align_ref {}".format(config['ref']['genome']) if config['map_during_basecalling'] else "",
+        min_qscore = config['guppy']['min_qscore']
+    shell:
+        """
+        GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
+        if [ -z $GPU_OCCUPIED ] 
+        then
+            if test -f "/var/lock/gpu0"
+            then
+                GPU_ACTIVE="1"
+            else
+                GPU_ACTIVE="0"
+                touch /var/lock/gpu0
+            fi
+        else 
+            GPU_ACTIVE=$(nvidia-smi --query-gpu=index,gpu_uuid --format=csv,noheader \
+                | grep -v $GPU_OCCUPIED \
+                | cut -f1 -d\,)
+        fi
+        {params.guppy}  \
+            --input_file_list {input}\
+            --config {params.model} \
+            --align_ref {params.ref}\
+            --bam_out \
+            --index \
+            --min_qscore {params.min_qscore} \
+            --save_path {output} \
+            --device "cuda:$GPU_ACTIVE" \
+            >{log} 2>&1
+        
+        if [$GPU_ACTIVE=="0"]
+        then 
+            rm /var/lock/gpu0
+        fi
+        """
 
 
 
