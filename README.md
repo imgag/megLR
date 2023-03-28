@@ -6,6 +6,9 @@ This is a Snakemake pipeline for comprehensive analysis of longread sequencing d
 
 ![Pipeline overview](doc/img/flowchart_full.png)
 
+Detailed information for the transcriptome analysis can be found in the document at [doc/transcriptome_analysis.md](doc/transcriptome_analysis.md). 
+
+
 ## Analyses
 
 ## Installation
