@@ -2,7 +2,7 @@
 
 rule map_genome_all:
     input: 
-        genome = config['ref']['genome'],
+        genome = ancient(config['ref']['genome']),
         fq = "Sample_{sample}/{sample}.fastq.gz"
     output: 
         bam = "Sample_{sample}/{sample}.bam",
