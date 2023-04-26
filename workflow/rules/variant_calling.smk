@@ -132,13 +132,13 @@ rule pepper_marging_deepvariant:
         else:
             shell(
                 """
-                docker run \
-                -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
-                -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
-                -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
-                -v "/tmp":"/tmp" \
-                --user $(id -u):$(id -g) \
-                kishwars/pepper_deepvariant:r0.8 \
+                mkdir -p $(dirname $(realpath {output.vcf}))
+                singularity run \
+                -B "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
+                -B "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
+                -B "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+                -B "/tmp":"/tmp" \
+                docker://kishwars/pepper_deepvariant:r0.8 \
                 run_pepper_margin_deepvariant call_variant \
                 --bam "/mnt/input_bam/$(basename {input.bam})" \
                 --fasta "/mnt/input_ref/$(basename {input.ref})" \
