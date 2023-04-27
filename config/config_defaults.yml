@@ -27,8 +27,8 @@ ref:
   annotation: "/mnt/storage3/users/ahgrosc1/data/gencode.v34.annotation.gtf"
   annotation_bed: "/mnt/storage3/users/ahgrosc1/data/gencode.v34.annotation.bed"
   cDNA: "/mnt/storage3/users/ahgrosc1/data/Homo_sapiens.GRCh38.cdna.all.fa"
-  target_region: "/mnt/storage3/users/ahgrosc1/data/WGS_grch38.bed"
-  core_genome: "/mnt/storage3/users/ahgrosc1/data/WGS_grch38.bed"
+  target_region: "/mnt/storage2/megSAP/data/enrichment/WGS_grch38.bed"
+  core_genome: "/mnt/storage2/megSAP/data/enrichment/WGS_grch38.bed"
 
 #_______ SYSTEM SETTINGS _________________________________________________________#
 
