@@ -9,3 +9,5 @@ test_qc_db
 workflow/rules/assembly.smk
 workflow/scripts/__pycache__
 .Rhistory
+resources/dorado
+tools
