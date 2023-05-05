@@ -1,0 +1,8 @@
+name: minimap2_fgbio
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - minimap2=2.24
+  - fgbio

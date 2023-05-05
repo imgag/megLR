@@ -46,7 +46,7 @@ def get_input_folders_fast5(wc):
     if config['use_failed_reads']:
        folders.append(['/fast5_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
     folders_exist = [x for x in folders[0] if os.path.exists(x)]
-    return{'folders': folders[0]}
+    return {'folders': folders[0]}
 
 def use_bam(wc):
     """

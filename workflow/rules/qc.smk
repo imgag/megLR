@@ -317,6 +317,7 @@ qc_out = {
     'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
     'assembly' : ["qc/quast_results/report.tsv"],
     'modbases' : expand("qc/qualimap/{s}_modbases", s = ID_samples),
+    'modification' : [],
     'variant_calling':[],
     'structural_variant_calling' : [],
     'cdna' : 

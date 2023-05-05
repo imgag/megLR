@@ -24,6 +24,33 @@ rule map_genome_all:
         samtools index {output.bam}
         """
 
+rule map_genome_all_modification:
+    input: 
+        genome = ancient(config['ref']['genome']),
+        fq = "Sample_{sample}/{sample}.fastq.gz",
+        mod_unmapped = "Sample_{sample}/{sample}.mod.unmapped.bam",
+    output: 
+        bam = "Sample_{sample}/{sample}.bam",
+        bai= "Sample_{sample}/{sample}.bam.bai"
+    conda:
+        "../env/minimap2_fgbio.yml"
+    log:
+        "logs/{sample}_minimap2.log"
+    threads:
+        20
+    params:
+        sample = "{sample}",
+    shell:
+        """
+        minimap2 --MD -ax map-ont --eqx -t {threads} \
+            -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
+            {input.genome} {input.fq} 2> {log} \
+            | fgbio --compression 0 ZipperBams --unmapped {input.mod_unmapped} --ref {input.genome} 2>> {log} \
+            | samtools sort -m 4G -@ 4 -o {output.bam} -O BAM - >>{log} 2>&1
+        samtools index {output.bam}
+        """
+
+
 rule map_genome_full_length:
     input:
         genome = config['ref']['genome'],
