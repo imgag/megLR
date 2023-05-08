@@ -139,7 +139,9 @@ rule dorado_basecalling_mod:
     log:
         "logs/{sample}_dorado.log"
     threads:
-        1
+        2
+    resources:
+        queue="gpu_srv019"
     params:
         dorado = config['apps']['dorado'],
         model = config['dorado']['model'],
@@ -164,7 +166,7 @@ rule mod_unmapped_fastq:
     output:
         fastq="Sample_{sample}/{sample}.fastq.gz"
     threads:
-        4
+        1
     conda:
         "../env/samtools.yml"
     shell:

@@ -113,7 +113,8 @@ localrules:
     copy_run_report,
     copy_runqc,
     create_mux_plots,
-    create_plots
+    create_plots,
+    fast5_to_pod5,
 
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
 
