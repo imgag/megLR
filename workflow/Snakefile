@@ -214,6 +214,8 @@ if 'flair' in config['transcriptome']['methods']:
     out['transcriptome'] += expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),
     out['expression'] += expand("Sample_{s}/flair/{s}.counts_matrix.tsv", s = ID_samples),
 
+ruleorder: join_fastq > mod_unmapped_fastq
+ruleorder: map_genome_all > map_genome_all_modification
 if "modification" in config["steps"]:
     # use FASTQs from dorado basecalling
     ruleorder: mod_unmapped_fastq > join_fastq
