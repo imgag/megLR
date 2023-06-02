@@ -175,6 +175,35 @@ rule mod_unmapped_fastq:
         samtools fastq -0 {output.fastq} {input.bam}
         """
 
+rule dorado_basecalling_duplex:
+    input:
+        pod5="pod5/{sample}/{sample}.pod5",
+    output:
+        bam="Sample_{sample}/{sample}.duplex.unmapped.bam",
+    log:
+        "logs/{sample}_dorado-duplex.log"
+    threads:
+        2
+    resources:
+        queue="gpu_srv019"
+    params:
+        dorado = config['apps']['dorado'],
+        model = config['dorado']['model'],
+        min_qscore = config['dorado']['min_qscore'],
+    #     modbases = f"--modified-bases {config['dorado']['modified_bases']}" if config["dorado"]["modified_bases"] else ""
+    shell:
+        """
+        {params.dorado} duplex \
+            --device "cuda:all" \
+            --min-qscore {params.min_qscore} \
+            --verbose \
+            {params.model} \
+            $(dirname {input.pod5}) \
+            2>{log} \
+            | \
+            samtools view -b -o {output.bam} \
+            >>{log} 2>&1
+        """
 
 #______ PROCESS BASECALLED MOD _____________________________________________________#
 
