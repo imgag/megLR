@@ -107,7 +107,8 @@ rule guppy_merge_bams:
         find {input} -name '.bam' | exec - samtools merge {output} {{}}+
         """
 
-#_____ BASECALLING METHYLATION MAPPING (DORADO) __________________________________________#
+#_____ BASECALLING METHYLATION (DORADO) __________________________________________#
+
 
 rule fast5_to_pod5:
     input:

@@ -216,7 +216,12 @@ if 'flair' in config['transcriptome']['methods']:
 
 ruleorder: join_fastq > mod_unmapped_fastq
 ruleorder: map_genome_all > map_genome_all_modification
+ruleorder: dorado_basecalling_mod > join_bam
+
 if "modification" in config["steps"]:
+    # use existing mod unmapped BAM files from run folder
+    if config["use_existing_modubam"]:
+        ruleorder: join_bam > dorado_basecalling_mod
     # use FASTQs from dorado basecalling
     ruleorder: mod_unmapped_fastq > join_fastq
     # integrate tags from unmapped bam (methylation info)

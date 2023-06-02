@@ -32,3 +32,27 @@ rule join_fastq:
           -name '*.fq.gz' \
           ')') > {log}
         """
+
+
+rule join_bam:
+    input:
+        unpack(get_input_folders_bam)
+    output:
+        bam="Sample_{sample}/{sample}.mod.unmapped.bam",
+    log:
+        "logs/{sample}_join_bam.log"
+    conda:
+        "../env/samtools.yml"
+    threads:
+        2
+    params:
+        exclude_failed = "-not -path '*fail*' -a" if not config['use_failed_reads'] else ""
+    shell:
+        """
+        find {input} -type f {params.exclude_failed} -name '*.bam' | \
+        samtools cat \
+            --threads {threads} \
+            -o {output.bam} \
+            -b - \
+            >{log} 2>&1
+        """

@@ -85,6 +85,9 @@ map_during_basecalling: true
 
 use_mod_bam: false                  # use modbases bam for variant calling?
 
+# use existing BAM files from run folder, instead of running dorado basecalling
+use_existing_modubam: true
+
 #_____ STRUCTURAL VARIANT CALLING PARAMETERS _____________________________________#
 
 sv:

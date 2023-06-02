@@ -48,6 +48,21 @@ def get_input_folders_fast5(wc):
     folders_exist = [x for x in folders[0] if os.path.exists(x)]
     return {'folders': folders[0]}
 
+def get_input_folders_bam(wc):
+    """
+    Return the BAM data folder(s) for a sample.
+        Allows multiple runs per sample (restarted, repeated)
+        Demultiplexed samples on a single flowcell with barcode information
+        Includes folder with failed reads when specified in config
+    """
+    folders = map_samples_folder[wc.sample].copy()
+    folders.append(['/bam_pass/'.join(x) for x in map_samples_barcode[wc.sample]])
+    if config['verbose']: print("Input Folders:" + str(folders[0]))
+    if config['use_failed_reads']:
+       folders.append(['/bam_fail/'.join(x) for x in map_samples_barcode[wc.sample]])
+    folders_exist = [x for x in folders[0] if os.path.exists(x)]
+    return {'folders': folders[0]}
+
 def use_bam(wc):
     """
     Decide whether to use normal (Guppy) aligned bam
