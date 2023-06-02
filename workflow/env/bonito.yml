@@ -1,12 +1,12 @@
 name: bonito
 channels:
-  - bioconda
-  - anaconda
   - conda-forge
+  - bioconda
+  - defaults
 dependencies:
 - samtools=1.15
 - python=3.9
 - pip
-- numpy=1.19.5  # pin version for conda
+- numpy
 - pip:
-  - ont-bonito==0.5.1
+  - ont-bonito==0.7.0

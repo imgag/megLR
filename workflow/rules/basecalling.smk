@@ -14,7 +14,9 @@ rule bonito:
         modbases = config['bonito']['modified_bases'],
         ref = config['ref']['genome']
     threads:
-        8
+        1
+    resources:
+        queue="gpu_srv019"
     shell:
         """
         GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
@@ -32,7 +34,7 @@ rule bonito:
             --modified-bases {params.modbases} \
             --recursive \
             --reference {params.ref} \
-            --alignment-threads {threads} \
+            --alignment-threads 16 \
             --device "cuda:$GPU_ACTIVE" \
             > {output} 2> {log}
          """
