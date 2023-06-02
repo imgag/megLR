@@ -262,7 +262,7 @@ rule longphase_phase:
 
 rule longphase_haplotag:
     input:
-        vcf_snp = "Sample_{{sample}}/{{sample}}.{vc}.vcf.gz".format(vc = config['phasing']['haplotagging_input']),
+        vcf_snp = "Sample_{{sample}}/{{sample}}.phased.{vc}.vcf.gz".format(vc = config['phasing']['haplotagging_input']),
         bam = "Sample_{sample}/{sample}.bam",
     output:
         "Sample_{sample}/{sample}.haplotagged.bam"
