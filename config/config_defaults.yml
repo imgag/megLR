@@ -52,7 +52,7 @@ apps:
   sqanti: "python /mnt/storage3/users/ahgrosc1/tools/sqanti3/SQANTI3-5.1.1/sqanti3_qc.py"
   guppy: "/mnt/storage3/users/ahgrosc1/tools/guppy/ont-guppy_6.4.6/bin/guppy_basecaller"
   longphase: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/longphase_linux-x64"
-  dorado: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/dorado-0.2.4-linux-x64/bin/dorado"
+  dorado: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/dorado-0.3.0-linux-x64/bin/dorado"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
