@@ -121,6 +121,7 @@ localrules:
 out = {
     'modbases' : expand("Sample_{s}/{s}.mod.bam", s=ID_samples),
     'modification' : expand("Sample_{s}/{s}.mod.unmapped.bam", s=ID_samples),
+    'duplex' : expand("Sample_{s}/{s}.duplex.unmapped.bam", s=ID_samples),
     'fastq' : expand("Sample_{s}/{s}.fastq.gz", s = ID_samples),
     'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
     'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",

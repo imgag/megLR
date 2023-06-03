@@ -318,6 +318,7 @@ qc_out = {
     'assembly' : ["qc/quast_results/report.tsv"],
     'modbases' : expand("qc/qualimap/{s}_modbases", s = ID_samples),
     'modification' : [],
+    'duplex' : [],
     'variant_calling':[],
     'structural_variant_calling' : [],
     'cdna' : 
