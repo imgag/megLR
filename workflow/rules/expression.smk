@@ -205,7 +205,7 @@ rule flairQuantify:
         fa = rules.flairCollapse.output.fasta,
         manifest = config['flair']['manifest']
     output:
-        mat = "Sample_{sample}/isoform_quant/{sample}.counts_matrix.tsv"
+        mat = "Sample_{sample}/flair/{sample}.counts_matrix.tsv"
     conda:
         "../env/flair.yml"
     threads:
