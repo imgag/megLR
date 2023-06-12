@@ -269,12 +269,14 @@ rule sqanti:
     conda:
         "../env/sqanti.yml"
     params:
-        sqanti = config['apps']['sqanti']
+        sqanti = config['apps']['sqanti'],
+        cdna_cupcake = config['apps']['cdna_cupcake']
     shell:
         """
         set +u;
         tmp=$(mktemp)
         awk '$7!="." {{print $0}}' {input.gtf} > $tmp
+        export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}
         {params.sqanti} \
             -d qc/sqanti/{wildcards.sample}_{wildcards.tool} \
             -o {wildcards.sample}_{wildcards.tool} \

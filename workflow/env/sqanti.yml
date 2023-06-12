@@ -44,6 +44,7 @@ dependencies:
   - scipy
   - star
   - slamem
+  - ucsc-gtftogenepred
   - cdna_cupcake
   - pip:
     - ultra-bioinformatics
