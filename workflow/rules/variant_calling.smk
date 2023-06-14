@@ -2,7 +2,45 @@
 # Works only for R10 Flowcells !
 # Todo implement downstream phasing using longphase
 
+if config['use_gpu']:
+    ruleorder:
+        deepvariant_gpu > deepvariant
+else:
+    ruleorder:
+        deepvariant > deepvariant_gpu
+
 rule deepvariant:
+    input:
+        bam = use_bam,
+        ref = config['ref']['genome']
+    output:
+        vcf = "variant_calling/{sample}_deepvariant/{sample}.dv.vcf.gz",
+        gvcf =  "variant_calling/{sample}_deepvariant/{sample}.dv.gvcf.gz"
+    log:
+        "logs/{sample}_deepvariant.log"
+    params:
+        version = "1.5.0"
+    threads: 20
+    run:
+        """
+        docker run \
+        -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
+        -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
+        -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+        -v "/tmp":"/tmp" \
+        --user $(id -u):$(id -g) \
+        google/deepvariant:{params.version} \
+        /opt/deepvariant/bin/run_deepvariant \
+        --model_type="ONT_R104" \
+        --ref="/mnt/input_ref/$(basename {input.ref})" \
+        --reads="/mnt/input_bam/$(basename {input.bam})" \
+        --output_vcf="/mnt/output/$(basename {output.vcf})" \
+        --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
+        --num_shards=8 \
+        >{log} 2>&1
+        """
+
+rule deepvariant_gpu:
     input:
         bam = use_bam,
         ref = config['ref']['genome']
@@ -14,59 +52,38 @@ rule deepvariant:
     params:
         version = "1.5.0",
         gpu_id = config['gpu_id']['id'],
-    threads: 20
+    threads: 1
+    resources:
+        queue="gpu_srv019"
     run:
-        if config['use_gpu']:
-            shell(
-                """
-                GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
-                if [ -z $GPU_OCCUPIED ] 
-                then
-                    GPU_ACTIVE="0"
-                else 
-                    GPU_ACTIVE=$(nvidia-smi --query-gpu=index,gpu_uuid --format=csv,noheader \
-                        | grep -v $GPU_OCCUPIED \
-                        | cut -f1 -d\,)
-                fi
-                docker run \
-                -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
-                -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
-                -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
-                -v "/tmp":"/tmp" \
-                -e CUDA_LAUNCH_BLOCKING=1 \
-                --user $(id -u):$(id -g) \
-                --gpus device="$GPU_ACTIVE" \
-                google/deepvariant:{params.version}-gpu \
-                /opt/deepvariant/bin/run_deepvariant \
-                --model_type="ONT_R104" \
-                --ref="/mnt/input_ref/$(basename {input.ref})" \
-                --reads="/mnt/input_bam/$(basename {input.bam})" \
-                --output_vcf="/mnt/output/$(basename {output.vcf})" \
-                --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
-                --num_shards=8 \
-                >{log} 2>&1
-                """
-            )
-        else:
-            shell(
-                """
-                docker run \
-                -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
-                -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
-                -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
-                -v "/tmp":"/tmp" \
-                --user $(id -u):$(id -g) \
-                google/deepvariant:{params.version} \
-                /opt/deepvariant/bin/run_deepvariant \
-                --model_type="ONT_R104" \
-                --ref="/mnt/input_ref/$(basename {input.ref})" \
-                --reads="/mnt/input_bam/$(basename {input.bam})" \
-                --output_vcf="/mnt/output/$(basename {output.vcf})" \
-                --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
-                --num_shards=8 \
-                >{log} 2>&1
-                """
-            )
+        """
+        GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
+        if [ -z $GPU_OCCUPIED ] 
+        then
+            GPU_ACTIVE="0"
+        else 
+            GPU_ACTIVE=$(nvidia-smi --query-gpu=index,gpu_uuid --format=csv,noheader \
+                | grep -v $GPU_OCCUPIED \
+                | cut -f1 -d\,)
+        fi
+        docker run \
+        -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
+        -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
+        -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
+        -v "/tmp":"/tmp" \
+        -e CUDA_LAUNCH_BLOCKING=1 \
+        --user $(id -u):$(id -g) \
+        --gpus device="$GPU_ACTIVE" \
+        google/deepvariant:{params.version}-gpu \
+        /opt/deepvariant/bin/run_deepvariant \
+        --model_type="ONT_R104" \
+        --ref="/mnt/input_ref/$(basename {input.ref})" \
+        --reads="/mnt/input_bam/$(basename {input.bam})" \
+        --output_vcf="/mnt/output/$(basename {output.vcf})" \
+        --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
+        --num_shards=8 \
+        >{log} 2>&1
+        """
 
 rule copy_vcf_deepvariant:
     input:
