@@ -130,6 +130,7 @@ rule fast5_to_pod5:
         pod5 convert fast5 \
             --output {output.pod5} \
             --threads {threads} \
+            --strict \
             $(find {input} -name '{params.findpath}' -type d -printf '%p ') \
             >{log} 2>&1
         """
