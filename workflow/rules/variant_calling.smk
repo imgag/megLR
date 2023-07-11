@@ -21,7 +21,7 @@ rule deepvariant:
     params:
         version = "1.5.0"
     threads: 20
-    run:
+    shell:
         """
         docker run \
         -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
@@ -55,7 +55,7 @@ rule deepvariant_gpu:
     threads: 1
     resources:
         queue="gpu_srv019"
-    run:
+    shell:
         """
         GPU_OCCUPIED=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader | head -n1)
         if [ -z $GPU_OCCUPIED ] 

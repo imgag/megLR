@@ -116,7 +116,7 @@ rule cnvkit_reference:
     input:
         expand(
             "cnvkit/{sample}/{sample}.{type}.cnn",
-            sample = config['cnvkit']['reference_samples'],
+            sample = config['cnvkit']['reference_samples'].keys(),
             type = ['targetcoverage', 'antitargetcoverage']
         )
     output:

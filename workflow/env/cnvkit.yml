@@ -8,3 +8,4 @@ dependencies:
   - cnvkit=0.9.10
   - pandas=2.0.3
   - python>=3.9
+  - poppler=21.11.0
