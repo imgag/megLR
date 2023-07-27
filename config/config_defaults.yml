@@ -214,10 +214,11 @@ transcript:
   secondary_score_ratio: 1.0      # Same as -p  option in minimap2
 
 expression:
-  level: "exon"
-  min_qual: 3
+  level: "exon"                   # featureCounts GTF level/type of record to consider
+  min_qual: 0
   strandedness: 1                 # 0:unstranded 1:stranded 2:reversely stranded
-  salmon_libtype: "SR"             # U = unspecific, S = strand-specific
+  primary_only: true
+  salmon_libtype: "SR"            # U = unspecific, S = strand-specific
 
 #______ DUAL BARCODING DEMULTIPLEX _______________________________________________#
 

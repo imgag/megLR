@@ -187,16 +187,19 @@ rule quant_genes:
         level = config['expression']['level'],
         min_qual = config['expression']['min_qual'],
         strandedness = config['expression']['strandedness'],
-        ann = config['ref']['annotation']
+        ann = config['ref']['annotation'],
+        primary = "--primary" if config['expression']['primary_only'] else "",
     shell:
         """
         featureCounts \
             -t {params.level} \
             -Q {params.min_qual} \
             -s {params.strandedness} \
-            -L {input.bam} \
+            {params.primary} \
+            -L \
             -a {params.ann} \
             -o {output.counts} \
+            {input.bam} \
             > {log} 2>&1
         """
     
