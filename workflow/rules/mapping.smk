@@ -105,7 +105,7 @@ rule map_genome_splice:
 
 rule map_to_transcriptome:
     input:
-        trs = get_fasta_annotation_for_transcriptome_alignment,
+        trs = get_reference_for_transcriptome_alignment,
         fq = "Sample_{sample}/{sample}.full_length.fastq"
     output:
         bam = "Sample_{sample}/{sample}.transcripts.{method}.bam"

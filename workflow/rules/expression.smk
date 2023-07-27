@@ -61,7 +61,7 @@ rule create_stringtie_merged_transcriptome:
 rule quant_salmon:
     input:
         bam = rules.map_to_transcriptome.output.bam,
-        trs = get_fasta_annotation_for_transcriptome_alignment
+        trs = get_reference_for_transcriptome_alignment,
     output:
         counts = "isoform_counts/{sample}_{method}_counts/quant.sf",
         stats = "isoform_counts/{sample}_{method}_counts/aux_info/meta_info.json"
@@ -88,9 +88,9 @@ rule quant_salmon:
 # Merge Salmon counts
 rule merge_counts:
     input:
-        count_tsvs = expand("isoform_counts/{s}_stringtie-consensus_counts/quant.sf", s=ID_samples)
+        count_tsvs = expand("isoform_counts/{s}_{{method}}_counts/quant.sf", s=ID_samples)
     output:
-        tsv ="isoform_counts/merged_counts_stringtie.tsv"
+        tsv ="isoform_counts/merged_counts_{method}.tsv"
     conda:
         "../env/de_analysis.yml"
     params:

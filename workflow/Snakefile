@@ -208,8 +208,11 @@ if 'stringtie' in config['transcriptome']['methods']:
     out['transcriptome'] += expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples)
     out['transcriptome'] += expand("qc/sqanti/{s}_stringtie/{s}_stringtie_classification.txt", s = ID_samples),
     out['expression'] += expand("Sample_{s}/{s}.stringtie.annotated_expression.tsv", s = ID_samples),
-    if config['transcriptome']['consensus_transcriptome']:
-        out['expression'] += expand("isoform_counts/merged_counts_stringtie.tsv")
+
+for method in config["transcriptome"]["alignment"]:
+    out['transcriptome'] += expand("Sample_{s}/{s}.transcripts.{method}.bam", s=ID_samples, method=method)
+    out['expression'] += [f"isoform_counts/merged_counts_{method}.tsv"]
+
 if 'flair' in config['transcriptome']['methods']:
     out['transcriptome'] += expand("Sample_{s}/{s}.flair.gtf", s=ID_samples),
     out['transcriptome'] += expand("qc/sqanti/{s}_flair/{s}_flair_classification.txt", s = ID_samples),

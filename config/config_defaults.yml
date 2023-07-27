@@ -143,8 +143,11 @@ transcriptome:
   methods:
     - "stringtie"
 #   - "flair"
-  consensus_transcriptome: true       # Use novel annot from Stringti
-  map_to_custom_annot: false
+  alignment:                          # align FL reads to a transcript set
+    # - stringtie                       # individual sample stringtie transcripts
+    # - flair                       # individual sample flair transcripts
+    # - stringtie-consensus             # across-all-samples stringtie transcripts
+    - reference                       # cDNA reference
 
 flair:
   manifest: "reads_manifest.tsv"
