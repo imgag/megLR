@@ -104,6 +104,7 @@ include: "rules/expression.smk"
 include: "rules/dual_barcode.smk"
 include: "rules/cnv.smk"
 include: "rules/local_assembly.smk"
+include: "rules/repeat_expansion.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
 
@@ -156,7 +157,7 @@ out = {
             s = ID_samples,
             t = config['local_assembly']['regions'],
             hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']]),
-    'repeat_expansion': expand("Sample_{s}/{s}.repeats.vcf.gz", s = ID_samples),
+    'repeat_expansion': expand("Sample_{s}/repeat_expansions/", s = ID_samples),
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.html", run = ID_runs),

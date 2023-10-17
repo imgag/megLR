@@ -122,7 +122,7 @@ rule qualimap:
             --paint-chromosome-limits \
             -nt {threads} {params.target}\
             -outdir qc/qualimap/{wildcards.sample}_genome \
-            --java-mem-size=24G \
+            --java-mem-size=36G \
             >{log} 2>&1
         """
     

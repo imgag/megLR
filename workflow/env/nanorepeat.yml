@@ -1,0 +1,11 @@
+name: nanorepeat
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+- samtools=1.15
+- python=3.8
+- minimap2=2.24
+- pip:
+  - NanoRepeat==1.7
