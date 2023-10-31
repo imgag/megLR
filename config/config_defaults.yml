@@ -233,7 +233,12 @@ demux:
   target_region: ''
   target_region_str: ''
 
-#______ NANOREPEAT _______________________________________________#
+#______ REPEAT EXPANSIONS _______________________________________________#
+
+repeat_expansion:
+  methods:
+    - nanorepeat
+    - straglr
 
 nanorepeat:
   datatype: "ont_q20"      # ont_q20, ont_sup, ont, hifi, clr

@@ -18,7 +18,7 @@ rule nanorepeat:
         ref = config['ref']['genome'],
         bed = srcdir("../../resources/{repeat_target}.nanorepeat.bed".format(repeat_target = config['nanorepeat']['repeat_loci']))
     output:
-        directory("Sample_{sample}/repeat_expansions")
+        directory("Sample_{sample}/repeat_expansions/nanorepeat")
     conda:
         "../env/nanorepeat.yml"
     log:
@@ -38,3 +38,29 @@ rule nanorepeat:
             -c {threads} \
             -o {output}/{wildcards.sample} >{log} 2>&1
         """
+
+rule straglr:
+    input:
+        bam = use_bam,
+        ref = config['ref']['genome'],
+        bed = srcdir("../../resources/{repeat_target}.nanorepeat.bed".format(repeat_target = config['nanorepeat']['repeat_loci']))
+    output:
+        "Sample_{sample}/repeat_expansions/straglr.bed"
+    conda:
+        "../env/straglr.yml"
+    log:
+        "logs/{sample}_straglr.log"
+    params:
+        data_type = config['nanorepeat']['datatype']
+    threads:
+        1
+    shell:
+        """
+        straglr.py \
+            {input.bam} \
+            {input.ref} \
+            {output} \
+            --loci {input.bed} \
+            --nprocs {threads} \
+        >{log} 2>&1
+        """    

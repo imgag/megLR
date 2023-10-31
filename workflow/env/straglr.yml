@@ -1,0 +1,18 @@
+name: straglr
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python>=3.8.13
+  - pysam>=0.14.0
+  - pybedtools>=0.9.0
+  - numpy>=1.22.3
+  - pathos>=0.2.3
+  - scikit-learn>=1.1
+  - scipy>=1.8.0
+  - trf=4.09.1
+  - pip
+  - blast=2.5.0
+  - pip:
+      - git+https://github.com/bcgsc/straglr.git@v1.3.0#egg=straglr

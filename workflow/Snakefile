@@ -157,7 +157,7 @@ out = {
             s = ID_samples,
             t = config['local_assembly']['regions'],
             hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']]),
-    'repeat_expansion': expand("Sample_{s}/repeat_expansions/", s = ID_samples),
+    'repeat_expansion': [],
     'qc' : ['qc/multiqc_report.html'],
     'qc_db' : [
         expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.html", run = ID_runs),
@@ -204,6 +204,13 @@ if config['sv']['cutesv']:
 if config['sv']['dipdiff']:
     out['structural_variant_calling'] +=expand("Sample_{s}/{s}.sv_dipdiff.vcf.gz", s=ID_samples)
 
+# Add Repeat expansion outputs:
+if 'nanorepeat' in config['repeat_expansion']['methods']:
+    out['repeat_expansion'] += expand("Sample_{s}/repeat_expansions/nanorepeat", s = ID_samples),
+if 'straglr' in config['repeat_expansion']['methods']:
+    out['repeat_expansion'] += expand("Sample_{s}/repeat_expansions/straglr.bed", s = ID_samples)
+
+
 # Add transcriptome analysis outputs:
 if 'stringtie' in config['transcriptome']['methods']:
     out['transcriptome'] += expand("Sample_{s}/{s}.stringtie.gtf", s=ID_samples)
@@ -234,6 +241,11 @@ if "modification" in config["steps"]:
 
 # Include only results for selected analysis modules
 out_selected = [out[step] for step in config['steps']]
+
+if config['verbose']:
+    print("Required outputs:")
+    print(out_selected)
+
 
 rule all:
     input:
