@@ -59,7 +59,7 @@ rule straglr:
         straglr.py \
             {input.bam} \
             {input.ref} \
-            {output} \
+            Sample_{wildcards.sample}/repeat_expansions/straglr \
             --loci {input.bed} \
             --nprocs {threads} \
         >{log} 2>&1
