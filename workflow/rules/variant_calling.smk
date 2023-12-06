@@ -19,7 +19,7 @@ rule deepvariant:
     log:
         "logs/{sample}_deepvariant.log"
     params:
-        version = "1.5.0"
+        version = "1.6.0"
     threads: 20
     shell:
         """
@@ -36,7 +36,7 @@ rule deepvariant:
         --reads="/mnt/input_bam/$(basename {input.bam})" \
         --output_vcf="/mnt/output/$(basename {output.vcf})" \
         --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
-        --num_shards=8 \
+        --num_shards={threads} \
         >{log} 2>&1
         """
 
@@ -50,7 +50,7 @@ rule deepvariant_gpu:
     log:
         "logs/{sample}_deepvariant.log"
     params:
-        version = "1.5.0",
+        version = "1.6.0",
         gpu_id = config['gpu_id']['id'],
     threads: 1
     resources:
@@ -81,7 +81,7 @@ rule deepvariant_gpu:
         --reads="/mnt/input_bam/$(basename {input.bam})" \
         --output_vcf="/mnt/output/$(basename {output.vcf})" \
         --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
-        --num_shards=8 \
+        --num_shards=20 \
         >{log} 2>&1
         """
 
