@@ -23,12 +23,14 @@ rule deepvariant:
     threads: 20
     shell:
         """
+        tmp_run=$(mktemp -d)
         docker run \
         -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
         -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
         -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
-        -v "/tmp":"/tmp" \
+        -v "$tmp_run":"/tmp" \
         --user $(id -u):$(id -g) \
+        --rm \
         google/deepvariant:{params.version} \
         /opt/deepvariant/bin/run_deepvariant \
         --model_type="ONT_R104" \
@@ -38,6 +40,8 @@ rule deepvariant:
         --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
         --num_shards={threads} \
         >{log} 2>&1
+
+        rm -rf $tmp_run
         """
 
 rule deepvariant_gpu:
@@ -66,14 +70,18 @@ rule deepvariant_gpu:
                 | grep -v $GPU_OCCUPIED \
                 | cut -f1 -d\,)
         fi
+        
+        tmp_run=$(mktemp -d)
+
         docker run \
         -v "$(dirname $(realpath {input.bam}))":"/mnt/input_bam" \
         -v "$(dirname $(realpath {input.ref}))":"/mnt/input_ref" \
         -v "$(dirname $(realpath {output.vcf}))":"/mnt/output" \
-        -v "/tmp":"/tmp" \
+        -v "$tmp_run":"/tmp" \
         -e CUDA_LAUNCH_BLOCKING=1 \
         --user $(id -u):$(id -g) \
         --gpus device="$GPU_ACTIVE" \
+        --rm \
         google/deepvariant:{params.version}-gpu \
         /opt/deepvariant/bin/run_deepvariant \
         --model_type="ONT_R104" \
@@ -83,6 +91,8 @@ rule deepvariant_gpu:
         --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
         --num_shards=20 \
         >{log} 2>&1
+
+        rm -rf $tmp_run
         """
 
 rule copy_vcf_deepvariant:
