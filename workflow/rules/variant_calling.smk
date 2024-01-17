@@ -38,6 +38,7 @@ rule deepvariant:
         --reads="/mnt/input_bam/$(basename {input.bam})" \
         --output_vcf="/mnt/output/$(basename {output.vcf})" \
         --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
+        --postprocess_cpus=2 \
         --num_shards={threads} \
         >{log} 2>&1
 
@@ -89,6 +90,7 @@ rule deepvariant_gpu:
         --reads="/mnt/input_bam/$(basename {input.bam})" \
         --output_vcf="/mnt/output/$(basename {output.vcf})" \
         --output_gvcf="/mnt/output/$(basename {output.gvcf})" \
+        --postprocess_cpus=2 \
         --num_shards=20 \
         >{log} 2>&1
 

@@ -16,7 +16,7 @@ from scripts.bytes_to_human import human2bytes, bytes2human
 
 include: "rules/helper_scripts.smk"
 
-configfile: srcdir('../config/config_defaults.yml')
+configfile: workflow.source_path('../config/config_defaults.yml')
 load_project_config(config['project_config'])
 print_message()
 

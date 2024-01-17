@@ -1,8 +1,8 @@
 rule process_trgt_loci:
     input:
-        srcdir("../../resources/{repeat_target}.bed")
+        lambda wc: workflow.source_path("../../resources/{repeat_target}.bed".format(repeat_target = wc.repeat_target))
     output:
-        srcdir("../../resources/{repeat_target}.nanorepeat.bed")
+        "{repeat_target}.nanorepeat.bed"
     log:
         "logs/{repeat_target}_process_trgt_bed.log"
     shell:
@@ -16,7 +16,7 @@ rule nanorepeat:
     input:
         bam = use_bam,
         ref = config['ref']['genome'],
-        bed = srcdir("../../resources/{repeat_target}.nanorepeat.bed".format(repeat_target = config['nanorepeat']['repeat_loci']))
+        bed = "{repeat_target}.nanorepeat.bed".format(repeat_target = config['nanorepeat']['repeat_loci'])
     output:
         directory("Sample_{sample}/repeat_expansions/nanorepeat")
     conda:
@@ -43,7 +43,7 @@ rule straglr:
     input:
         bam = use_bam,
         ref = config['ref']['genome'],
-        bed = srcdir("../../resources/{repeat_target}.nanorepeat.bed".format(repeat_target = config['nanorepeat']['repeat_loci']))
+        bed = workflow.source_path("../../resources/{repeat_target}.nanorepeat.bed".format(repeat_target = config['nanorepeat']['repeat_loci']))
     output:
         "Sample_{sample}/repeat_expansions/straglr.bed"
     conda:

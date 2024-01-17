@@ -33,7 +33,7 @@ rule run_multiqc:
     threads:
        1
     params:
-        multiqc_config = srcdir('../../config/multiqc_config.yml')
+        multiqc_config = workflow.source_path('../../config/multiqc_config.yml')
     shell:
         """
         multiqc \
@@ -361,7 +361,7 @@ rule multiqc:
     threads:
         1
     params:
-        multiqc_config = srcdir('../../config/multiqc_config.yml')
+        multiqc_config = workflow.source_path('../../config/multiqc_config.yml')
     shell:
         """
         multiqc \

@@ -1,4 +1,4 @@
-configfile: srcdir('../../config/de_analysis_config.yml')
+configfile: workflow.source_path('../../config/de_analysis_config.yml')
 
 rule stringtie_merge:
     input:
@@ -43,7 +43,7 @@ rule create_stringtie_merged_transcriptome:
     conda:
         "../env/gffread.yml"
     params:
-        rename_tab = srcdir("../../resources/chr_rename_table.tsv")
+        rename_tab = workflow.source_path("../../resources/chr_rename_table.tsv")
     shell:
         """
         gffread \
@@ -94,7 +94,7 @@ rule merge_counts:
     conda:
         "../env/de_analysis.yml"
     params:
-        script = srcdir("../scripts/merge_counts_tsv.py")
+        script = workflow.source_path("../scripts/merge_counts_tsv.py")
     shell:
         """
         python {params.script} -z -o {output.tsv} {input.count_tsvs}
@@ -149,7 +149,7 @@ rule de_analysis:
     conda:
         "../env/de_analysis.yml"
     params:
-        script = srcdir("../scripts/de_analysis.R")
+        script = workflow.source_path("../scripts/de_analysis.R")
     shell:
         """
         Rscript {params.script}
@@ -163,7 +163,7 @@ rule plot_dtu_res:
         dtu_pdf = "de_analysis/dtu_plots.pdf",
     conda: "../env/de_analysis.yml"
     params:
-        script = srcdir("scripts/plot_dtu_results.R")
+        script = workflow.source_path("../scripts/plot_dtu_results.R")
     shell:
         """
         {params.script}
