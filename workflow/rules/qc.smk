@@ -33,7 +33,7 @@ rule run_multiqc:
     threads:
        1
     params:
-        multiqc_config = srcdir('../../config/multiqc_config.yml')
+        multiqc_config = workflow.source_path('../../config/multiqc_config.yml')
     shell:
         """
         multiqc \
@@ -122,7 +122,7 @@ rule qualimap:
             --paint-chromosome-limits \
             -nt {threads} {params.target}\
             -outdir qc/qualimap/{wildcards.sample}_genome \
-            --java-mem-size=24G \
+            --java-mem-size=36G \
             >{log} 2>&1
         """
     
@@ -389,7 +389,7 @@ rule multiqc:
     threads:
         1
     params:
-        multiqc_config = srcdir('../../config/multiqc_config.yml')
+        multiqc_config = workflow.source_path('../../config/multiqc_config.yml')
     shell:
         """
         multiqc \

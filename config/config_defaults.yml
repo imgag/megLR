@@ -17,6 +17,7 @@ steps:
 # - modbases
 # - cnv
 # - local_assembly
+# - repeat_expansion
   - qc
   - qc_db
 
@@ -231,3 +232,16 @@ demux:
   minibar: '/mnt/storage2/users/ahgrosc1/tools/miniconda3/bin/python /mnt/storage2/susers/ahgrosc1/tools/minibar/minibar.py'
   target_region: ''
   target_region_str: ''
+
+#______ REPEAT EXPANSIONS _______________________________________________#
+
+repeat_expansion:
+  methods:
+    - nanorepeat
+    - straglr
+
+nanorepeat:
+  datatype: "ont_q20"      # ont_q20, ont_sup, ont, hifi, clr
+  repeat_loci:
+    pathogenic_repeats.hg38
+    # repeat_catalog.hg38

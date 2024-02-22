@@ -83,7 +83,7 @@ rule all_multiqc:
     group:
         "qc_db"
     params:
-        multiqc_config = srcdir('../../config/multiqc_config_db.yml'),
+        multiqc_config = workflow.source_path('../../config/multiqc_config_db.yml'),
         multiqc_out = config['run_db_root'],
         multiqc_in = config['run_db_root']
     shell:
