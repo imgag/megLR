@@ -285,6 +285,34 @@ rule sqanti:
             >{log} 2>&1
         """
 
+rule sqanti_all_samples:
+    input:
+        gtf = "isoform_counts/all_samples_stringtie.isoforms.gtf",
+        anno_ref = config['ref']['annotation'],
+        genome = config['ref']['genome']
+    output:
+        "qc/sqanti/all_samples_stringtie/all_samples_stringtie_classification.txt"
+    log:
+        "logs/all_samples_stringtie_sqanti.log"
+    conda:
+        "../env/sqanti.yml"
+    params:
+        sqanti = config['apps']['sqanti'],
+        cdna_cupcake = config['apps']['cdna_cupcake']
+    shell:
+        """
+        set +u;
+        tmp=$(mktemp)
+        awk '$7!="." {{print $0}}' {input.gtf} > $tmp
+        export PYTHONPATH=$PYTHONPATH:{params.cdna_cupcake}
+        {params.sqanti} \
+            -d qc/sqanti/all_samples_stringtie \
+            -o all_samples_stringtie \
+            --report both \
+            $tmp {input.anno_ref} {input.genome} \
+            >{log} 2>&1
+        """
+
 #_______ GFFCOMPARE ___________________________________________________________#
 
 rule gffcompare:
