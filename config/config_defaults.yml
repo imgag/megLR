@@ -233,6 +233,12 @@ demux:
   target_region: ''
   target_region_str: ''
 
+#______ PARAPHASE ________________________________________________________________#
+
+paraphase:
+  genes: 'smn1,opn1lw'        # Comma separated list of regions (https://github.com/PacificBiosciences/paraphase/blob/main/docs/regions.md)
+  genome_build: "38"          # Currently available: Grch38 ("38") or Grch37/hg19 ("37"/"19")
+
 #______ REPEAT EXPANSIONS _______________________________________________#
 
 repeat_expansion:

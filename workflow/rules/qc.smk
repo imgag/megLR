@@ -315,29 +315,31 @@ rule gffcompare:
 #_____ MULTI QC  _____________________________________________________________#
 
 qc_out = {
-    'fastq' : expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples),
-    'mapping' : expand("qc/qualimap/{s}_genome", s = ID_samples),
-    'assembly' : ["qc/quast_results/report.tsv"],
-    'modbases' : expand("qc/qualimap/{s}_modbases", s = ID_samples),
-    'modification' : [],
-    'duplex' : [],
-    'variant_calling':[],
-    'structural_variant_calling' : [],
-    'cdna' : 
-        expand("qc/pychopper/{s}_stats.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.read_distribution.txt", s = ID_samples) + 
-        expand("qc/rseqc/{s}.geneBodyCoverage.txt", s = ID_samples),
-    'transcriptome' : expand("qc/gffcompare/{s}_{t}/{s}_{t}.stats", 
-        s = ID_samples, t = config['transcriptome']['methods']),
-    'expression' : 
-        expand("Sample_{s}/{s}.counts.tsv.summary", s = ID_samples),
-    'dual_demux' : [],
-    'de_analysis' : [],
-    'cnv': [],
-    'local_assembly': [],
-    'repeat_expansion': [],
-    'qc' : ["qc/pycoqc/per_run/run_multiqc_report.html"],
-    'qc_db': []
+    "fastq": expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s=ID_samples),
+    "mapping": expand("qc/qualimap/{s}_genome", s=ID_samples),
+    "assembly": ["qc/quast_results/report.tsv"],
+    "modbases": expand("qc/qualimap/{s}_modbases", s=ID_samples),
+    "modification": [],
+    "duplex": [],
+    "variant_calling": [],
+    "structural_variant_calling": [],
+    "cdna": expand("qc/pychopper/{s}_stats.txt", s=ID_samples)
+    + expand("qc/rseqc/{s}.read_distribution.txt", s=ID_samples)
+    + expand("qc/rseqc/{s}.geneBodyCoverage.txt", s=ID_samples),
+    "transcriptome": expand(
+        "qc/gffcompare/{s}_{t}/{s}_{t}.stats",
+        s=ID_samples,
+        t=config["transcriptome"]["methods"],
+    ),
+    "expression": expand("Sample_{s}/{s}.counts.tsv.summary", s=ID_samples),
+    "dual_demux": [],
+    "de_analysis": [],
+    "cnv": [],
+    "local_assembly": [],
+    "repeat_expansion": [],
+    "paraphase" :[],
+    "qc": ["qc/pycoqc/per_run/run_multiqc_report.html"],
+    "qc_db": [],
 }
 
 if not config['disable_sampleqc']:

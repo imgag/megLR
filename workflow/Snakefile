@@ -105,6 +105,7 @@ include: "rules/dual_barcode.smk"
 include: "rules/cnv.smk"
 include: "rules/local_assembly.smk"
 include: "rules/repeat_expansion.smk"
+include: "rules/paraphase.smk"
 include: "rules/qc.smk"
 include: "rules/qc_database.smk"
 
@@ -120,58 +121,77 @@ localrules:
 #_____ REQUIRED OUTPUT FILES _________________________________________________#
 
 out = {
-    'modbases' : expand("Sample_{s}/{s}.mod.bam", s=ID_samples),
-    'modification' : expand("Sample_{s}/{s}.mod.unmapped.bam", s=ID_samples),
-    'duplex' : expand("Sample_{s}/{s}.duplex.unmapped.bam", s=ID_samples),
-    'fastq' : expand("Sample_{s}/{s}.fastq.gz", s = ID_samples),
-    'mapping' : expand("Sample_{s}/{s}.bam", s=ID_samples),
-    'assembly' : expand("Sample_{s}/{s}.asm.{asm}.fasta",
-         s=ID_samples, asm=config['assembly']['methods']),
-    'variant_calling': [],                                                     # Added later
-    'structural_variant_calling': [],                                          # Added later
-    'cdna' : expand("Sample_{s}/{s}.spliced{d}.bam", 
-        s = ID_samples, d = ".dedup" if config['cdna']['deduplicate'] else ""),
-    'transcriptome': [],                                                       # Added later          
-    'expression' : expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
-    'differential_transcript_usage' : ["de_analysis/dtu_plots.pdf"],
-    'dual_demux': expand("Sample_{s}/{s}_barcode_distribution.pdf", s = ID_samples) + 
-        expand("Sample_{s}/coverage_stats.txt", s = ID_samples),
-    'cnv': [
-        expand("cnvkit/{s}/{s}.all.png", s = ID_samples),
-        expand("cnvkit/{s}/{s}.{r}.png",
-            s = ID_samples,
-            r = config['cnvkit']['scatter']['region']),
-        expand("cnvkit/{s}/{s}.call.txt", s = ID_samples),
-        expand("cnvkit/{s}/{s}.sex.txt", s = ID_samples)
-        ],
-    'local_assembly': 
-        expand("local_assembly/Sample_{s}/{t}{hp}.asm.fasta",
-            s = ID_samples,
-            t = config['local_assembly']['regions'],
-            hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']]) +
-        expand("local_assembly/Sample_{s}/{t}{hp}.aln_ref.bam",
-            s = ID_samples,
-            t = config['local_assembly']['regions'],
-            hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']])+
-        expand("local_assembly/Sample_{s}/{t}{hp}.aln_region.sam",
-            s = ID_samples,
-            t = config['local_assembly']['regions'],
-            hp = [".hp"+x if x else "" for x in config['local_assembly']['haplotypes']]),
-    'repeat_expansion': [],
-    'qc' : ['qc/multiqc_report.html'],
-    'qc_db' : [
-        expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.html", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.pycoQC.json", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.report.md", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.barcodes.tsv", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.mux.csv", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.pore_yield.png", run = ID_runs),
-        expand(config['run_db_root'] + "/runs/{run}/{run}.pore_status.png", run = ID_runs),
-        config['run_db_root'] + "/ont_runs_multiqc.html",
-        config['run_db_root'] + "/ont_runs.xlsx",
-        config['run_db_root'] + "/plot/timeline.png",
-        config['run_db_root'] + "/ont_runs_multiqc.html"
-        ]
+    "modbases": expand("Sample_{s}/{s}.mod.bam", s=ID_samples),
+    "modification": expand("Sample_{s}/{s}.mod.unmapped.bam", s=ID_samples),
+    "duplex": expand("Sample_{s}/{s}.duplex.unmapped.bam", s=ID_samples),
+    "fastq": expand("Sample_{s}/{s}.fastq.gz", s=ID_samples),
+    "mapping": expand("Sample_{s}/{s}.bam", s=ID_samples),
+    "assembly": expand(
+        "Sample_{s}/{s}.asm.{asm}.fasta",
+        s=ID_samples,
+        asm=config["assembly"]["methods"],
+    ),
+    "variant_calling": [],  # Added later
+    "structural_variant_calling": [],  # Added later
+    "cdna": expand(
+        "Sample_{s}/{s}.spliced{d}.bam",
+        s=ID_samples,
+        d=".dedup" if config["cdna"]["deduplicate"] else "",
+    ),
+    "transcriptome": [],  # Added later
+    "expression": expand("Sample_{s}/{s}.counts.tsv", s=ID_samples),
+    "differential_transcript_usage": ["de_analysis/dtu_plots.pdf"],
+    "dual_demux": expand("Sample_{s}/{s}_barcode_distribution.pdf", s=ID_samples)
+    + expand("Sample_{s}/coverage_stats.txt", s=ID_samples),
+    "cnv": [
+        expand("cnvkit/{s}/{s}.all.png", s=ID_samples),
+        expand(
+            "cnvkit/{s}/{s}.{r}.png",
+            s=ID_samples,
+            r=config["cnvkit"]["scatter"]["region"],
+        ),
+        expand("cnvkit/{s}/{s}.call.txt", s=ID_samples),
+        expand("cnvkit/{s}/{s}.sex.txt", s=ID_samples),
+    ],
+    "local_assembly": expand(
+        "local_assembly/Sample_{s}/{t}{hp}.asm.fasta",
+        s=ID_samples,
+        t=config["local_assembly"]["regions"],
+        hp=[".hp" + x if x else "" for x in config["local_assembly"]["haplotypes"]],
+    )
+    + expand(
+        "local_assembly/Sample_{s}/{t}{hp}.aln_ref.bam",
+        s=ID_samples,
+        t=config["local_assembly"]["regions"],
+        hp=[".hp" + x if x else "" for x in config["local_assembly"]["haplotypes"]],
+    )
+    + expand(
+        "local_assembly/Sample_{s}/{t}{hp}.aln_region.sam",
+        s=ID_samples,
+        t=config["local_assembly"]["regions"],
+        hp=[".hp" + x if x else "" for x in config["local_assembly"]["haplotypes"]],
+    ),
+    "repeat_expansion": [],
+    "paraphase": [
+        expand("Sample_{s}/paraphase/{s}.paraphase.bam",
+        s=ID_samples)
+    ],
+    "qc": ["qc/multiqc_report.html"],
+    "qc_db": [
+        expand(config["run_db_root"] + "/runs/{run}/{run}.pycoQC.html", run=ID_runs),
+        expand(config["run_db_root"] + "/runs/{run}/{run}.pycoQC.json", run=ID_runs),
+        expand(config["run_db_root"] + "/runs/{run}/{run}.report.md", run=ID_runs),
+        expand(config["run_db_root"] + "/runs/{run}/{run}.barcodes.tsv", run=ID_runs),
+        expand(config["run_db_root"] + "/runs/{run}/{run}.mux.csv", run=ID_runs),
+        expand(config["run_db_root"] + "/runs/{run}/{run}.pore_yield.png", run=ID_runs),
+        expand(
+            config["run_db_root"] + "/runs/{run}/{run}.pore_status.png", run=ID_runs
+        ),
+        config["run_db_root"] + "/ont_runs_multiqc.html",
+        config["run_db_root"] + "/ont_runs.xlsx",
+        config["run_db_root"] + "/plot/timeline.png",
+        config["run_db_root"] + "/ont_runs_multiqc.html",
+    ],
 }
 
 # Add Variant calling outputs:

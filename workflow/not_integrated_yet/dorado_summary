@@ -1,0 +1,17 @@
+rule dorado_create_summary:
+    input:
+        bam="Sample_{sample}/{sample}{d}.unmapped.bam",
+    output:
+        tsv="Sample_{sample}/summary_stats.{sample}{d}.tsv"
+    log:
+        "logs/{sample}_dorado_summary.log"
+    threads:
+        2
+    params:
+        dorado = config['apps']['dorado'],
+    shell:
+        """
+        {params.dorado} summary \
+            {input.bam} \
+            >>{log} 2>&1
+        """

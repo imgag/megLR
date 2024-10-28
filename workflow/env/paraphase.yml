@@ -1,0 +1,9 @@
+name: paraphase
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - paraphase
+  - samtools
+  - minimap2
