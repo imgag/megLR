@@ -55,6 +55,7 @@ apps:
   longphase: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/longphase_linux-x64"
   dorado: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/dorado-0.3.0-linux-x64/bin/dorado"
   cdna_cupcake: "/mnt/storage2/users/ahgrosc1/tools/cDNA_Cupcake/sequence"
+  megsap: "/mnt/storage2/users/dev/megsap"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
@@ -238,7 +239,7 @@ demux:
 paraphase:
   genes: 'smn1,opn1lw'        # Comma separated list of regions (https://github.com/PacificBiosciences/paraphase/blob/main/docs/regions.md)
   genome_build: "38"          # Currently available: Grch38 ("38") or Grch37/hg19 ("37"/"19")
-
+  annotation_system: "/mnt/storage2/users/ahgrosc1/pipeline/megLR/resources/system.ini"
 #______ REPEAT EXPANSIONS _______________________________________________#
 
 repeat_expansion:
