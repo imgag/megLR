@@ -55,7 +55,7 @@ apps:
   longphase: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/longphase_linux-x64"
   dorado: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/dorado-0.3.0-linux-x64/bin/dorado"
   cdna_cupcake: "/mnt/storage2/users/ahgrosc1/tools/cDNA_Cupcake/sequence"
-  megsap: "/mnt/storage2/users/dev/megsap"
+  megsap: "/mnt/storage2/users/ahgrosc1/dev/megsap"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
