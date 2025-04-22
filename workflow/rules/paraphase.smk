@@ -48,7 +48,8 @@ rule paraphase_annotate_vcf:
     input:
         vcf="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.vcf"
     output:
-        vcf="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}_var_annotated.vcf.gz"
+        vcf="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}_var_annotated.vcf.gz",
+        gsvar="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.GSvar"
     wildcard_constraints:
         gene="[^.]*"
     log:
@@ -68,7 +69,7 @@ rule paraphase_annotate_vcf:
 
 rule paraphase_vcf_to_tsv:
     input:
-        "Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}_var_annotated.vcf.gz"
+        "Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.GSvar"
     output:
         "Sample_{sample}/paraphase/{sample}_{gene}_var_annotated.tsv"
     wildcard_constraints:
@@ -79,12 +80,7 @@ rule paraphase_vcf_to_tsv:
         "logs/{sample}.{gene}.paraphase_vcf_to_tsv.log"
     shell:
         """
-        gt_samples=$(bcftools query -l {input} | sed -e 's/^/GT_/' | tr '\\n' '\\t') 2>{log}
-        dp_samples=$(bcftools query -l {input} | sed -e 's/^/DP_/' | tr '\\n' '\\t') 2>>{log}
-        echo "CHR\tPOS\tREF\tALT\t${{gt_samples}}${{dp_samples}}CSQ\tGNOMAD_AF\tPHYLOP\tCADD_SNV" > {output} 2>>{log}
-        bcftools query \
-            -f '%CHROM\\t%POS\\t%REF\\t%ALT\\t[%GT\\t][%DP\\t]%INFO/CSQ/\\t%INFO/gnomADg_AF\\t%INFO/PHYLOP\\t%INFO/CADD_SNV\\n' \
-            {input} >> {output} 2>> {log}
+        cp {input} {output}
         """
 
 def find_paraphase_outs(wc):

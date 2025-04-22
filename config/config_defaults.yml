@@ -19,7 +19,7 @@ steps:
 # - local_assembly
 # - repeat_expansion
   - qc
-  - qc_db
+# - qc_db
 
 #_______ REFERENCE FILES _________________________________________________________#
 

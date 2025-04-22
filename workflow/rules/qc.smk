@@ -366,13 +366,9 @@ qc_out = {
     "local_assembly": [],
     "repeat_expansion": [],
     "paraphase" :[],
-    "qc": ["qc/pycoqc/per_run/run_multiqc_report.html"],
+    "qc": [],
     "qc_db": [],
 }
-
-if not config['disable_sampleqc']:
-    qc_out['qc'] += expand("qc/pycoqc/per_sample/{s}.pycoQC.json", s = ID_samples)
-
 
 if config['cdna']['with_umi'] and config['cdna']['deduplicate']:
     qc_out['cdna'] += expand("qc/umitools_dedup/{s}_stats_per_umi_per.tsv", s = ID_samples)
