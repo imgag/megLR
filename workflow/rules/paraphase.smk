@@ -3,7 +3,7 @@ checkpoint paraphase:
         bam="Sample_{sample}/{sample}.bam",
         ref=lambda wc: config['ref']['genome'],
     output:
-        bam="Sample_{sample}/paraphase/{sample}.paraphase.bam"
+        bam="Sample_{sample}/paraphase_meglr/{sample}.paraphase.bam"
     threads: 4
     conda:
         "../env/paraphase.yml"
@@ -29,9 +29,9 @@ checkpoint paraphase:
 
 rule paraphase_add_sample_header:
     input:
-        vcf="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.vcf",
+        vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.vcf",
     output:
-        vcf="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.vcf"
+        vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.vcf"
     wildcard_constraints:
         gene="[^.]*"
     conda:
@@ -46,10 +46,10 @@ rule paraphase_add_sample_header:
 
 rule paraphase_annotate_vcf:
     input:
-        vcf="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.vcf"
+        vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.vcf"
     output:
-        vcf="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}_var_annotated.vcf.gz",
-        gsvar="Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.GSvar"
+        vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}_var_annotated.vcf.gz",
+        gsvar="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.GSvar"
     wildcard_constraints:
         gene="[^.]*"
     log:
@@ -69,9 +69,9 @@ rule paraphase_annotate_vcf:
 
 rule paraphase_vcf_to_tsv:
     input:
-        "Sample_{sample}/paraphase/{sample}_paraphase_vcfs/{sample}_{gene}.GSvar"
+        "Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.GSvar"
     output:
-        "Sample_{sample}/paraphase/{sample}_{gene}_var_annotated.tsv"
+        "Sample_{sample}/paraphase_meglr/{sample}_{gene}_var_annotated.tsv"
     wildcard_constraints:
         gene="[^.]*"
     conda:
@@ -88,14 +88,14 @@ def find_paraphase_outs(wc):
     paraphase_folder = os.path.dirname(paraphase_bam)
     id_genes, = glob_wildcards(f"{paraphase_folder}/{wc.sample}_paraphase_vcfs/{wc.sample}_{{gene}}.vcf")
     id_genes=[x for x in id_genes if "reheader" not in x]
-    outs = expand("Sample_{sample}/paraphase/{sample}_{gene}_var_annotated.tsv", sample = wc.sample, gene = id_genes)
+    outs = expand("Sample_{sample}/paraphase_meglr/{sample}_{gene}_var_annotated.tsv", sample = wc.sample, gene = id_genes)
     return(outs)
 
 rule collect_paraphase_outs:
     input:
         find_paraphase_outs
     output:
-        "Sample_{sample}/paraphase/annotation.done"
+        "Sample_{sample}/paraphase_meglr/annotation.done"
     shell:
         """
         touch {output}

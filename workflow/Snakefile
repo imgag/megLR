@@ -173,9 +173,9 @@ out = {
     ),
     "repeat_expansion": [],
     "paraphase": [
-        expand("Sample_{s}/paraphase/{s}.paraphase.bam",
+        expand("Sample_{s}/paraphase_meglr/{s}.paraphase.bam",
         s=ID_samples),
-        expand("Sample_{s}/paraphase/annotation.done",
+        expand("Sample_{s}/paraphase_meglr/annotation.done",
         s=ID_samples)
     ],
     "qc": ["qc/multiqc_report.html"],
