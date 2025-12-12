@@ -27,14 +27,15 @@ rule extract_read_ids:
 rule extract_phased_read_ids:
     input:
         bam = "Sample_{sample}/{sample}.haplotagged.bam",
-        region = "local_assembly/{target}.bed"
+        region = "local_assembly/{target}.bed",
+        ref = config['ref']['genome']
     output:
         "local_assembly/Sample_{sample}/{target}.hp{phase}.read_ids.txt"
     conda:
         "../env/samtools.yml"
     shell:
         """
-        samtools view {input.bam} \
+        samtools view -T {input.ref} {input.bam} \
             --region-file {input.region} \
             --tag HP:{wildcards.phase} \
             | cut -f 1 \
