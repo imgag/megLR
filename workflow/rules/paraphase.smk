@@ -1,6 +1,6 @@
 checkpoint paraphase:
     input:
-        bam="Sample_{sample}/{sample}.bam",
+        bam=primary_alignment,
         ref=lambda wc: config['ref']['genome'],
     output:
         bam="Sample_{sample}/paraphase_meglr/{sample}.paraphase.bam"

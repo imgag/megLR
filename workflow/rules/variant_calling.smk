@@ -260,7 +260,7 @@ rule longphase_phase:
     input:
         vcf_snp = "Sample_{sample}/{sample}.{vc}.vcf.gz",
         vcf_sv = "Sample_{{sample}}/{{sample}}.{sv}.vcf.gz".format(sv = config['phasing']['sv_vcf']),
-        bam = "Sample_{sample}/{sample}.bam",
+        bam = primary_alignment,
         ref = config['ref']['genome']
     output:
         vcf = "Sample_{sample}/{sample}.phased.{vc}.vcf.gz",
@@ -292,7 +292,7 @@ rule longphase_phase:
 rule longphase_haplotag:
     input:
         vcf_snp = "Sample_{{sample}}/{{sample}}.phased.{vc}.vcf.gz".format(vc = config['phasing']['haplotagging_input']),
-        bam = "Sample_{sample}/{sample}.bam",
+        bam = primary_alignment,
     output:
         "Sample_{sample}/{sample}.haplotagged.bam"
     threads:
