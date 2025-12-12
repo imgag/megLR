@@ -21,7 +21,7 @@ rule extract_read_ids:
         "../env/samtools.yml"
     shell:
         """
-        samtools view -T {input.ref} {input.bam} --region-file {input.region} | cut -f 1 | sort | uniq > {output}
+        samtools view {input.bam} -T {input.ref} --region-file {input.region} | cut -f 1 | sort | uniq > {output}
         """
 
 rule extract_phased_read_ids:
@@ -35,7 +35,7 @@ rule extract_phased_read_ids:
         "../env/samtools.yml"
     shell:
         """
-        samtools view -T {input.ref} {input.bam} \
+        samtools view {input.bam} -T {input.ref} \
             --region-file {input.region} \
             --tag HP:{wildcards.phase} \
             | cut -f 1 \
