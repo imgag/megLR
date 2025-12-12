@@ -1,5 +1,7 @@
 #_____ HELPER SCRIPTS _______________________________________________________#
 
+import os
+
 def get_input_folders(wc):
     """
     Return the FASTQ data folder for a sample.
