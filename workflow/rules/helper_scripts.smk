@@ -1,5 +1,7 @@
 #_____ HELPER SCRIPTS _______________________________________________________#
 
+import os
+
 def get_input_folders(wc):
     """
     Return the FASTQ data folder for a sample.
@@ -63,13 +65,29 @@ def get_input_folders_bam(wc):
     folders_exist = [x for x in folders[0] if os.path.exists(x)]
     return {'folders': folders[0]}
 
+def _primary_alignment_path(sample):
+    """
+    Return the primary alignment file for a sample, preferring an existing CRAM
+    over BAM in the sample folder.
+    """
+    base = f"Sample_{sample}/{sample}"
+    cram = base + ".cram"
+    return cram if os.path.exists(cram) else base + ".bam"
+
+def primary_alignment(wc):
+    """
+    Snakemake wrapper returning the primary alignment (CRAM or BAM) for a sample.
+    """
+    return _primary_alignment_path(wc.sample)
+
 def use_bam(wc):
     """
     Decide whether to use normal (Guppy) aligned bam
     or Bonito bam (with modified bases)
     """
-    bam = "Sample_{s}/{s}.mod.bam".format(s=wc.sample) if config['use_mod_bam'] else "Sample_{s}/{s}.bam".format(s=wc.sample)
-    return(bam)
+    if config['use_mod_bam']:
+        return "Sample_{s}/{s}.mod.bam".format(s=wc.sample)
+    return _primary_alignment_path(wc.sample)
 
 def lookup_split_summary_file(wc):
     """
@@ -166,7 +184,7 @@ def get_cnvkit_bam(wc):
     if wc.sample in config['cnvkit']['reference_samples']:
         bam = config['cnvkit']['reference_samples'][wc.sample]
     else:
-        bam = "Sample_{s}/{s}.bam".format(s = wc.sample)
+        bam = _primary_alignment_path(wc.sample)
     if config['verbose']: print(bam)
     return{'bam': bam}
 

@@ -12,28 +12,30 @@ rule create_target_beds:
     
 rule extract_read_ids:
     input:
-        bam = "Sample_{sample}/{sample}.bam",
-        region = "local_assembly/{target}.bed"
+        bam = primary_alignment,
+        region = "local_assembly/{target}.bed",
+        ref = config['ref']['genome']
     output:
         "local_assembly/Sample_{sample}/{target,[^.]+}.read_ids.txt" #Regex: Does not contain dot
     conda:
         "../env/samtools.yml"
     shell:
         """
-        samtools view {input.bam} --region-file {input.region} | cut -f 1 | sort | uniq > {output}
+        samtools view {input.bam} -T {input.ref} --region-file {input.region} | cut -f 1 | sort | uniq > {output}
         """
 
 rule extract_phased_read_ids:
     input:
         bam = "Sample_{sample}/{sample}.haplotagged.bam",
-        region = "local_assembly/{target}.bed"
+        region = "local_assembly/{target}.bed",
+        ref = config['ref']['genome']
     output:
         "local_assembly/Sample_{sample}/{target}.hp{phase}.read_ids.txt"
     conda:
         "../env/samtools.yml"
     shell:
         """
-        samtools view {input.bam} \
+        samtools view {input.bam} -T {input.ref} \
             --region-file {input.region} \
             --tag HP:{wildcards.phase} \
             | cut -f 1 \

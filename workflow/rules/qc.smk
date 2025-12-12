@@ -102,7 +102,7 @@ rule sample_pycoqc:
 
 rule qualimap:
     input:
-        "Sample_{sample}/{sample}.bam"
+        primary_alignment
     output:
         directory('qc/qualimap/{sample}_genome')
     log:

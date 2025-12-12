@@ -7,6 +7,7 @@
 import csv
 import os
 import pathlib
+import re
 from glob import glob
 from collections import defaultdict
 # Needed by DGE:
@@ -125,7 +126,7 @@ out = {
     "modification": expand("Sample_{s}/{s}.mod.unmapped.bam", s=ID_samples),
     "duplex": expand("Sample_{s}/{s}.duplex.unmapped.bam", s=ID_samples),
     "fastq": expand("Sample_{s}/{s}.fastq.gz", s=ID_samples),
-    "mapping": expand("Sample_{s}/{s}.bam", s=ID_samples),
+    "mapping": [_primary_alignment_path(s) for s in ID_samples],
     "assembly": expand(
         "Sample_{s}/{s}.asm.{asm}.fasta",
         s=ID_samples,
