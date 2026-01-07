@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Add AF (Allele Frequency) field to VCF FORMAT column.
 Calculates AF from AD (Allele Depth) field if present.
@@ -13,6 +13,9 @@ def parse_ad_field(ad_str):
     Parse AD field and return list of depths.
     AD format: REF_depth,ALT1_depth,ALT2_depth,...
     """
+    # Handle missing or empty AD values
+    if not ad_str or ad_str == '.':
+        return None
     try:
         depths = [int(x) for x in ad_str.split(',')]
         return depths
@@ -49,14 +52,9 @@ def process_vcf(input_file, output_file):
     
     with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
         for line in infile:
-            # Handle header lines
+            # Handle meta-information header lines
             if line.startswith('##'):
                 outfile.write(line)
-                # Add AF header definition after other FORMAT headers
-                if line.startswith('##FORMAT=') and not af_header_added:
-                    # Check if this is the last FORMAT header by looking ahead
-                    # For simplicity, we'll add it after the first FORMAT header
-                    pass
                 continue
             
             # Add AF header before the #CHROM line
@@ -112,9 +110,6 @@ def process_vcf(input_file, output_file):
                     fields[i] = ':'.join(sample_data)
                 
                 outfile.write('\t'.join(fields) + '\n')
-            else:
-                # Other header lines
-                outfile.write(line)
 
 
 def main():
