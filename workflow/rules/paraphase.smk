@@ -44,9 +44,21 @@ rule paraphase_add_sample_header:
         bcftools annotate -h <(echo "${{samples}}") {input.vcf} > {output.vcf} 2>>{log}
         """
 
-rule paraphase_annotate_vcf:
+rule paraphase_add_af:
     input:
         vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.vcf"
+    output:
+        vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.af.vcf"
+    wildcard_constraints:
+        gene="[^.]*"
+    log:
+        "logs/{sample}.{gene}.paraphase_add_af.log"
+    script:
+        "../scripts/add_af_to_vcf.py"
+
+rule paraphase_annotate_vcf:
+    input:
+        vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.reheader.af.vcf"
     output:
         vcf="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}_var_annotated.vcf.gz",
         gsvar="Sample_{sample}/paraphase_meglr/{sample}_paraphase_vcfs/{sample}_{gene}.GSvar"
