@@ -71,7 +71,7 @@ rule paraphase_annotate_vcf:
         system = config['paraphase']['annotation_system']
     shell:
         """
-        php {params.megsap}/src/Pipelines/annotate.php \
+        php {params.megsap}/src/Tools/annotate.php \
             -vcf {input} \
             -multi \
             -out_folder $(dirname {output.vcf}) \
