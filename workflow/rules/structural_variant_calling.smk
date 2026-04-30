@@ -12,12 +12,15 @@ rule sv_sniffles:
     12
   log: 
     "logs/{sample}_sniffles.log"
+  params:
+    ref=config['ref']['genome']
   shell:
     """
     sniffles \
       --input {input} \
       --vcf {output.vcf} \
       --snf {output.snf} \
+      --reference {params.ref} \
       --output-rnames \
       --threads {threads} > {log} 2>&1
     """ 
