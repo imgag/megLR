@@ -4,4 +4,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - sniffles==2.0.2
+  - sniffles==2.7.5
