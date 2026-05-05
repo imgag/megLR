@@ -11,26 +11,29 @@ rule join_fastq:
         8
     conda:
         "../env/pigz.yml"
-    params:
-        exclude_failed = "-not -path '*fail*' -a" if not config['use_failed_reads'] else ""
     shell:
         """
-        find {input.folders} -type f  \
-        {params.exclude_failed} '(' \
-          -name '*.fastq' -o \
-          -name '*.fastq.gz' -o \
-          -name '*.fq' -o \
-          -name '*.fq.gz' \
-          ')'  -exec zcat -f {{}} + \
-            | pigz -p {threads} -c > {output}
-        
-        echo $(find {input.folders} -type f  \
-        {params.exclude_failed} '(' \
-          -name '*.fastq' -o \
-          -name '*.fastq.gz' -o \
-          -name '*.fq' -o \
-          -name '*.fq.gz' \
-          ')') > {log}
+        zcat -f {input.fastqs} | pigz -p {threads} -c > {output}
+        echo {input.fastqs} > {log}
+        """
+
+
+rule bam_to_fastq:
+    input:
+        get_bam_to_fastq_input
+    output:
+        "Sample_{sample}/{sample}.fastq.gz"
+    log:
+        "logs/{sample}_bam_to_fastq.log"
+    threads:
+        8
+    conda:
+        "../env/samtools.yml"
+    shell:
+        """
+        # Unmapped BAM/CRAM files contain single-end reads; -0 writes all reads to one output file
+        samtools cat --threads {threads} {input} \
+            | samtools fastq -@ {threads} -0 {output} - 2> {log}
         """
 
 
