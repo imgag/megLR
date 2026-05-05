@@ -19,11 +19,12 @@ def _find_fastq_files(folders, exclude_failed=True):
 def _find_unmapped_bam_or_cram(folders):
     """
     Find unmapped BAM (preferred) or CRAM files in the given input folders.
-    Returns a sorted list of BAM files if any exist, otherwise sorted list of CRAM files.
+    Only files matching '*.unmapped.bam' are considered as BAM input.
+    Returns a sorted list of unmapped BAM files if any exist, otherwise sorted list of CRAM files.
     """
     bam_files = []
     for folder in folders:
-        found = glob(os.path.join(folder, '**/*.bam'), recursive=True)
+        found = glob(os.path.join(folder, '**/*.unmapped.bam'), recursive=True)
         bam_files.extend(found)
     if bam_files:
         return sorted(bam_files)
