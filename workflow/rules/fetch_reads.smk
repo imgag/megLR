@@ -32,8 +32,8 @@ rule bam_to_fastq:
     shell:
         """
         # Unmapped BAM/CRAM files contain single-end reads; -0 writes all reads to one output file
-        samtools cat --threads {threads} {input} \
-            | samtools fastq -@ {threads} -0 {output} - 2> {log}
+        (samtools cat --threads {threads} {input} \
+            | samtools fastq -@ {threads} -0 {output} -) 2> {log}
         """
 
 
