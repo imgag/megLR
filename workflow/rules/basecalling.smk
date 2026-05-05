@@ -164,19 +164,6 @@ rule dorado_basecalling_mod:
             >>{log} 2>&1
         """
 
-rule mod_unmapped_fastq:
-    input:
-        bam="Sample_{sample}/{sample}.mod.unmapped.bam",
-    output:
-        fastq="Sample_{sample}/{sample}.fastq.gz"
-    threads:
-        1
-    conda:
-        "../env/samtools.yml"
-    shell:
-        """
-        samtools fastq -0 {output.fastq} {input.bam}
-        """
 
 rule dorado_basecalling_duplex:
     input:
