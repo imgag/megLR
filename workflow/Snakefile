@@ -250,6 +250,7 @@ if 'flair' in config['transcriptome']['methods']:
     out['expression'] += expand("Sample_{s}/flair/{s}.counts_matrix.tsv", s = ID_samples),
 
 ruleorder: join_fastq > mod_unmapped_fastq
+ruleorder: join_fastq > bam_to_fastq
 ruleorder: map_genome_all > map_genome_all_modification
 ruleorder: dorado_basecalling_mod > join_bam
 
