@@ -22,7 +22,8 @@ rule bam_to_fastq:
     input:
         get_bam_to_fastq_input
     output:
-        "Sample_{sample}/{sample}.fastq.gz"
+        fastq = "Sample_{sample}/{sample}.fastq.gz",
+        index = "Sample_{sample}/{sample}.fastq.gz.fai"
     log:
         "logs/{sample}_bam_to_fastq.log"
     threads:
@@ -31,9 +32,11 @@ rule bam_to_fastq:
         "../env/samtools.yml"
     shell:
         """
-        # Unmapped BAM/CRAM files contain single-end reads; -0 writes all reads to one output file
-        (samtools cat --threads {threads} {input} \
-            | samtools fastq -@ {threads} -0 {output} -) 2> {log}
+        # Convert each unmapped BAM/CRAM to FASTQ (-0: all reads to stdout) and compress with bgzip
+        for bam in {input}; do
+            samtools fastq -@ {threads} -0 - "$bam"
+        done 2>{log} | bgzip -@ {threads} > {output.fastq}
+        samtools fqidx {output.fastq} 2>>{log}
         """
 
 
