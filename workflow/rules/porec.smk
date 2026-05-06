@@ -113,16 +113,18 @@ rule porec_falign_map:
         """
 
 # ---------------------------------------------------------------------------
-# Step 1b: Map PoreC reads with minimap2 (wf-human-variation options)
+# Step 1b: Map PoreC reads with minimap2 (wf-pore-c options)
 # ---------------------------------------------------------------------------
 rule porec_minimap2_map:
-    """Map PoreC reads to reference with minimap2 (supplementary-alignment mode).
+    """Map PoreC reads to reference with minimap2 using wf-pore-c alignment options.
 
-    Uses the alignment options from the wf-human-variation pipeline:
-      -ax map-ont   ONT preset
-      --MD          output MD tag
-      --secondary=no  suppress secondary alignments (keep supplementary)
-      -Y            soft-clip supplementary alignments for pairtools compatibility
+    Flags match the epi2me-labs/wf-pore-c pipeline:
+      -a            output SAM
+      -y            copy FASTQ tags to output (preserves ONT read metadata)
+      -x map-ont    Oxford Nanopore long-read preset
+      --cap-kalloc 100m  cap thread-local kalloc memory to avoid RAM spikes
+      --cap-sw-mem 50m   cap per-alignment SW memory
+      -Y            soft-clip supplementary alignments (required by pairtools parse2)
     """
     input:
         fq = "Sample_{sample}/{sample}.fastq.gz",
@@ -139,9 +141,11 @@ rule porec_minimap2_map:
     shell:
         """
         minimap2 \
-            -ax map-ont \
-            --MD \
-            --secondary=no \
+            -a \
+            -y \
+            -x map-ont \
+            --cap-kalloc 100m \
+            --cap-sw-mem 50m \
             -Y \
             -t {threads} \
             -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
