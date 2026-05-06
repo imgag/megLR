@@ -1,39 +1,105 @@
 #_____ HELPER SCRIPTS _______________________________________________________#
 
 import os
+from snakemake.exceptions import WorkflowError
+
+
+def _find_fastq_files(folders, exclude_failed=True):
+    """Find all FASTQ files in the given folders recursively."""
+    fastq_files = []
+    for folder in folders:
+        for pattern in ['**/*.fastq', '**/*.fastq.gz', '**/*.fq', '**/*.fq.gz']:
+            found = glob(os.path.join(folder, pattern), recursive=True)
+            if exclude_failed:
+                found = [f for f in found if 'fail' not in f]
+            fastq_files.extend(found)
+    return fastq_files
+
+
+def _find_unmapped_bam_or_cram(folders):
+    """
+    Find unmapped BAM (preferred) or CRAM files in the given input folders.
+    Only files matching '*.unmapped.bam' are considered as BAM input.
+    Returns a sorted list of unmapped BAM files if any exist, otherwise sorted list of CRAM files.
+    """
+    bam_files = []
+    for folder in folders:
+        found = glob(os.path.join(folder, '**/*.unmapped.bam'), recursive=True)
+        bam_files.extend(found)
+    if bam_files:
+        return sorted(bam_files)
+    cram_files = []
+    for folder in folders:
+        found = glob(os.path.join(folder, '**/*.cram'), recursive=True)
+        cram_files.extend(found)
+    return sorted(cram_files)
+
 
 def get_input_folders(wc):
     """
-    Return the FASTQ data folder for a sample.
+    Return the FASTQ files for a sample.
         Allows multiple runs per sample (restarted, repeated)
         Demultiplexed samples on a single flowcell with barcode information
         Includes folder with failed reads when specified in config
 
-        New option: Ifq folder contains a subfolder called "fastq_rebasecalled", 
+        New option: If folder contains a subfolder called "fastq_rebasecalled",
         reads will be taken only from this folder. Option can be turned off in config option
-        'fastq_prefer_rebasecalled' 
+        'fastq_prefer_rebasecalled'
+
+        If no FASTQ files are found, raises WorkflowError so Snakemake falls back
+        to the bam_to_fastq rule.
     """
     folders = map_samples_folder[wc.sample].copy()
-        
+
     if map_samples_barcode:
-        for f in map_samples_barcode[wc.sample]:          
-            f_full = glob('/**/fastq*/'.join(f), recursive = True)
+        for f in map_samples_barcode[wc.sample]:
+            f_full = glob('/**/fastq*/'.join(f), recursive=True)
             [folders.append(x) for x in f_full]
-    
+
     if config['fastq_prefer_rebasecalled']:
         folders_updated = list()
         for f in folders:
-            f_rebasecalled =  glob(f+"/**/fastq_rebasecalled", recursive = True)
-            print("F rebasecallef", f_rebasecalled)
+            f_rebasecalled = glob(f + "/**/fastq_rebasecalled", recursive=True)
             if f_rebasecalled:
                 [folders_updated.append(f) for f in f_rebasecalled]
             else:
                 folders_updated.append(f)
         if config['verbose']: print(" | Updated to:" + str(folders_updated))
-        return{'folders': folders_updated}
+        folders = folders_updated
 
-    if config['verbose']: print("Input Folders:" + str(folders))
-    return{'folders': folders}    
+    exclude_failed = not config['use_failed_reads']
+    fastq_files = _find_fastq_files(folders, exclude_failed)
+
+    if not fastq_files:
+        raise WorkflowError(
+            f"No FASTQ files found for sample {wc.sample} in {folders}. "
+            "Checking for unmapped BAM/CRAM (bam_to_fastq rule)."
+        )
+
+    if config['verbose']: print("Input FASTQ files for", wc.sample, ":", fastq_files)
+    return {'fastqs': fastq_files}
+
+
+def get_bam_to_fastq_input(wc):
+    """
+    Return unmapped BAM or CRAM files for FASTQ conversion.
+    Prefers BAM over CRAM if both are available.
+    Raises WorkflowError if neither is found.
+    """
+    folders = map_samples_folder[wc.sample].copy()
+
+    if map_samples_barcode:
+        for f in map_samples_barcode[wc.sample]:
+            f_full = glob('/**/fastq*/'.join(f), recursive=True)
+            [folders.append(x) for x in f_full]
+
+    src_files = _find_unmapped_bam_or_cram(folders)
+    if not src_files:
+        raise WorkflowError(
+            f"No FASTQ files or unmapped BAM/CRAM found for sample {wc.sample} in {folders}."
+        )
+    if config['verbose']: print("Input BAM/CRAM files for", wc.sample, ":", src_files)
+    return src_files
 
 def get_input_folders_fast5(wc):
     """

@@ -11,26 +11,32 @@ rule join_fastq:
         8
     conda:
         "../env/pigz.yml"
-    params:
-        exclude_failed = "-not -path '*fail*' -a" if not config['use_failed_reads'] else ""
     shell:
         """
-        find {input.folders} -type f  \
-        {params.exclude_failed} '(' \
-          -name '*.fastq' -o \
-          -name '*.fastq.gz' -o \
-          -name '*.fq' -o \
-          -name '*.fq.gz' \
-          ')'  -exec zcat -f {{}} + \
-            | pigz -p {threads} -c > {output}
-        
-        echo $(find {input.folders} -type f  \
-        {params.exclude_failed} '(' \
-          -name '*.fastq' -o \
-          -name '*.fastq.gz' -o \
-          -name '*.fq' -o \
-          -name '*.fq.gz' \
-          ')') > {log}
+        zcat -f {input.fastqs} | pigz -p {threads} -c > {output}
+        echo {input.fastqs} > {log}
+        """
+
+
+rule bam_to_fastq:
+    input:
+        get_bam_to_fastq_input
+    output:
+        fastq = "Sample_{sample}/{sample}.fastq.gz",
+        index = "Sample_{sample}/{sample}.fastq.gz.fai"
+    log:
+        "logs/{sample}_bam_to_fastq.log"
+    threads:
+        8
+    conda:
+        "../env/samtools.yml"
+    shell:
+        """
+        # Convert each unmapped BAM/CRAM to FASTQ (-0: all reads to stdout) and compress with bgzip
+        for bam in {input}; do
+            samtools fastq -@ {threads} -0 - "$bam"
+        done 2>{log} | bgzip -@ {threads} > {output.fastq}
+        samtools fqidx {output.fastq} 2>>{log}
         """
 
 
