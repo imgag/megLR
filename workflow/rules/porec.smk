@@ -2,21 +2,18 @@
 #
 # PoreC analysis pipeline adapted from imgag/T2T_ONT.
 # Steps:
-#   1. Falign mapping (build repeat regions, map reads)
+#   1. Mapping  - Falign (fragment-BAM mode, default) or minimap2
 #   2. Contact generation  (pairtools parse2, sort/flip, stats, HTML report)
 #   3. HiC generation      (cooler, mcool, balance, juicer .hic)
 #   4. TAD calling         (hicFindTADs via HiCExplorer)
 #   5. QC & region plots   (hicCorrectMatrix, hicPlotDistVsCounts, hicPlotMatrix)
 #
 # Config keys used from config['porec']:
-#   falign               - path to Falign binary
-#   juicer_tools         - path to juicer_tools JAR (set to "" to skip .hic creation)
-#   assembly_name        - genome assembly name embedded in pairs headers
-#   min_bin_width        - finest cooler resolution (bp)
-#   cooler_resolutions   - comma-separated list for mcool zoom levels
-#   juicer_resolutions   - comma-separated list for .hic file
-#   porec_resolutions    - list of resolutions for QC plots and TAD calling inputs
-#   tad_resolutions      - list of resolutions for hicFindTADs
+#   aligner              - "falign" (default) or "minimap2"
+#   falign               - path to Falign binary (required when aligner=falign)
+#   juicer_tools         - path to juicer_tools JAR (set to "" to skip .hic)
+#   resolutions          - list of bin sizes (bp) used by all tools/reports;
+#                          the smallest value is used as the base cooler bin width
 #   tad_min_depth        - hicFindTADs minDepth
 #   tad_max_depth        - hicFindTADs maxDepth
 #   tad_step             - hicFindTADs step
@@ -25,13 +22,30 @@
 #   tad_correction_threshold - hicFindTADs correction factor threshold
 #   plot_regions         - list of genomic regions for contact map plots,
 #                          e.g. ["chr11:1000000-3000000"]  (empty = skip)
-#   plot_resolution      - resolution used for hicPlotMatrix target region plots
 
 # ---------------------------------------------------------------------------
-# Helper: decide whether to generate .hic (juicer_tools path must be set)
+# Helpers
 # ---------------------------------------------------------------------------
+def _porec_aligner():
+    return config['porec'].get('aligner', 'falign')
+
 def _porec_juicer_enabled():
     return bool(config['porec'].get('juicer_tools', ''))
+
+def _porec_resolutions():
+    """Return resolutions as a sorted list of strings (smallest first)."""
+    raw = config['porec'].get('resolutions', ['1000', '5000', '10000', '25000'])
+    return sorted([str(r) for r in raw], key=int)
+
+def _porec_base_resolution():
+    """Return the finest (base) resolution as a string."""
+    return _porec_resolutions()[0]
+
+def _porec_mapping_bam(wc):
+    """Return the mapping BAM path for the selected aligner."""
+    if _porec_aligner() == 'minimap2':
+        return f"porec/{wc.sample}/1-map/{wc.sample}.bam"
+    return f"porec/{wc.sample}/1-falign/{wc.sample}.fragments.bam"
 
 
 # ---------------------------------------------------------------------------
@@ -71,7 +85,7 @@ rule porec_build_repeat_regions:
         """
 
 # ---------------------------------------------------------------------------
-# Step 1: Map PoreC reads with Falign
+# Step 1a: Map PoreC reads with Falign (default)
 # ---------------------------------------------------------------------------
 rule porec_falign_map:
     """Map PoreC reads to reference with Falign in fragment-BAM mode."""
@@ -99,19 +113,63 @@ rule porec_falign_map:
         """
 
 # ---------------------------------------------------------------------------
-# Step 2a: Parse fragment BAM → pairs with pairtools parse2
+# Step 1b: Map PoreC reads with minimap2 (wf-human-variation options)
+# ---------------------------------------------------------------------------
+rule porec_minimap2_map:
+    """Map PoreC reads to reference with minimap2 (supplementary-alignment mode).
+
+    Uses the alignment options from the wf-human-variation pipeline:
+      -ax map-ont   ONT preset
+      --MD          output MD tag
+      --secondary=no  suppress secondary alignments (keep supplementary)
+      -Y            soft-clip supplementary alignments for pairtools compatibility
+    """
+    input:
+        fq = "Sample_{sample}/{sample}.fastq.gz",
+        fa = ancient(config['ref']['genome'])
+    output:
+        bam = "porec/{sample}/1-map/{sample}.bam"
+    params:
+        sample = "{sample}"
+    threads: 30
+    log:
+        "logs/porec/minimap2_map.{sample}.log"
+    conda:
+        "../env/minimap2.yml"
+    shell:
+        """
+        minimap2 \
+            -ax map-ont \
+            --MD \
+            --secondary=no \
+            -Y \
+            -t {threads} \
+            -R "@RG\\tID:{params.sample}\\tSM:{params.sample}" \
+            {input.fa} {input.fq} 2>{log} \
+        | samtools sort -m 4G -@ 4 -n -o {output.bam} -O BAM - >>{log} 2>&1
+        """
+
+# ---------------------------------------------------------------------------
+# Step 2a: Parse mapping BAM → pairs with pairtools parse2
 # ---------------------------------------------------------------------------
 rule porec_pairtools_parse2:
-    """Convert Falign fragment BAM to pairtools pairs format."""
+    """Convert mapping BAM to pairtools pairs format."""
     input:
-        bam       = "porec/{sample}/1-falign/{sample}.fragments.bam",
+        bam       = _porec_mapping_bam,
         chromsize = "porec/ref.chrom.sizes"
     output:
         pairs = temp("porec/{sample}/pairs/{sample}.raw.pairs.gz")
     params:
-        assembly    = config['porec'].get('assembly_name', 'genome'),
         orientation = "pair",
-        position    = "junction"
+        position    = "junction",
+        # For Falign fragment-BAM the read IDs are "<original_id>:<fragment_N>";
+        # strip the suffix so contacts from the same read are grouped correctly.
+        # For minimap2 BAM the transform is a no-op (no colon in ONT read IDs).
+        readid_transform = (
+            "'readID.split(\":\")[0]'"
+            if _porec_aligner() == 'falign'
+            else "'readID'"
+        )
     log:
         "logs/porec/pairtools_parse2.{sample}.log"
     conda:
@@ -120,14 +178,14 @@ rule porec_pairtools_parse2:
         """
         pairtools parse2 \
             --chroms-path {input.chromsize} \
-            --assembly {params.assembly} \
+            --assembly {wildcards.sample} \
             --report-position {params.position} \
             --report-orientation {params.orientation} \
             --add-pair-index \
             --single-end \
             --expand \
             --flip \
-            --readid-transform 'readID.split(":")[0]' \
+            --readid-transform {params.readid_transform} \
             --drop-seq \
             --drop-sam \
             --add-columns mapq,pos5,pos3,cigar,read_len,matched_bp,algn_ref_span,algn_read_span,dist_to_5,dist_to_3,mismatches \
@@ -207,7 +265,7 @@ rule porec_pairs_stats_report:
         """
 
 # ---------------------------------------------------------------------------
-# Step 3a: Convert pairs to cooler at the finest resolution
+# Step 3a: Convert pairs to cooler at the base resolution
 # ---------------------------------------------------------------------------
 rule porec_pairs_to_cooler:
     """Build a single-resolution cooler file from the pairs."""
@@ -241,14 +299,15 @@ rule porec_pairs_to_cooler:
 rule porec_cooler_zoomify:
     """Create a multi-resolution .mcool from the base-resolution cooler."""
     input:
-        expand(
-            "porec/{{sample}}/cooler/{{sample}}_{resolution}.cool",
-            resolution=config['porec'].get('min_bin_width', 1000)
+        lambda wc: expand(
+            "porec/{sample}/cooler/{sample}_{resolution}.cool",
+            sample=wc.sample,
+            resolution=_porec_base_resolution()
         )
     output:
         mcool = "porec/{sample}/cooler/{sample}.mcool"
     params:
-        resolutions = config['porec'].get('cooler_resolutions', '1000,5000,10000,50000,100000')
+        resolutions = lambda wc: ",".join(_porec_resolutions())
     threads: 2
     resources:
         mem_gb = 64
@@ -326,7 +385,7 @@ rule porec_pairs_to_hic:
         hic = "porec/{sample}/hic/{sample}.hic"
     params:
         juicer_tools = config['porec']['juicer_tools'],
-        resolutions  = config['porec'].get('juicer_resolutions', '5000,10000,25000,50000,100000,500000')
+        resolutions  = lambda wc: ",".join(_porec_resolutions())
     log:
         "logs/porec/pairs_to_hic.{sample}.log"
     resources:
@@ -387,7 +446,7 @@ rule porec_hic_find_tads:
 # Step 5a: Diagnostic plot (matrix quality check)
 # ---------------------------------------------------------------------------
 rule porec_hic_diagnostic_plot:
-    """Generate a diagnostic plot to evaluate matrix quality before balancing."""
+    """Generate a diagnostic plot to evaluate matrix quality after balancing."""
     input:
         cool = "porec/{sample}/cooler/{sample}_{resolution}_balanced.cool"
     output:
@@ -462,9 +521,7 @@ rule porec_hic_plot_matrix:
 def _porec_outputs(sample):
     """Return the list of all expected PoreC output files for *sample*."""
     s = sample
-    porec_res   = config['porec'].get('porec_resolutions', ['5000', '25000'])
-    tad_res     = config['porec'].get('tad_resolutions',   ['25000'])
-    plot_res    = config['porec'].get('plot_resolution',   '25000')
+    resolutions  = _porec_resolutions()
     plot_regions = config['porec'].get('plot_regions', [])
 
     outs = []
@@ -476,27 +533,12 @@ def _porec_outputs(sample):
     # Multi-resolution mcool
     outs += [f"porec/{s}/cooler/{s}.mcool"]
 
-    # Per-resolution balanced coolers
-    outs += expand(
-        "porec/{s}/cooler/{s}_{res}_balanced.cool",
-        s=[s], res=porec_res
-    )
-
-    # QC plots
-    outs += expand(
-        "porec/{s}/qc/{s}_{res}_diagnostic.png",
-        s=[s], res=porec_res
-    )
-    outs += expand(
-        "porec/{s}/qc/plot_vs_counts_{res}.png",
-        s=[s], res=porec_res
-    )
-
-    # TAD domains
-    outs += expand(
-        "porec/{s}/tad/{s}_{res}_domains.bed",
-        s=[s], res=tad_res
-    )
+    # Per-resolution balanced coolers, QC plots, and TADs
+    for res in resolutions:
+        outs.append(f"porec/{s}/cooler/{s}_{res}_balanced.cool")
+        outs.append(f"porec/{s}/qc/{s}_{res}_diagnostic.png")
+        outs.append(f"porec/{s}/qc/plot_vs_counts_{res}.png")
+        outs.append(f"porec/{s}/tad/{s}_{res}_domains.bed")
 
     # Optional .hic file
     if _porec_juicer_enabled():
@@ -505,7 +547,8 @@ def _porec_outputs(sample):
     # Optional target-region plots
     for region in plot_regions:
         region_safe = region.replace(":", "_")
-        outs.append(f"porec/{s}/plots/{s}_{plot_res}_{region_safe}.png")
+        for res in resolutions:
+            outs.append(f"porec/{s}/plots/{s}_{res}_{region_safe}.png")
 
     return outs
 
@@ -518,3 +561,4 @@ rule porec_collect:
         "porec/{sample}/porec.done"
     shell:
         "touch {output}"
+

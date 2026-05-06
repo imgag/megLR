@@ -258,42 +258,41 @@ nanorepeat:
 
 porec:
 
-  #--- Tool paths (no conda env available; must be set by user) ---#
+  #--- Aligner selection ---#
 
-  # Path to the Falign binary (from https://github.com/gmarcais/Falign or Dip3D paper)
+  # Aligner to use for PoreC mapping.
+  # "falign"   (default) - Falign fragment-BAM mode; requires falign path below
+  # "minimap2" - standard minimap2 with wf-human-variation options;
+  #              uses the existing minimap2 conda environment
+  aligner: "falign"
+
+  #--- Tool paths ---#
+
+  # Path to the Falign binary (required when aligner=falign).
+  # Falign is not available via conda; provide the binary path here.
   falign: ""
 
   # Path to juicer_tools JAR (for .hic generation).  Leave empty to skip .hic.
   # Example: "/path/to/juicer_tools_1.19.02.jar"
   juicer_tools: ""
 
-  #--- Reference / assembly metadata ---#
-
-  # Name embedded in the pairs file header (informational only)
-  assembly_name: "genome"
-
   #--- Contact map resolutions ---#
 
-  # Finest bin size (bp) for the base cooler
-  min_bin_width: 1000
-
-  # Comma-separated resolutions for the multi-resolution .mcool
-  cooler_resolutions: "1000,5000,10000,25000,50000,100000"
-
-  # Comma-separated resolutions for the Juicebox .hic file
-  juicer_resolutions: "5000,10000,25000,50000,100000,500000"
-
-  # Resolutions (bp) used for QC plots and balanced coolers
-  porec_resolutions:
+  # Single list of bin sizes (bp) used by ALL tools and reports:
+  #   - cooler base bin width  = smallest value in the list
+  #   - multi-resolution mcool = all values
+  #   - Juicebox .hic file     = all values
+  #   - ICE-balanced coolers   = all values
+  #   - QC plots               = all values
+  #   - TAD calling            = all values
+  #   - target-region plots    = all values
+  resolutions:
+    - "1000"
     - "5000"
     - "10000"
     - "25000"
 
   #--- TAD calling ---#
-
-  # Resolutions (bp) at which hicFindTADs is run
-  tad_resolutions:
-    - "25000"
 
   tad_min_depth: 20000          # hicFindTADs --minDepth
   tad_max_depth: 200000         # hicFindTADs --maxDepth
@@ -304,10 +303,7 @@ porec:
 
   #--- Target-region contact map plots ---#
 
-  # Resolution (bp) used for hicPlotMatrix target-region plots
-  plot_resolution: "25000"
-
-  # List of genomic regions to plot as contact maps.
+  # List of genomic regions to plot as contact maps (one plot per resolution).
   # Coordinates use the format "chr:start-end".
   # Leave empty ([]) to skip target-region plotting.
   # Example:
