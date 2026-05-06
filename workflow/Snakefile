@@ -61,6 +61,12 @@ else:
     if not ID_samples: 
         print("NO samples ... quitting")
         exit(1)
+    # Populate map_samples_folder so that helper functions (e.g. bam_to_fastq)
+    # can locate raw data. Symlinked Sample_* directories are resolved to their
+    # real path so that glob searches inside them work correctly.
+    for _sample in ID_samples:
+        _sample_dir = f"Sample_{_sample}"
+        map_samples_folder[_sample].append(os.path.realpath(_sample_dir))
 
 # Create run names from the Folder_IDs. IE only `20211213_1214_2-A7-D7_PAI80186_4d463244_02064` 
 # Regex for run name:   "^\d{8}_\d{4}_\w+-\w+-\w+_\D{3}\d{5}_\w{8}_\w{5}$"
