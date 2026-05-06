@@ -18,6 +18,7 @@ steps:
 # - cnv
 # - local_assembly
 # - repeat_expansion
+# - PoreC
   - qc
 # - qc_db
 
@@ -252,3 +253,65 @@ nanorepeat:
   repeat_loci:
     pathogenic_repeats.hg38
     # repeat_catalog.hg38
+
+#______ POREC ANALYSIS __________________________________________________________#
+
+porec:
+
+  #--- Tool paths (no conda env available; must be set by user) ---#
+
+  # Path to the Falign binary (from https://github.com/gmarcais/Falign or Dip3D paper)
+  falign: ""
+
+  # Path to juicer_tools JAR (for .hic generation).  Leave empty to skip .hic.
+  # Example: "/path/to/juicer_tools_1.19.02.jar"
+  juicer_tools: ""
+
+  #--- Reference / assembly metadata ---#
+
+  # Name embedded in the pairs file header (informational only)
+  assembly_name: "genome"
+
+  #--- Contact map resolutions ---#
+
+  # Finest bin size (bp) for the base cooler
+  min_bin_width: 1000
+
+  # Comma-separated resolutions for the multi-resolution .mcool
+  cooler_resolutions: "1000,5000,10000,25000,50000,100000"
+
+  # Comma-separated resolutions for the Juicebox .hic file
+  juicer_resolutions: "5000,10000,25000,50000,100000,500000"
+
+  # Resolutions (bp) used for QC plots and balanced coolers
+  porec_resolutions:
+    - "5000"
+    - "10000"
+    - "25000"
+
+  #--- TAD calling ---#
+
+  # Resolutions (bp) at which hicFindTADs is run
+  tad_resolutions:
+    - "25000"
+
+  tad_min_depth: 20000          # hicFindTADs --minDepth
+  tad_max_depth: 200000         # hicFindTADs --maxDepth
+  tad_step: 10000               # hicFindTADs --step
+  tad_fdr_threshold: 0.05       # hicFindTADs --thresholdComparisons
+  tad_delta: 0.01               # hicFindTADs --delta
+  tad_correction_threshold: 1.5 # hicFindTADs --correctForMultipleTesting threshold
+
+  #--- Target-region contact map plots ---#
+
+  # Resolution (bp) used for hicPlotMatrix target-region plots
+  plot_resolution: "25000"
+
+  # List of genomic regions to plot as contact maps.
+  # Coordinates use the format "chr:start-end".
+  # Leave empty ([]) to skip target-region plotting.
+  # Example:
+  #   plot_regions:
+  #     - "chr11:1000000-3000000"
+  #     - "chrX:66919518-77620517"
+  plot_regions: []

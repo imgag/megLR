@@ -1,0 +1,7 @@
+name: cooler
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - cooler
+  - pairix

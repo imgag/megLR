@@ -1,0 +1,10 @@
+name: py_report
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pandas
+  - panel
+  - typer
+  - hvplot
