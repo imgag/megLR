@@ -186,7 +186,7 @@ out = {
         expand("Sample_{s}/paraphase_meglr/annotation.done",
         s=ID_samples)
     ],
-    "PoreC": expand("porec/{s}/porec.done", s=ID_samples),
+    "porec": expand("porec/{s}/porec.done", s=ID_samples),
     "qc": ["qc/multiqc_report.html"],
     "qc_db": [
         expand(config["run_db_root"] + "/runs/{run}/{run}.pycoQC.html", run=ID_runs),

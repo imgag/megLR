@@ -1,6 +1,6 @@
 #_____ POREC ANALYSIS ____________________________________________________________#
 #
-# PoreC analysis pipeline adapted from imgag/T2T_ONT.
+# porec analysis pipeline adapted from imgag/T2T_ONT.
 # Steps:
 #   1. Mapping  - Falign (fragment-BAM mode, default) or minimap2
 #   2. Contact generation  (pairtools parse2, sort/flip, stats, HTML report)
@@ -73,7 +73,7 @@ rule porec_build_repeat_regions:
     output:
         bed = "porec/ref.repeat_regions.bed"
     params:
-        falign = config['porec']['falign']
+        falign = config['apps']['falign']
     log:
         "logs/porec/build_repeat_regions.log"
     shell:
@@ -85,10 +85,10 @@ rule porec_build_repeat_regions:
         """
 
 # ---------------------------------------------------------------------------
-# Step 1a: Map PoreC reads with Falign (default)
+# Step 1a: Map porec reads with Falign (default)
 # ---------------------------------------------------------------------------
 rule porec_falign_map:
-    """Map PoreC reads to reference with Falign in fragment-BAM mode."""
+    """Map porec reads to reference with Falign in fragment-BAM mode."""
     input:
         fq  = "Sample_{sample}/{sample}.fastq.gz",
         fa  = ancient(config['ref']['genome']),
@@ -96,7 +96,7 @@ rule porec_falign_map:
     output:
         bam = "porec/{sample}/1-falign/{sample}.fragments.bam"
     params:
-        falign = config['porec']['falign']
+        falign = config['apps']['falign']
     threads: 30
     log:
         "logs/porec/falign_map.{sample}.log"
@@ -113,10 +113,10 @@ rule porec_falign_map:
         """
 
 # ---------------------------------------------------------------------------
-# Step 1b: Map PoreC reads with minimap2 (wf-pore-c options)
+# Step 1b: Map porec reads with minimap2 (wf-pore-c options)
 # ---------------------------------------------------------------------------
 rule porec_minimap2_map:
-    """Map PoreC reads to reference with minimap2 using wf-pore-c alignment options.
+    """Map porec reads to reference with minimap2 using wf-pore-c alignment options.
 
     Flags match the epi2me-labs/wf-pore-c pipeline:
       -a            output SAM
@@ -520,10 +520,10 @@ rule porec_hic_plot_matrix:
         """
 
 # ---------------------------------------------------------------------------
-# Collect: aggregate all PoreC outputs for a sample
+# Collect: aggregate all porec outputs for a sample
 # ---------------------------------------------------------------------------
 def _porec_outputs(sample):
-    """Return the list of all expected PoreC output files for *sample*."""
+    """Return the list of all expected porec output files for *sample*."""
     s = sample
     resolutions  = _porec_resolutions()
     plot_regions = config['porec'].get('plot_regions', [])
@@ -558,7 +558,7 @@ def _porec_outputs(sample):
 
 
 rule porec_collect:
-    """Sentinel rule: touch a .done file once all PoreC outputs are ready."""
+    """Sentinel rule: touch a .done file once all porec outputs are ready."""
     input:
         lambda wc: _porec_outputs(wc.sample)
     output:

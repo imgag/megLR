@@ -368,7 +368,7 @@ qc_out = {
     "paraphase" :[],
     "qc": [],
     "qc_db": [],
-    "PoreC": expand("porec/{s}/pairs/{s}.pairs.stats.txt", s=ID_samples),
+    "porec": expand("porec/{s}/pairs/{s}.pairs.stats.txt", s=ID_samples),
 }
 
 if config['cdna']['with_umi'] and config['cdna']['deduplicate']:

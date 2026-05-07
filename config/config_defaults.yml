@@ -18,7 +18,7 @@ steps:
 # - cnv
 # - local_assembly
 # - repeat_expansion
-# - PoreC
+# - porec
   - qc
 # - qc_db
 
@@ -57,6 +57,7 @@ apps:
   dorado: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/dorado-0.3.0-linux-x64/bin/dorado"
   cdna_cupcake: "/mnt/storage2/users/ahgrosc1/tools/cDNA_Cupcake/sequence"
   megsap: "/mnt/storage2/users/ahgrosc1/dev/megsap"
+  falign: "/mnt/storage2/users/ahgrosc1/tools/Falign/Linux-amd64/bin/falign"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
@@ -260,17 +261,11 @@ porec:
 
   #--- Aligner selection ---#
 
-  # Aligner to use for PoreC mapping.
+  # Aligner to use for porec mapping.
   # "falign"   (default) - Falign fragment-BAM mode; requires falign path below
   # "minimap2" - standard minimap2 with wf-human-variation options;
   #              uses the existing minimap2 conda environment
   aligner: "falign"
-
-  #--- Tool paths ---#
-
-  # Path to the Falign binary (required when aligner=falign).
-  # Falign is not available via conda; provide the binary path here.
-  falign: ""
 
   # Path to juicer_tools JAR (for .hic generation).  Leave empty to skip .hic.
   # Example: "/path/to/juicer_tools_1.19.02.jar"
@@ -287,10 +282,10 @@ porec:
   #   - TAD calling            = all values
   #   - target-region plots    = all values
   resolutions:
-    - "1000"
     - "5000"
     - "10000"
     - "25000"
+    - "50000"
 
   #--- TAD calling ---#
 
