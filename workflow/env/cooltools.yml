@@ -1,0 +1,8 @@
+name: cooltools
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - cooltools
+  - cooler
+  - ucsc-bedgraphtobigwig

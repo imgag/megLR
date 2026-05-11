@@ -18,6 +18,7 @@ steps:
 # - cnv
 # - local_assembly
 # - repeat_expansion
+# - porec
   - qc
 # - qc_db
 
@@ -56,6 +57,7 @@ apps:
   dorado: "/mnt/storage2/users/ahadmaj1/git/megLR/tools/dorado-0.3.0-linux-x64/bin/dorado"
   cdna_cupcake: "/mnt/storage2/users/ahgrosc1/tools/cDNA_Cupcake/sequence"
   megsap: "/mnt/storage2/users/ahgrosc1/dev/megsap"
+  falign: "/mnt/storage2/users/ahgrosc1/tools/Falign/Linux-amd64/bin/falign"
 
 #______ ANALYSIS PARAMETERS ______________________________________________________#
 
@@ -252,3 +254,55 @@ nanorepeat:
   repeat_loci:
     pathogenic_repeats.hg38
     # repeat_catalog.hg38
+
+#______ POREC ANALYSIS __________________________________________________________#
+
+porec:
+
+  #--- Aligner selection ---#
+
+  # Aligner to use for porec mapping.
+  # "falign"   (default) - Falign fragment-BAM mode; requires falign path below
+  # "minimap2" - standard minimap2 with wf-human-variation options;
+  #              uses the existing minimap2 conda environment
+  aligner: "falign"
+
+  # Path to juicer_tools JAR (for .hic generation).  Leave empty to skip .hic.
+  # Example: "/path/to/juicer_tools_1.19.02.jar"
+  juicer_tools: ""
+
+  #--- Contact map resolutions ---#
+
+  # Single list of bin sizes (bp) used by ALL tools and reports:
+  #   - cooler base bin width  = smallest value in the list
+  #   - multi-resolution mcool = all values
+  #   - Juicebox .hic file     = all values
+  #   - ICE-balanced coolers   = all values
+  #   - QC plots               = all values
+  #   - TAD calling            = all values
+  #   - target-region plots    = all values
+  resolutions:
+    - "5000"
+    - "10000"
+    - "25000"
+    - "50000"
+
+  #--- TAD calling ---#
+
+  tad_min_depth: 20000          # hicFindTADs --minDepth
+  tad_max_depth: 200000         # hicFindTADs --maxDepth
+  tad_step: 10000               # hicFindTADs --step
+  tad_fdr_threshold: 0.05       # hicFindTADs --thresholdComparisons
+  tad_delta: 0.01               # hicFindTADs --delta
+  tad_correction_threshold: 1.5 # hicFindTADs --correctForMultipleTesting threshold
+
+  #--- Target-region contact map plots ---#
+
+  # List of genomic regions to plot as contact maps (one plot per resolution).
+  # Coordinates use the format "chr:start-end".
+  # Leave empty ([]) to skip target-region plotting.
+  # Example:
+  #   plot_regions:
+  #     - "chr11:1000000-3000000"
+  #     - "chrX:66919518-77620517"
+  plot_regions: []
